@@ -1,24 +1,38 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useEffect } from 'react';
 import { Stack } from 'expo-router';
+import { SplashScreen } from 'expo-router';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import queryClient from '@/lib/queryClient';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+    useEffect(() => {
+        // Hide splash screen after a short delay
+        const timer = setTimeout(() => {
+            SplashScreen.hideAsync();
+        }, 8000); // Show splash for 3 seconds
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        <QueryClientProvider client={queryClient}>
+            <StatusBar style="auto" />
+            <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="index" />
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen
+                    name="place/[id]"
+                    options={{
+                        headerShown: true,
+                        headerTitle: '',
+                        headerBackTitle: 'Back',
+                    }}
+                />
+            </Stack>
+        </QueryClientProvider>
+    );
 }
