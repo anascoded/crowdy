@@ -3,6 +3,9 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Favorite, Place } from '@/types';
 
+/**
+ * Represents the state and operations related to user favorites.
+ */
 interface FavoritesState {
   favorites: Favorite[];
   isLoading: boolean;
@@ -16,6 +19,29 @@ interface FavoritesState {
   clearFavorites: () => void;
 }
 
+/**
+ * A Zustand store for managing favorites functionality, including adding, removing, and syncing favorite places.
+ *
+ * This store provides state management and utility functions for working with a list of favorite places.
+ * It persists the favorites data to storage, handles optimistic updates, and integrates with a backend service.
+ *
+ * State Properties:
+ * - `favorites`: An array of favorite items.
+ * - `isLoading`: A boolean indicating whether the favorites are being loaded from a backend.
+ * - `isSyncing`: A boolean indicating whether a sync operation (add/remove) is in progress.
+ * - `error`: A string or null specifying an error message, if an operation fails.
+ *
+ * Actions:
+ * - `fetchFavorites`: Fetches favorites from the backend service and updates the store. Handles loading and error states.
+ * - `addFavorite(place)`: Adds a place to the favorites, using optimistic updates. Syncs with the backend service.
+ * - `removeFavorite(placeId)`: Removes a place from the favorites, using optimistic updates. Syncs with the backend service.
+ * - `isFavorite(placeId)`: Checks if a specific place is in the list of favorites.
+ * - `clearFavorites`: Clears all favorite items from the store.
+ *
+ * Persistence:
+ * - The store state is persisted locally using AsyncStorage under the key `favorites-storage`.
+ * - Only the `favorites` array is persisted to storage.
+ */
 const useFavoritesStore = create<FavoritesState>()(
     persist(
         (set, get) => ({

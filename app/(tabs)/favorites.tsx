@@ -16,6 +16,14 @@ import {
   View,
 } from "react-native";
 
+/**
+ * Represents the FavoritesScreen component, which displays the user's favorite places.
+ * The component adjusts its behavior based on the authentication state and the data loading status.
+ *
+ * @return {JSX.Element} The rendered FavoritesScreen component, displaying
+ * either the authentication prompt, a loading indicator, or the user's list of favorite places.
+ * Includes functionality for refreshing the list, handling errors, and navigating to specific places or the explore screen.
+ */
 export default function FavoritesScreen() {
   const { isAuthenticated } = useAuthStore();
   const {
@@ -34,12 +42,35 @@ export default function FavoritesScreen() {
     if (isAuthenticated) fetchFavorites();
   }, [fetchFavorites, isAuthenticated]);
 
+  /**
+   * Handles the refresh action by updating the refreshing state,
+   * fetching the latest favorites data, and then resetting the
+   * refreshing state.
+   *
+   * This asynchronous function is typically used to trigger a
+   * refresh operation for updating the data displayed in the
+   * user interface.
+   *
+   * @function
+   * @async
+   * @returns {Promise<void>} A promise that resolves when the refresh operation is complete.
+   */
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchFavorites();
     setRefreshing(false);
   };
 
+  /**
+   * Handles the event when a place is selected.
+   *
+   * This function navigates the user to the detailed page
+   * of the specified place, using its unique identifier.
+   *
+   * @param {Place} place - The place object containing details
+   *                        about the selected location. It must
+   *                        include an `id` property.
+   */
   const handlePlacePress = (place: Place) => {
     router.push(`/place/${place.id}`);
   };
