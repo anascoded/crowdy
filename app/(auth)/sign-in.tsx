@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 52,
-    backgroundColor: "#4A0404",
+    backgroundColor: "#F77A05",
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   link: {
-    color: "#814141",
+    color: "#C82909",
     fontSize: 14,
     fontWeight: "600",
   },

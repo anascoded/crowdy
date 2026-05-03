@@ -150,7 +150,7 @@ export default function PlaceDetailScreen() {
 
       {/* Live crowd meter */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Live crowd</Text>
+        <Text style={styles.sectionTitle}>  Live Crowd</Text>
         {isLoadingCrowd ? (
           <View style={styles.crowdLoading}>
             <ActivityIndicator size="small" color="#6C63FF" />

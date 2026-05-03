@@ -124,10 +124,7 @@ export default function ProfileScreen() {
    * a brief description of the app's functionality and its current version.
    */
   const showAbout = () => {
-    Alert.alert(
-        "About Crowdy",
-        "Crowdy helps you discover and track crowd levels at your favorite places in real-time.\n\nVersion 1.0.0",
-    );
+    router.push('/screens/about');
   };
 
   /**
@@ -383,7 +380,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     fontSize: 36,
     fontWeight: "700",
-    color: "#814141",
+    color: "#F77A05",
   },
   displayName: {
     fontSize: 20,

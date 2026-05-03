@@ -20,7 +20,7 @@ const LEVEL_COLORS: Record<CrowdLevel, string> = {
   very_busy: "#EF4444",
 };
 
-const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const CHART_WIDTH = 340;
 const CHART_HEIGHT = 160;
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     minWidth: 56,
   },
   dayTabSelected: {
-    backgroundColor: "#4A0404",
+    backgroundColor: "#52188B",
   },
   dayTabLabel: {
     fontSize: 13,

@@ -32,6 +32,13 @@ export default function RootLayout() {
                         headerBackTitle: 'Back',
                     }}
                 />
+                <Stack.Screen
+                    name="screens/about"
+                    options={{
+                        headerShown: false,
+                        presentation: 'card',
+                    }}
+                />
             </Stack>
         </QueryClientProvider>
     );

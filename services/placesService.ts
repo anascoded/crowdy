@@ -1,131 +1,95 @@
 import { Place } from '@/types';
 
-const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY;
+const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY;
+const BASE_URL = 'https://maps.googleapis.com/maps/api/place';
 
-console.log('Google API Key:', GOOGLE_API_KEY ? 'loaded' : 'NOT loaded');
+const handleStatus = (data: any) => {
+  if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+    console.error('Google API Error:', data.status, data.error_message);
+    throw new Error(data.error_message || data.status);
+  }
+};
 
-/**
- * Service for interacting with the Google Places API to search, retrieve nearby locations,
- * and fetch place details.
- */
-const placesService = {
+const mapToPlace = (result: any): Place => ({
+  id: result.place_id,
+  name: result.name,
+  address: result.formatted_address || result.vicinity,
+  category: result.types?.[0]?.replace(/_/g, ' ') ?? 'Place',
+  location: {
+    lat: result.geometry.location.lat,
+    lng: result.geometry.location.lng,
+  },
+  rating: result.rating,
+  photoUrl: result.photos?.[0]
+      ? `${BASE_URL}/photo?maxwidth=400&photoreference=${result.photos[0].photo_reference}&key=${API_KEY}`
+      : undefined,
+});
+
+export const placesService = {
+  // 🔍 AUTOCOMPLETE (better than textsearch)
+  autocomplete: async (input: string) => {
+    if (!input.trim()) return [];
+
+    const url = `${BASE_URL}/autocomplete/json?input=${encodeURIComponent(
+        input
+    )}&key=${API_KEY}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    handleStatus(data);
+
+    return data.predictions.map((p: any) => ({
+      description: p.description,
+      placeId: p.place_id,
+    }));
+  },
+
+  // 📍 DETAILS (used after autocomplete)
+  getById: async (placeId: string): Promise<Place> => {
+    const url = `${BASE_URL}/details/json?place_id=${placeId}&fields=name,rating,formatted_address,geometry,photos,types&key=${API_KEY}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    handleStatus(data);
+
+    if (!data.result) {
+      throw new Error('Place not found');
+    }
+
+    return mapToPlace(data.result);
+  },
+
+  // 📌 NEARBY (more controlled)
+  getNearby: async (
+      lat: number,
+      lng: number,
+      type: string = 'restaurant'
+  ): Promise<Place[]> => {
+    const url = `${BASE_URL}/nearbysearch/json?location=${lat},${lng}&radius=1500&type=${type}&key=${API_KEY}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    handleStatus(data);
+
+    return data.results.map(mapToPlace);
+  },
+
+  // 🔎 FALLBACK SEARCH (if needed)
   search: async (query: string): Promise<Place[]> => {
     if (!query.trim()) return [];
 
-    try {
-      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${GOOGLE_API_KEY}`;
-      console.log('Searching places with query:', query);
+    const url = `${BASE_URL}/textsearch/json?query=${encodeURIComponent(
+        query
+    )}&key=${API_KEY}`;
 
-      const response = await fetch(url);
-      const data = await response.json();
+    const res = await fetch(url);
+    const data = await res.json();
 
-      console.log('Google Places response:', data);
+    handleStatus(data);
 
-      if (!data.results) {
-        console.log('No results in response');
-        return [];
-      }
-
-      return data.results.map((result: any) => ({
-        id: result.place_id,
-        name: result.name,
-        address: result.formatted_address,
-        category: result.types?.[0]?.replace(/_/g, ' ') ?? 'Place',
-        location: {
-          lat: result.geometry.location.lat,
-          lng: result.geometry.location.lng,
-        },
-        rating: result.rating,
-        photoUrl: result.photos?.[0]
-            ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
-            : undefined,
-      }));
-    } catch (err: any) {
-      console.error('Search error:', err);
-      throw new Error('Failed to search places');
-    }
-  },
-
-  /**
-   * Fetches a list of nearby places based on the specified latitude and longitude.
-   *
-   * @param {number} lat - The latitude of the location to search nearby places for.
-   * @param {number} lng - The longitude of the location to search nearby places for.
-   * @returns {Promise<Place[]>} A promise that resolves to an array of nearby places.
-   * Each place includes details such as id, name, address, category, location, rating, and photoUrl.
-   * If no results are found, an empty array is returned.
-   * @throws {Error} Throws an error if the request to fetch nearby places fails.
-   */
-  getNearby: async (lat: number, lng: number): Promise<Place[]> => {
-    try {
-      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=5000&key=${GOOGLE_API_KEY}`;
-      console.log('Fetching nearby places');
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      console.log('Nearby places response:', data);
-
-      if (!data.results) return [];
-
-      return data.results.map((result: any) => ({
-        id: result.place_id,
-        name: result.name,
-        address: result.vicinity,
-        category: result.types?.[0]?.replace(/_/g, ' ') ?? 'Place',
-        location: {
-          lat: result.geometry.location.lat,
-          lng: result.geometry.location.lng,
-        },
-        rating: result.rating,
-        photoUrl: result.photos?.[0]
-            ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
-            : undefined,
-      }));
-    } catch (err: any) {
-      console.error('Nearby error:', err);
-      throw new Error('Failed to load nearby places');
-    }
-  },
-
-  /**
-   * Fetches and returns the details of a place using the Google Places API.
-   *
-   * @param {string} placeId - The unique identifier of the place to retrieve details for.
-   * @returns {Promise<Place>} A promise that resolves to a Place object containing details about the specified place.
-   * @throws {Error} Throws an error if the place details could not be fetched.
-   */
-  getById: async (placeId: string): Promise<Place> => {
-    try {
-      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_API_KEY}`;
-      console.log('Fetching place details for:', placeId);
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      console.log('Place details response:', data);
-
-      const result = data.result;
-
-      return {
-        id: result.place_id,
-        name: result.name,
-        address: result.formatted_address,
-        category: result.types?.[0]?.replace(/_/g, ' ') ?? 'Place',
-        location: {
-          lat: result.geometry.location.lat,
-          lng: result.geometry.location.lng,
-        },
-        rating: result.rating,
-        photoUrl: result.photos?.[0]
-            ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
-            : undefined,
-      };
-    } catch (err: any) {
-      console.error('Details error:', err);
-      throw new Error('Failed to load place details');
-    }
+    return data.results.map(mapToPlace);
   },
 };
-
-export { placesService };

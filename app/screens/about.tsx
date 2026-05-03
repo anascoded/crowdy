@@ -7,9 +7,12 @@ import {
     TouchableOpacity,
     Linking,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function AboutScreen() {
+    const router = useRouter();
+
     const openLink = (url: string) => {
         Linking.openURL(url);
     };
@@ -22,7 +25,15 @@ export default function AboutScreen() {
         >
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>About Crowdy</Text>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => router.back()}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                    <Ionicons name="chevron-back" size={28} color="#1A1A2E" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>About</Text>
+                <View style={styles.spacer} />
             </View>
 
             {/* Logo Section */}
@@ -84,18 +95,18 @@ export default function AboutScreen() {
                     <ContactItem
                         icon="mail-outline"
                         label="Email"
-                        value="support@crowdy.co"
+                        value="support@crowdy.app"
                         onPress={() => openLink('mailto:support@crowdy.app')}
                     />
                     <ContactItem
                         icon="globe-outline"
                         label="Website"
-                        value="www.crowdy.co"
+                        value="www.crowdy.app"
                         onPress={() => openLink('https://www.crowdy.app')}
                     />
                     <ContactItem
                         icon="logo-twitter"
-                        label="X"
+                        label="Twitter"
                         value="@CrowdyApp"
                         onPress={() => openLink('https://twitter.com/CrowdyApp')}
                     />
@@ -169,17 +180,27 @@ const styles = StyleSheet.create({
         paddingBottom: 48,
     },
     header: {
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: '#fff',
-        paddingHorizontal: 16,
+        paddingHorizontal: 12,
         paddingTop: Platform.OS === 'ios' ? 60 : 16,
         paddingBottom: 12,
         borderBottomWidth: 0.5,
         borderBottomColor: '#E5E7EB',
     },
+    backButton: {
+        padding: 8,
+        marginRight: 8,
+    },
     headerTitle: {
-        fontSize: 28,
+        flex: 1,
+        fontSize: 18,
         fontWeight: '700',
         color: '#1A1A2E',
+    },
+    spacer: {
+        width: 32,
     },
     logoSection: {
         alignItems: 'center',
