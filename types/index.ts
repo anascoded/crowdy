@@ -29,9 +29,10 @@ export type CrowdLevel = "low" | "moderate" | "busy" | "very_busy";
 
 export interface CrowdLive {
   placeId: string;
-  percentage: number; // 0–100
+  percentage: number;
   level: CrowdLevel;
   updatedAt: string;
+  closed?: boolean;
 }
 
 export interface CrowdHour {
