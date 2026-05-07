@@ -1,6 +1,6 @@
 import useAuthStore from "@/store/authStore";
 import { Link, router } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
@@ -15,7 +15,25 @@ import {
   View,
 } from "react-native";
 
-export default function SignUpScreen() {
+/**
+ * Renders the Sign-Up screen of the application.
+ *
+ * The screen includes input fields for a user's display name, email, password, and
+ * password confirmation, along with options to toggle password visibility and
+ * display validation errors. It handles the user sign-up process through interactions
+ * with the authentication store and provides user feedback through inline error
+ * messages and alerts.
+ *
+ * Features:
+ * - Displays input fields for `Name`, `Email`, `Password`, and `Confirm Password`.
+ * - Validates inputs for required constraints including format and length.
+ * - Handles form submission and integrates with an authentication system.
+ * - Displays loading indicators during the sign-up process.
+ * - Shows error messages for input validation or server-side errors.
+ *
+ * @return {React.ReactElement} A React component representing the Sign-Up screen.
+ */
+export default function SignUpScreen(): React.ReactElement {
   const { signUp, isLoading, error, clearError } = useAuthStore();
 
   const [displayName, setDisplayName] = useState("");
@@ -24,6 +42,18 @@ export default function SignUpScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  /**
+   * Validates user input for required fields and constraints.
+   *
+   * @returns {string|null} Validation error message if any field is invalid, or null if all inputs are valid.
+   *
+   * The validation performs the following checks:
+   * - Ensures the `displayName` is not empty or only whitespace.
+   * - Ensures the `email` is not empty or only whitespace.
+   * - Validates the `email` format to match a standard email pattern.
+   * - Ensures the `password` is at least 8 characters long.
+   * - Checks that the `password` and `confirmPassword` values match.
+   */
   const validate = (): string | null => {
     if (!displayName.trim()) return "Please enter your name.";
     if (!email.trim()) return "Please enter your email.";
@@ -34,6 +64,17 @@ export default function SignUpScreen() {
     return null;
   };
 
+  /**
+   * Handles the sign-up process for a user.
+   *
+   * This function validates the user input, displays an alert if the input is invalid,
+   * and attempts to sign up the user with the provided credentials. Upon successful
+   * sign-up, the user is redirected to the "Explore" page. Errors during the sign-up
+   * process are handled internally.
+   *
+   * @async
+   * @function handleSignUp
+   */
   const handleSignUp = async () => {
     const validationError = validate();
     if (validationError) {

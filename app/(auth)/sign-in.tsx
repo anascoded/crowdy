@@ -1,6 +1,6 @@
 import useAuthStore from "@/store/authStore";
 import { Link, router } from "expo-router";
-import { useState } from "react";
+import {JSX, useState} from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -14,7 +14,14 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function SignInScreen() {
+/**
+ * Represents the SignInScreen component, which renders a user interface for signing in to the application.
+ * This screen includes input fields for email and password, error handling, a "Remember Me" option, and navigation links for password recovery or account registration.
+ * It also integrates with the authentication store for managing sign-in functionality and displaying relevant error messages.
+ *
+ * @return {JSX.Element} The rendered SignInScreen component.
+ */
+export default function SignInScreen(): JSX.Element {
   const { signIn, isLoading, error, clearError } = useAuthStore();
 
   const [email, setEmail] = useState("");

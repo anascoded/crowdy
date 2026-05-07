@@ -1,5 +1,5 @@
 import { Link, router } from "expo-router";
-import { useState } from "react";
+import {JSX, useState} from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -13,7 +13,14 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function ForgotPasswordScreen() {
+/**
+ * Component for displaying the Forgot Password screen.
+ * This screen allows users to request a password reset link by entering their email address.
+ *
+ * @return {JSX.Element} The Forgot Password screen component, including form input for email,
+ *                       a Submit button to trigger the reset email, and relevant success or error messages.
+ */
+export default function ForgotPasswordScreen(): JSX.Element {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [sent, setSent] = useState(false);
