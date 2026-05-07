@@ -1,6 +1,7 @@
 import useAuthStore from "@/store/authStore";
 import { Link, router } from "expo-router";
 import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
   Alert,
@@ -20,6 +21,7 @@ export default function SignUpScreen() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const validate = (): string | null => {
@@ -112,17 +114,30 @@ export default function SignUpScreen() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Min. 8 characters"
-              placeholderTextColor="#9E9E9E"
-              secureTextEntry
-              value={password}
-              onChangeText={(text) => {
-                clearError();
-                setPassword(text);
-              }}
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                  style={styles.passwordInput}
+                  placeholder="Min. 8 characters"
+                  placeholderTextColor="#9E9E9E"
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={(text) => {
+                    clearError();
+                    setPassword(text);
+                  }}
+              />
+              <TouchableOpacity
+                  style={styles.visibilityButton}
+                  onPress={() => setShowPassword(!showPassword)}
+                  activeOpacity={0.7}
+              >
+                <Ionicons
+                    name={showPassword ? "eye" : "eye-off"}
+                    size={20}
+                    color="#9CA3AF"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={styles.inputGroup}>
@@ -245,6 +260,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#DC2626",
     marginTop: 2,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    backgroundColor: "#F9FAFB",
+  },
+  passwordInput: {
+    flex: 1,
+    height: 52,
+    paddingHorizontal: 16,
+    fontSize: 15,
+    color: "#1A1A2E",
+  },
+  visibilityButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 14,
   },
   button: {
     height: 52,
