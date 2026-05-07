@@ -19,6 +19,7 @@ export default function SignInScreen() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
   const handleSignIn = async () => {
@@ -76,18 +77,32 @@ export default function SignInScreen() {
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Password</Text>
-              <TextInput
-                  style={styles.input}
-                  placeholder="••••••••"
-                  placeholderTextColor="#9E9E9E"
-                  secureTextEntry
-                  value={password}
-                  onChangeText={(text) => {
-                    clearError();
-                    setPassword(text);
-                  }}
-              />
+              <View style={styles.passwordContainer}>
+                <TextInput
+                    style={styles.passwordInput}
+                    placeholder="••••••••"
+                    placeholderTextColor="#9E9E9E"
+                    secureTextEntry={!showPassword}
+                    value={password}
+                    onChangeText={(text) => {
+                      clearError();
+                      setPassword(text);
+                    }}
+                />
+                <TouchableOpacity
+                    style={styles.visibilityButton}
+                    onPress={() => setShowPassword(!showPassword)}
+                    activeOpacity={0.7}
+                >
+                  <Ionicons
+                      name={showPassword ? "eye" : "eye-off"}
+                      size={20}
+                      color="#9CA3AF"
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
+
 
             {/* Remember Me & Forgot Password */}
             <View style={styles.optionsRow}>
@@ -197,6 +212,25 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#1A1A2E",
     backgroundColor: "#F9FAFB",
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    backgroundColor: "#F9FAFB",
+  },
+  passwordInput: {
+    flex: 1,
+    height: 52,
+    paddingHorizontal: 16,
+    fontSize: 15,
+    color: "#1A1A2E",
+  },
+  visibilityButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 14,
   },
   optionsRow: {
     flexDirection: "row",
