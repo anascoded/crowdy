@@ -1,6 +1,18 @@
 import { CrowdLevel } from "@/types";
 
 /**
+ * Extracts and returns the first name from a given full name string.
+ * If no full name is provided, a default value of 'User' is returned.
+ *
+ * @param {string} [fullName] - The full name string from which the first name is extracted.
+ * @returns {string} The first name extracted from the full name or 'User' if no name is provided.
+ */
+export const getFirstName = (fullName?: string): string => {
+  if (!fullName) return 'User';
+  return fullName.split(' ')[0];
+};
+
+/**
  * Format a relative time string from an ISO date.
  * E.g. "just now", "3m ago", "1h ago"
  */

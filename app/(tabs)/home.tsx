@@ -10,6 +10,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import useAuthStore from '@/store/authStore';
 import useFavoritesStore from '@/store/favoritesStore';
+import {getFirstName} from "@/utils";
 
 export default function HomeScreen() {
     const { user } = useAuthStore();
@@ -24,7 +25,7 @@ export default function HomeScreen() {
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.greeting}>
-                    Welcome, {user?.displayName || 'User'}!
+                    Howdy, {getFirstName(user?.displayName)}!
                 </Text>
                 <Text style={styles.subtitle}>Your crowded places dashboard</Text>
             </View>
