@@ -25,6 +25,9 @@ const api: AxiosInstance = axios.create({
 
 // ─── Request interceptor — attach JWT ────────────────────────────────────────
 
+/**
+ *
+ */
 api.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
         const token = await SecureStore.getItemAsync(TOKEN_KEY);
@@ -42,6 +45,9 @@ api.interceptors.request.use(
 
 // ─── Response interceptor — handle errors & token refresh ────────────────────
 
+/**
+ *
+ */
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -77,7 +83,7 @@ api.interceptors.response.use(
       }
     }
 
-    // Normalise error shape
+    // Normalize error shape
     const apiError: ApiError = {
       message:
         error.response?.data?.message ??

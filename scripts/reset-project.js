@@ -45,6 +45,28 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+/**
+ * An asynchronous function to restructure project directories and files based on user input.
+ *
+ * If the user input is "y", old directories are moved to a new example directory (`app-example`), and
+ * new project structure files are created. If the user input is not "y", old directories are deleted,
+ * and new project structure files are created in a fresh `/app` directory.
+ *
+ * Workflow:
+ * 1. Optionally create an example directory (`app-example`) if user input is "y".
+ * 2. Iterate through a list of old directories:
+ *    a. If the directory exists and user input is "y", move it to the example directory.
+ *    b. If the directory exists and user input is not "y", delete the directory.
+ *    c. If the directory does not exist, log that it is skipped.
+ * 3. Create a new `/app` directory structure with required files:
+ *    a. Create a new `/app/index.tsx` file.
+ *    b. Create a new `/app/_layout.tsx` file.
+ * 4. Log completion messages and instructions for next steps after restructuring.
+ *
+ * @param {string} userInput - The user's decision on whether to preserve and move old directories
+ *                              ("y" to move, otherwise directories are deleted).
+ * @throws {Error} Throws an error if any filesystem operation fails.
+ */
 const moveDirectories = async (userInput) => {
   try {
     if (userInput === "y") {

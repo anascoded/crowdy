@@ -15,6 +15,38 @@ const pollForResults = async (resultsUrl: string): Promise<any> => {
   throw new Error('Polling timed out');
 };
 
+// Helper function to check if place is open
+const isOpenNow = (workingHours: any): boolean => {
+  const now = new Date();
+  const currentDay = now.getDay();
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const todayName = dayNames[currentDay];
+
+  const todayHours = workingHours[todayName];
+  if (!todayHours || todayHours.length === 0) return false;
+
+  const hoursStr = todayHours[0];
+  const [openStr, closeStr] = hoursStr.split('-');
+
+  const parseTime = (timeStr: string): number => {
+    const isPM = timeStr.includes('PM');
+    let [hours, minutes] = timeStr.replace(/AM|PM/g, '').split(':').map(Number);
+    minutes = minutes || 0;
+    if (isPM && hours !== 12) hours += 12;
+    if (!isPM && hours === 12) hours = 0;
+    return hours * 60 + minutes;
+  };
+
+  const openMinutes = parseTime(openStr);
+  const closeMinutes = parseTime(closeStr);
+  const nowMinutes = currentHour * 60 + currentMinute;
+
+  return nowMinutes >= openMinutes && nowMinutes < closeMinutes;
+};
+
 const crowdService = {
   getLive: async (placeId: string): Promise<CrowdLive> => {
     try {
@@ -29,12 +61,21 @@ const crowdService = {
         data = await response.json();
       }
 
-      // Add this inside getLive or getHistory after you get the 'data' variable
-      console.log("Full API Response Structure:", JSON.stringify(data, null, 2));
-
       if (!data.data || !data.data[0]) throw new Error('No data found');
 
-      const place = data.data[0];
+      const place = data.data[0][0];
+
+      // Check if open
+      if (!isOpenNow(place.working_hours)) {
+        return {
+          placeId,
+          percentage: 0,
+          level: 'low',
+          updatedAt: new Date().toISOString(),
+          closed: true,
+        };
+      }
+
       const popularTimes = place.popular_times || [];
       const today = new Date().getDay();
       const currentHour = new Date().getHours();
@@ -65,23 +106,29 @@ const crowdService = {
         data = await response.json();
       }
 
-      // Add this inside getLive or getHistory after you get the 'data' variable
-      console.log("Full API Response Structure:", JSON.stringify(data, null, 2));
-
       if (!data.data || !data.data[0]) throw new Error('No data found');
 
-      const place = data.data[0];
+      const place = data.data[0][0];
       const popularTimes = place.popular_times || [];
 
-      const days = popularTimes.map((dayData: any) => ({
-        day: dayData.day === 7 ? 0 : dayData.day,
-        date: dayData.day_text,
-        hours: dayData.popular_times.map((h: any) => ({
-          hour: h.hour,
-          percentage: h.percentage,
-          level: h.percentage < 25 ? 'low' : h.percentage < 50 ? 'moderate' : h.percentage < 75 ? 'busy' : 'very_busy',
-        })),
-      }));
+      const days = popularTimes.map((dayData: any, index: number) => {
+        // Calculate actual date for this day
+        const date = new Date();
+        const today = new Date().getDay();
+        const dayOfWeek = dayData.day === 7 ? 0 : dayData.day;
+        const daysBack = (today - dayOfWeek + 7) % 7 || (index === 0 ? 0 : 7);
+        date.setDate(date.getDate() - daysBack);
+
+        return {
+          day: dayOfWeek,
+          date: date.toISOString().split('T')[0], // Actual date like "2026-05-08"
+          hours: dayData.popular_times.map((h: any) => ({
+            hour: h.hour,
+            percentage: h.percentage,
+            level: h.percentage < 25 ? 'low' : h.percentage < 50 ? 'moderate' : h.percentage < 75 ? 'busy' : 'very_busy',
+          })),
+        };
+      });
 
       return { placeId, days };
     } catch (err) {

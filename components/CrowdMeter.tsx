@@ -2,11 +2,32 @@ import { CrowdLevel, CrowdLive } from "@/types";
 import { StyleSheet, Text, View } from "react-native";
 import {JSX} from "react";
 
+/**
+ * Represents the properties for the CrowdMeter component.
+ *
+ * The `CrowdMeterProps` interface defines the data required to render the CrowdMeter component,
+ * which includes information about the live crowd and an optional label display.
+ *
+ * @property crowd - The live crowd data used by the component, typically containing details related
+ *                   to the crowd or audience metrics.
+ * @property showLabel - An optional boolean flag indicating whether to display a label
+ *                       alongside the crowd meter. Defaults to `false` if not provided.
+ */
 interface CrowdMeterProps {
   crowd: CrowdLive;
   showLabel?: boolean;
 }
 
+/**
+ * Represents the configuration for a level, providing details such as color, background, label, and emoji.
+ *
+ * @interface LevelConfig
+ *
+ * @property {string} color - The hex code or name representing the primary color for the level.
+ * @property {string} background - The hex code or name representing the background color for the level.
+ * @property {string} label - A descriptive label or name for the level.
+ * @property {string} emoji - A single emoji representing or symbolizing the level.
+ */
 interface LevelConfig {
   color: string;
   background: string;
