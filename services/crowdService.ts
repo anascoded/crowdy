@@ -112,16 +112,15 @@ const crowdService = {
       const popularTimes = place.popular_times || [];
 
       const days = popularTimes.map((dayData: any, index: number) => {
-        // Calculate actual date for this day
-        const date = new Date();
-        const today = new Date().getDay();
         const dayOfWeek = dayData.day === 7 ? 0 : dayData.day;
-        const daysBack = (today - dayOfWeek + 7) % 7 || (index === 0 ? 0 : 7);
-        date.setDate(date.getDate() - daysBack);
+
+        // Simple: index 0 = today, index 1 = yesterday, etc.
+        const date = new Date();
+        date.setDate(date.getDate() - index);
 
         return {
           day: dayOfWeek,
-          date: date.toISOString().split('T')[0], // Actual date like "2026-05-08"
+          date: date.toISOString().split('T')[0],
           hours: dayData.popular_times.map((h: any) => ({
             hour: h.hour,
             percentage: h.percentage,
