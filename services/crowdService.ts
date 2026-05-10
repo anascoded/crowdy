@@ -135,38 +135,23 @@ const crowdService = {
           : [];
 
       const days = popularTimes
-          .filter((dayData: any) => typeof dayData?.day === 'number')
+          .slice(0, 7) // Only take first 7 days
           .map((dayData: any, index: number) => {
             const dayOfWeek = dayData.day === 7 ? 0 : dayData.day;
 
-            const date = new Date();
-            date.setDate(date.getDate() - index);
-
-            const hours = Array.isArray(dayData.popular_times)
-                ? dayData.popular_times
-                : [];
+            // Calculate the actual date for this day
+            const today = new Date();
+            const date = new Date(today);
+            date.setDate(today.getDate() - (6 - index));
 
             return {
               day: dayOfWeek,
               date: date.toISOString().split('T')[0],
-              hours: hours.map((h: any) => {
-                const hour = typeof h?.hour === 'number' ? h.hour : 0;
-                const percentage =
-                    typeof h?.percentage === 'number' ? h.percentage : 0;
-
-                return {
-                  hour,
-                  percentage,
-                  level:
-                      percentage < 25
-                          ? 'low'
-                          : percentage < 50
-                              ? 'moderate'
-                              : percentage < 75
-                                  ? 'busy'
-                                  : 'very_busy',
-                };
-              }),
+              hours: (dayData.popular_times || []).map((h: any) => ({
+                hour: h.hour,
+                percentage: h.percentage,
+                level: h.percentage < 25 ? 'low' : h.percentage < 50 ? 'moderate' : h.percentage < 75 ? 'busy' : 'very_busy',
+              })),
             };
           });
 

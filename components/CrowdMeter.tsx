@@ -58,13 +58,13 @@ const LEVEL_CONFIG: Record<CrowdLevel, LevelConfig> = {
   low: {
     color: "#10B981",
     background: "#D1FAE5",
-    label: "Not busy",
+    label: "Not Busy",
     emoji: "🟢",
   },
   moderate: {
     color: "#F59E0B",
     background: "#FEF3C7",
-    label: "Moderately busy",
+    label: "Moderately Busy",
     emoji: "🟡",
   },
   busy: {
@@ -76,7 +76,7 @@ const LEVEL_CONFIG: Record<CrowdLevel, LevelConfig> = {
   very_busy: {
     color: "#EF4444",
     background: "#FEE2E2",
-    label: "Very busy",
+    label: "Very Busy",
     emoji: "🔴",
   },
 };
