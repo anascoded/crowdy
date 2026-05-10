@@ -99,12 +99,13 @@ export default function CrowdMeter({
                                      showLabel = true,
                                    }: CrowdMeterProps): JSX.Element {
   // Handle closed state
+  // Handle closed state
   if (crowd.closed) {
     return (
         <View style={styles.container}>
           <View style={styles.headerRow}>
             <View style={[styles.badge, { backgroundColor: "#F3F4F6" }]}>
-              <Text style={styles.badgeEmoji}>Currently Closed 🔒</Text>
+              <Text style={styles.badgeEmoji}>🔒</Text>
               <Text style={[styles.badgeLabel, { color: "#9CA3AF" }]}>
                 Closed
               </Text>

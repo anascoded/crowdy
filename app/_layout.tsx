@@ -12,7 +12,7 @@ export default function RootLayout() {
         // Hide splash screen after a short delay
         const timer = setTimeout(() => {
             SplashScreen.hideAsync();
-        }, 8000); // Show splash for 3 seconds
+        }, 3000); // Show splash for 3 seconds
 
         return () => clearTimeout(timer);
     }, []);

@@ -2,6 +2,22 @@ import { CrowdLive, CrowdHistory, CrowdLevel } from '@/types';
 
 const OUTSCRAPER_API_KEY = process.env.EXPO_PUBLIC_OUTSCRAPER_API_KEY;
 
+// Helper function to parse time strings like "11AM" or "2:30PM" to minutes
+const parseTime = (timeStr: string): number => {
+  const trimmed = timeStr.trim();
+  const isPM = trimmed.includes('PM');
+  const cleanStr = trimmed.replace(/AM|PM/g, '').trim();
+
+  const parts = cleanStr.split(':');
+  let hours = parseInt(parts[0], 10);
+  const minutes = parts.length > 1 ? parseInt(parts[1], 10) : 0;
+
+  if (isPM && hours !== 12) hours += 12;
+  if (!isPM && hours === 12) hours = 0;
+
+  return hours * 60 + minutes;
+};
+
 // Helper function to poll for results when the status is 202
 const pollForResults = async (resultsUrl: string): Promise<any> => {
   for (let i = 0; i < 15; i++) {
@@ -17,6 +33,8 @@ const pollForResults = async (resultsUrl: string): Promise<any> => {
 
 // Helper function to check if place is open
 const isOpenNow = (workingHours: any): boolean => {
+  if (!workingHours) return true;
+
   const now = new Date();
   const currentDay = now.getDay();
   const currentHour = now.getHours();
@@ -31,20 +49,23 @@ const isOpenNow = (workingHours: any): boolean => {
   const hoursStr = todayHours[0];
   const [openStr, closeStr] = hoursStr.split('-');
 
-  const parseTime = (timeStr: string): number => {
-    const isPM = timeStr.includes('PM');
-    let [hours, minutes] = timeStr.replace(/AM|PM/g, '').split(':').map(Number);
-    minutes = minutes || 0;
-    if (isPM && hours !== 12) hours += 12;
-    if (!isPM && hours === 12) hours = 0;
-    return hours * 60 + minutes;
-  };
+  try {
+    const openMinutes = parseTime(openStr);
+    let closeMinutes = parseTime(closeStr);
+    const nowMinutes = currentHour * 60 + currentMinute;
 
-  const openMinutes = parseTime(openStr);
-  const closeMinutes = parseTime(closeStr);
-  const nowMinutes = currentHour * 60 + currentMinute;
+    // If close time is less than open time, it means closing next day (e.g., 11AM-2AM)
+    if (closeMinutes < openMinutes) {
+      // Place is open if: after open time OR before close time (next day)
+      return nowMinutes >= openMinutes || nowMinutes < closeMinutes;
+    }
 
-  return nowMinutes >= openMinutes && nowMinutes < closeMinutes;
+    // Normal case: same day (e.g., 11AM-9PM)
+    return nowMinutes >= openMinutes && nowMinutes < closeMinutes;
+  } catch (err) {
+    console.error('Error parsing time:', err);
+    return true;
+  }
 };
 
 const crowdService = {
@@ -109,25 +130,45 @@ const crowdService = {
       if (!data.data || !data.data[0]) throw new Error('No data found');
 
       const place = data.data[0][0];
-      const popularTimes = place.popular_times || [];
+      const popularTimes = Array.isArray(place.popular_times)
+          ? place.popular_times
+          : [];
 
-      const days = popularTimes.map((dayData: any, index: number) => {
-        const dayOfWeek = dayData.day === 7 ? 0 : dayData.day;
+      const days = popularTimes
+          .filter((dayData: any) => typeof dayData?.day === 'number')
+          .map((dayData: any, index: number) => {
+            const dayOfWeek = dayData.day === 7 ? 0 : dayData.day;
 
-        // Simple: index 0 = today, index 1 = yesterday, etc.
-        const date = new Date();
-        date.setDate(date.getDate() - index);
+            const date = new Date();
+            date.setDate(date.getDate() - index);
 
-        return {
-          day: dayOfWeek,
-          date: date.toISOString().split('T')[0],
-          hours: dayData.popular_times.map((h: any) => ({
-            hour: h.hour,
-            percentage: h.percentage,
-            level: h.percentage < 25 ? 'low' : h.percentage < 50 ? 'moderate' : h.percentage < 75 ? 'busy' : 'very_busy',
-          })),
-        };
-      });
+            const hours = Array.isArray(dayData.popular_times)
+                ? dayData.popular_times
+                : [];
+
+            return {
+              day: dayOfWeek,
+              date: date.toISOString().split('T')[0],
+              hours: hours.map((h: any) => {
+                const hour = typeof h?.hour === 'number' ? h.hour : 0;
+                const percentage =
+                    typeof h?.percentage === 'number' ? h.percentage : 0;
+
+                return {
+                  hour,
+                  percentage,
+                  level:
+                      percentage < 25
+                          ? 'low'
+                          : percentage < 50
+                              ? 'moderate'
+                              : percentage < 75
+                                  ? 'busy'
+                                  : 'very_busy',
+                };
+              }),
+            };
+          });
 
       return { placeId, days };
     } catch (err) {

@@ -13,6 +13,21 @@ export const getFirstName = (fullName?: string): string => {
 };
 
 /**
+ * Converts the first letter of each word in a given string to uppercase
+ * and the remaining letters to lowercase.
+ *
+ * @param {string} str - The input string to be formatted.
+ * @returns {string} A string where each word starts with an uppercase letter
+ * and the rest of the letters are in lowercase.
+ */
+export const capitalizeWords = (str: string): string => {
+  return str
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+};
+
+/**
  * Format a relative time string from an ISO date.
  * E.g. "just now", "3m ago", "1h ago"
  */

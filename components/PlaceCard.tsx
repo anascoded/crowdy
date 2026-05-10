@@ -1,6 +1,7 @@
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {capitalizeWords} from "@/utils";
 
 interface PlaceCardProps {
   place: Place;
@@ -42,7 +43,7 @@ export default function PlaceCard({
         </Text>
         <View style={styles.meta}>
           <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{place.category}</Text>
+            <Text style={styles.categoryText}>{capitalizeWords(place.category)}</Text>
           </View>
           {place.rating && (
             <View style={styles.rating}>
