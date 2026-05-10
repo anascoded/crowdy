@@ -9,6 +9,12 @@ interface UseCrowdHistoryResult {
   refresh: () => Promise<void>;
 }
 
+/**
+ * A custom hook to retrieve and manage the crowd history for a given place.
+ *
+ * @param {string | null} placeId - The unique identifier of the place whose crowd history is to be retrieved. If null, no request will be made.
+ * @return {UseCrowdHistoryResult} An object containing the crowd history data, loading status, any error message, and a function to manually refresh the data.
+ */
 export function useCrowdHistory(placeId: string | null): UseCrowdHistoryResult {
   const [data, setData] = useState<CrowdHistory | null>(null);
   const [isLoading, setIsLoading] = useState(false);

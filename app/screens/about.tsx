@@ -9,8 +9,17 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import {JSX} from "react";
 
-export default function AboutScreen() {
+/**
+ * The `AboutScreen` component represents the "About" page of the application, providing information
+ * about the app, its features, mission, and contact details. It allows users to navigate back, view
+ * app details, explore functionalities, and access contact and social media links.
+ *
+ * @return {JSX.Element} Returns a scrollable view containing detailed sections about the application,
+ * including its logo, features, mission, contact links, and credits.
+ */
+export default function AboutScreen(): JSX.Element {
     const router = useRouter();
 
     const openLink = (url: string) => {

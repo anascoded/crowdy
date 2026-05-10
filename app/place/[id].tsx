@@ -8,7 +8,7 @@ import useFavoritesStore from "@/store/favoritesStore";
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import {JSX, useEffect, useState} from "react";
 import {
   ActivityIndicator,
   Image,
@@ -21,7 +21,17 @@ import {
 } from "react-native";
 import {capitalizeWords} from "@/utils";
 
-export default function PlaceDetailScreen() {
+/**
+ * Displays the details of a specific place, including its name, category, address, live crowd data,
+ * and historical crowd data. The screen also allows users to toggle the place as a favorite if authenticated.
+ *
+ * The component handles fetching place details and managing the UI state for loading and error conditions.
+ * It integrates live crowd data and historical crowd data for enhanced user insights.
+ *
+ * @return {JSX.Element} The rendered UI for the place detail screen, including loading and error states,
+ * the place's hero image, live crowd data, crowd history, and favorite functionality.
+ */
+export default function PlaceDetailScreen(): JSX.Element {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { isAuthenticated } = useAuthStore();
   const { isFavorite, addFavorite, removeFavorite } = useFavoritesStore();

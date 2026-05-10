@@ -2,6 +2,7 @@ import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import {capitalizeWords} from "@/utils";
+import {JSX} from "react";
 
 interface PlaceCardProps {
   place: Place;
@@ -10,12 +11,30 @@ interface PlaceCardProps {
   isFavorite?: boolean;
 }
 
+/**
+ * Renders a card component displaying details about a place, including its name,
+ * address, category, rating, and a favorite toggle button. The card is touchable
+ * and supports actions for pressing on the card and toggling the favorite status.
+ *
+ * @param {Object} props - The properties passed to the PlaceCard component.
+ * @param {Object} props.place - The place object containing details about the place.
+ * @param {string} props.place.name - The name of the place.
+ * @param {string} props.place.address - The address of the place.
+ * @param {string} props.place.category - The category of the place (e.g., restaurant, park).
+ * @param {string} [props.place.photoUrl] - The URL of the place's photo, if available.
+ * @param {number} [props.place.rating] - The average rating of the place.
+ * @param {Function} props.onPress - Callback function to be executed when the card is pressed.
+ * @param {Function} [props.onFavoritePress] - Callback function to be executed when the favorite button is pressed.
+ * @param {boolean} [props.isFavorite=false] - Indicates whether the place is currently marked as a favorite.
+ *
+ * @return {JSX.Element} The PlaceCard component.
+ */
 export default function PlaceCard({
   place,
   onPress,
   onFavoritePress,
   isFavorite = false,
-}: PlaceCardProps) {
+}: PlaceCardProps): JSX.Element {
   return (
     <TouchableOpacity
       style={styles.card}

@@ -1,5 +1,5 @@
 import { CrowdDay, CrowdHistory, CrowdLevel } from "@/types";
-import { useState, useRef, useEffect } from "react";
+import {useState, useRef, useEffect, JSX} from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -13,6 +13,28 @@ interface CrowdHistoryChartProps {
   history: CrowdHistory;
 }
 
+/**
+ * A mapping of crowd levels to their corresponding color codes.
+ *
+ * This object associates each predefined crowd level with a specific
+ * hexadecimal color code that can be used for visual representation
+ * in UI elements such as charts, maps, or status indicators.
+ *
+ * Keys:
+ * - `low`: Indicates a low crowd level, associated with a green color.
+ * - `moderate`: Indicates a moderate crowd level, associated with a yellow-orange color.
+ * - `busy`: Indicates a busy crowd level, associated with an orange color.
+ * - `very_busy`: Indicates a very busy crowd level, associated with a red color.
+ *
+ * Example values:
+ * - low: "#10B981"
+ * - moderate: "#F59E0B"
+ * - busy: "#F97316"
+ * - very_busy: "#EF4444"
+ *
+ * It is represented as a `Record` type where each key is a `CrowdLevel`
+ * and the value is a `string` representing a color code.
+ */
 const LEVEL_COLORS: Record<CrowdLevel, string> = {
   low: "#10B981",
   moderate: "#F59E0B",
@@ -31,7 +53,23 @@ const BAR_COUNT = 24;
 const BAR_WIDTH = (PLOT_WIDTH / BAR_COUNT) * 0.7;
 const BAR_GAP = PLOT_WIDTH / BAR_COUNT;
 
-export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps) {
+/**
+ * Renders a crowd history chart that displays crowd levels by hour over the last 7 days.
+ * Includes features such as day selection, a scrollable hourly chart, tooltips, and a legend.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object} props.history - Historical crowd data, including days and their respective hours.
+ * @param {Array<Object>} props.history.days - Array of crowd data for each day.
+ * @param {string} props.history.days[].date - The date of the day in ISO 8601 format.
+ * @param {string} props.history.days[].day - The name or label for the day.
+ * @param {Array<Object>} props.history.days[].hours - Array of crowd data for each hour.
+ * @param {number} props.history.days[].hours[].hour - The hour of the day (0-23).
+ * @param {number} props.history.days[].hours[].percentage - Crowd percentage for the hour (0-100).
+ * @param {string} props.history.days[].hours[].level - Level of crowd categorized (e.g., LOW, MEDIUM, HIGH).
+ *
+ * @return {JSX.Element} A React component that renders the crowd history chart.
+ */
+export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): JSX.Element {
   const scrollViewRef = useRef<ScrollView>(null);
   const [selectedDayIndex, setSelectedDayIndex] = useState(history.days.length - 1);
   const [tooltip, setTooltip] = useState<{
