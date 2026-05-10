@@ -4,7 +4,7 @@ import useFavoritesStore from "@/store/favoritesStore";
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import {JSX, useEffect, useState} from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -24,7 +24,7 @@ import {
  * either the authentication prompt, a loading indicator, or the user's list of favorite places.
  * Includes functionality for refreshing the list, handling errors, and navigating to specific places or the explore screen.
  */
-export default function FavoritesScreen() {
+export default function FavoritesScreen(): JSX.Element {
   const { isAuthenticated } = useAuthStore();
   const {
     favorites,

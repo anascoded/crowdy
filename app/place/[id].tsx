@@ -19,6 +19,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import {capitalizeWords} from "@/utils";
 
 export default function PlaceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -130,7 +131,7 @@ export default function PlaceDetailScreen() {
       <View style={styles.infoSection}>
         <View style={styles.infoHeader}>
           <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{place.category}</Text>
+            <Text style={styles.categoryText}>{capitalizeWords(place.category)}</Text>
           </View>
           {place.rating && (
             <View style={styles.ratingRow}>
