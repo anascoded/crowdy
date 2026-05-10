@@ -1,5 +1,5 @@
 import { CrowdDay, CrowdHistory, CrowdLevel } from "@/types";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -32,176 +32,187 @@ const BAR_WIDTH = (PLOT_WIDTH / BAR_COUNT) * 0.7;
 const BAR_GAP = PLOT_WIDTH / BAR_COUNT;
 
 export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps) {
-  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(history.days.length - 1);
   const [tooltip, setTooltip] = useState<{
     hour: number;
     percentage: number;
   } | null>(null);
 
+  // Scroll to today on mount
+  useEffect(() => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  }, []);
+
   const selectedDay: CrowdDay | undefined = history.days[selectedDayIndex];
 
   return (
-    <View style={styles.container}>
-      {/* Title */}
-      <Text style={styles.title}>Crowd History</Text>
-      <Text style={styles.subtitle}>Hour by hour — last 7 days</Text>
+      <View style={styles.container}>
+        {/* Title */}
+        <Text style={styles.title}>Crowd History</Text>
+        <Text style={styles.subtitle}>Hour by hour — last 7 days</Text>
 
-      {/* Day selector */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.daySelector}
-      >
-        {history.days.map((day, index) => {
-          const isSelected = index === selectedDayIndex;
-          const label = DAY_LABELS[day.day] ?? `Day ${index + 1}`;
-          const date = new Date(day.date);
-          const dateLabel = `${date.getMonth() + 1}/${date.getDate()}`;
+        {/* Day selector */}
+        <ScrollView
+            ref={scrollViewRef}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.daySelector}
+        >
+          {history.days.map((day, index) => {
+            const isSelected = index === selectedDayIndex;
+            const label = DAY_LABELS[day.day] ?? `Day ${index + 1}`;
+            const date = new Date(day.date);
+            const dateLabel = `${date.getMonth() + 1}/${date.getDate()}`;
 
-          return (
-            <TouchableOpacity
-              key={day.date}
-              style={[styles.dayTab, isSelected && styles.dayTabSelected]}
-              onPress={() => {
-                setSelectedDayIndex(index);
-                setTooltip(null);
-              }}
-              activeOpacity={0.75}
-            >
-              <Text
-                style={[
-                  styles.dayTabLabel,
-                  isSelected && styles.dayTabLabelSelected,
-                ]}
-              >
-                {label}
-              </Text>
-              <Text
-                style={[
-                  styles.dayTabDate,
-                  isSelected && styles.dayTabDateSelected,
-                ]}
-              >
-                {dateLabel}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-
-      {/* Tooltip */}
-      {tooltip && (
-        <View style={styles.tooltip}>
-          <Text style={styles.tooltipText}>
-            {tooltip.hour}:00 — {tooltip.percentage}%
-          </Text>
-        </View>
-      )}
-
-      {/* Chart */}
-      {selectedDay ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Svg width={CHART_WIDTH} height={CHART_HEIGHT}>
-            {/* Y axis gridlines at 25, 50, 75, 100 */}
-            {[25, 50, 75, 100].map((tick) => {
-              const y = PADDING.top + PLOT_HEIGHT - (tick / 100) * PLOT_HEIGHT;
-              return (
-                <Line
-                  key={tick}
-                  x1={PADDING.left}
-                  y1={y}
-                  x2={PADDING.left + PLOT_WIDTH}
-                  y2={y}
-                  stroke="#F3F4F6"
-                  strokeWidth={1}
-                  strokeDasharray="4,4"
-                />
-              );
-            })}
-
-            {/* Y axis labels */}
-            {[0, 50, 100].map((tick) => {
-              const y = PADDING.top + PLOT_HEIGHT - (tick / 100) * PLOT_HEIGHT;
-              return (
-                <SvgText
-                  key={tick}
-                  x={PADDING.left - 4}
-                  y={y + 4}
-                  fontSize={9}
-                  fill="#9CA3AF"
-                  textAnchor="end"
+            return (
+                <TouchableOpacity
+                    key={day.date}
+                    style={[styles.dayTab, isSelected && styles.dayTabSelected]}
+                    onPress={() => {
+                      setSelectedDayIndex(index);
+                      setTooltip(null);
+                    }}
+                    activeOpacity={0.75}
                 >
-                  {tick}%
-                </SvgText>
-              );
-            })}
-
-            {/* Bars */}
-            {selectedDay.hours.map((h) => {
-              const barHeight = (h.percentage / 100) * PLOT_HEIGHT;
-              const x =
-                PADDING.left + h.hour * BAR_GAP + (BAR_GAP - BAR_WIDTH) / 2;
-              const y = PADDING.top + PLOT_HEIGHT - barHeight;
-
-              return (
-                <Rect
-                  key={h.hour}
-                  x={x}
-                  y={barHeight > 0 ? y : PADDING.top + PLOT_HEIGHT - 2}
-                  width={BAR_WIDTH}
-                  height={Math.max(barHeight, 2)}
-                  rx={2}
-                  fill={LEVEL_COLORS[h.level]}
-                  opacity={0.9}
-                  onPress={() =>
-                    setTooltip(
-                      tooltip?.hour === h.hour
-                        ? null
-                        : { hour: h.hour, percentage: h.percentage },
-                    )
-                  }
-                />
-              );
-            })}
-
-            {/* X axis labels every 6 hours */}
-            {[0, 6, 12, 18, 23].map((hour) => {
-              const x = PADDING.left + hour * BAR_GAP + BAR_GAP / 2;
-              return (
-                <SvgText
-                  key={hour}
-                  x={x}
-                  y={CHART_HEIGHT - 6}
-                  fontSize={9}
-                  fill="#9CA3AF"
-                  textAnchor="middle"
-                >
-                  {hour}h
-                </SvgText>
-              );
-            })}
-          </Svg>
+                  <Text
+                      style={[
+                        styles.dayTabLabel,
+                        isSelected && styles.dayTabLabelSelected,
+                      ]}
+                  >
+                    {label}
+                  </Text>
+                  <Text
+                      style={[
+                        styles.dayTabDate,
+                        isSelected && styles.dayTabDateSelected,
+                      ]}
+                  >
+                    {dateLabel}
+                  </Text>
+                </TouchableOpacity>
+            );
+          })}
         </ScrollView>
-      ) : (
-        <View style={styles.emptyChart}>
-          <Text style={styles.emptyText}>No data available for this day</Text>
-        </View>
-      )}
 
-      {/* Legend */}
-      <View style={styles.legend}>
-        {(Object.entries(LEVEL_COLORS) as [CrowdLevel, string][]).map(
-          ([level, color]) => (
-            <View key={level} style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: color }]} />
-              <Text style={styles.legendLabel}>{level.replace("_", " ")}</Text>
+        {/* Tooltip */}
+        {tooltip && (
+            <View style={styles.tooltip}>
+              <Text style={styles.tooltipText}>
+                {tooltip.hour}:00 — {tooltip.percentage}%
+              </Text>
             </View>
-          ),
         )}
+
+        {/* Chart */}
+        {selectedDay ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <Svg width={CHART_WIDTH} height={CHART_HEIGHT}>
+                {/* Y axis gridlines at 25, 50, 75, 100 */}
+                {[25, 50, 75, 100].map((tick) => {
+                  const y = PADDING.top + PLOT_HEIGHT - (tick / 100) * PLOT_HEIGHT;
+                  return (
+                      <Line
+                          key={tick}
+                          x1={PADDING.left}
+                          y1={y}
+                          x2={PADDING.left + PLOT_WIDTH}
+                          y2={y}
+                          stroke="#F3F4F6"
+                          strokeWidth={1}
+                          strokeDasharray="4,4"
+                      />
+                  );
+                })}
+
+                {/* Y axis labels */}
+                {[0, 50, 100].map((tick) => {
+                  const y = PADDING.top + PLOT_HEIGHT - (tick / 100) * PLOT_HEIGHT;
+                  return (
+                      <SvgText
+                          key={tick}
+                          x={PADDING.left - 4}
+                          y={y + 4}
+                          fontSize={9}
+                          fill="#9CA3AF"
+                          textAnchor="end"
+                      >
+                        {tick}%
+                      </SvgText>
+                  );
+                })}
+
+                {/* Bars */}
+                {selectedDay.hours.map((h) => {
+                  const barHeight = (h.percentage / 100) * PLOT_HEIGHT;
+                  const x =
+                      PADDING.left + h.hour * BAR_GAP + (BAR_GAP - BAR_WIDTH) / 2;
+                  const y = PADDING.top + PLOT_HEIGHT - barHeight;
+
+                  return (
+                      <Rect
+                          key={h.hour}
+                          x={x}
+                          y={barHeight > 0 ? y : PADDING.top + PLOT_HEIGHT - 2}
+                          width={BAR_WIDTH}
+                          height={Math.max(barHeight, 2)}
+                          rx={2}
+                          fill={LEVEL_COLORS[h.level]}
+                          opacity={0.9}
+                          onPress={() =>
+                              setTooltip(
+                                  tooltip?.hour === h.hour
+                                      ? null
+                                      : { hour: h.hour, percentage: h.percentage },
+                              )
+                          }
+                      />
+                  );
+                })}
+
+                {/* X axis labels every 6 hours */}
+                {[0, 6, 12, 18, 23].map((hour) => {
+                  const x = PADDING.left + hour * BAR_GAP + BAR_GAP / 2;
+                  return (
+                      <SvgText
+                          key={hour}
+                          x={x}
+                          y={CHART_HEIGHT - 6}
+                          fontSize={9}
+                          fill="#9CA3AF"
+                          textAnchor="middle"
+                      >
+                        {hour}h
+                      </SvgText>
+                  );
+                })}
+              </Svg>
+            </ScrollView>
+        ) : (
+            <View style={styles.emptyChart}>
+              <Text style={styles.emptyText}>No data available for this day</Text>
+            </View>
+        )}
+
+        {/* Legend */}
+        <View style={styles.legend}>
+          {(Object.entries(LEVEL_COLORS) as [CrowdLevel, string][]).map(
+              ([level, color]) => (
+                  <View key={level} style={styles.legendItem}>
+                    <View style={[styles.legendDot, { backgroundColor: color }]} />
+                    <Text style={styles.legendLabel}>{level.replace("_", " ")}</Text>
+                  </View>
+              ),
+          )}
+        </View>
       </View>
-    </View>
   );
 }
+
+// ... styles stay the same
 
 const styles = StyleSheet.create({
   container: {
