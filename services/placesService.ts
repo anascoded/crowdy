@@ -47,6 +47,14 @@ export const placesService = {
 
   // 📍 DETAILS (used after autocomplete)
   getById: async (placeId: string): Promise<Place> => {
+    if (
+        !placeId ||
+        typeof placeId !== 'string' ||
+        placeId.trim().length < 10
+    ) {
+      throw new Error('Invalid place ID');
+    }
+
     const url = `${BASE_URL}/details/json?place_id=${placeId}&fields=name,rating,formatted_address,geometry,photos,types&key=${API_KEY}`;
 
     const res = await fetch(url);
