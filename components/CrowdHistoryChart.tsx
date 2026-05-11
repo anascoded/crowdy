@@ -102,7 +102,7 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
           {history.days.map((day, index) => {
             const isSelected = index === selectedDayIndex;
             const label = DAY_LABELS[day.day] ?? `Day ${index + 1}`;
-            const date = new Date(day.date);
+            const date = new Date(Number(day.date));
             const dateLabel = `${date.getMonth() + 1}/${date.getDate()}`;
 
             return (
@@ -166,7 +166,7 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
                   );
                 })}
 
-                {/* Y axis labels */}
+                {/* Y-axis labels */}
                 {[0, 50, 100].map((tick) => {
                   const y = PADDING.top + PLOT_HEIGHT - (tick / 100) * PLOT_HEIGHT;
                   return (
@@ -211,7 +211,7 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
                   );
                 })}
 
-                {/* X axis labels every 6 hours */}
+                {/* X-axis labels every 6 hours */}
                 {[0, 6, 12, 18, 23].map((hour) => {
                   const x = PADDING.left + hour * BAR_GAP + BAR_GAP / 2;
                   return (

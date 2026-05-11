@@ -77,7 +77,7 @@ api.interceptors.response.use(
 
         return api(originalRequest);
       } catch {
-        // Refresh failed — clear tokens and let the app redirect to sign-in
+        // Refresh failed — clear tokens and let the app redirect to sign in
         await SecureStore.deleteItemAsync(TOKEN_KEY);
         await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
       }

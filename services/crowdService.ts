@@ -3,19 +3,42 @@ import { CrowdLive, CrowdHistory, CrowdLevel } from '@/types';
 const OUTSCRAPER_API_KEY = process.env.EXPO_PUBLIC_OUTSCRAPER_API_KEY;
 
 // Helper function to parse time strings like "11AM" or "2:30PM" to minutes
-const parseTime = (timeStr: string): number => {
+const parseTime = (timeStr?: string): number => {
+  if (!timeStr || typeof timeStr !== 'string') {
+    return NaN;
+  }
+
   const trimmed = timeStr.trim();
+
+  if (!trimmed) {
+    return NaN;
+  }
+
   const isPM = trimmed.includes('PM');
   const cleanStr = trimmed.replace(/AM|PM/g, '').trim();
 
   const parts = cleanStr.split(':');
+
   let hours = parseInt(parts[0], 10);
-  const minutes = parts.length > 1 ? parseInt(parts[1], 10) : 0;
+
+  if (Number.isNaN(hours)) {
+    return NaN;
+  }
+
+  const minutes =
+      parts.length > 1 ? parseInt(parts[1], 10) || 0 : 0;
 
   if (isPM && hours !== 12) hours += 12;
   if (!isPM && hours === 12) hours = 0;
 
   return hours * 60 + minutes;
+};
+
+// Helper to get timezone offset for a location
+const getLocationTimezone = (latitude: number, longitude: number): number => {
+  // This is a simplified approach using device timezone
+  // For precise location-based timezone, you'd need a timezone API
+  return new Date().getTimezoneOffset() / 60;
 };
 
 // Helper function to poll for results when the status is 202
@@ -47,11 +70,26 @@ const isOpenNow = (workingHours: any): boolean => {
   if (!todayHours || todayHours.length === 0) return false;
 
   const hoursStr = todayHours[0];
+  if (
+      !hoursStr ||
+      typeof hoursStr !== 'string' ||
+      !hoursStr.includes('-')
+  ) {
+    return true;
+  }
+
   const [openStr, closeStr] = hoursStr.split('-');
 
   try {
     const openMinutes = parseTime(openStr);
-    let closeMinutes = parseTime(closeStr);
+    const closeMinutes = parseTime(closeStr);
+
+    if (
+        Number.isNaN(openMinutes) ||
+        Number.isNaN(closeMinutes)
+    ) {
+      return true;
+    }
     const nowMinutes = currentHour * 60 + currentMinute;
 
     // If close time is less than open time, it means closing next day (e.g., 11AM-2AM)
@@ -68,6 +106,9 @@ const isOpenNow = (workingHours: any): boolean => {
   }
 };
 
+/**
+ * A service for collecting live and historical crowd data for a specific place.
+ */
 const crowdService = {
   getLive: async (placeId: string): Promise<CrowdLive> => {
     try {
@@ -134,26 +175,62 @@ const crowdService = {
           ? place.popular_times
           : [];
 
-      const days = popularTimes
-          .slice(0, 7) // Only take first 7 days
-          .map((dayData: any, index: number) => {
-            const dayOfWeek = dayData.day === 7 ? 0 : dayData.day;
+      const today = new Date();
 
-            // Calculate the actual date for this day
-            const today = new Date();
+      const days = popularTimes
+          .map((dayData: any) => {
+            // Ensure numeric weekday
+            const rawDay = Number(dayData.day);
+
+            // Skip invalid days
+            if (Number.isNaN(rawDay)) {
+              return null;
+            }
+
+            // Convert API format: 7 = Sunday -> JS format: 0 = Sunday
+            const dayOfWeek = rawDay === 7 ? 0 : rawDay;
+
+            // Calculate most recent occurrence of this weekday
+            let diff = today.getDay() - dayOfWeek;
+
+            if (diff < 0) {
+              diff += 7;
+            }
+
             const date = new Date(today);
-            date.setDate(today.getDate() - (6 - index));
+            date.setDate(today.getDate() - diff);
+
+            // Safer local formatting (avoids toISOString timezone bugs)
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const year = date.getFullYear();
+
+            const localDate = date.getTime();
 
             return {
               day: dayOfWeek,
-              date: date.toISOString().split('T')[0],
+              date: localDate,
               hours: (dayData.popular_times || []).map((h: any) => ({
                 hour: h.hour,
                 percentage: h.percentage,
-                level: h.percentage < 25 ? 'low' : h.percentage < 50 ? 'moderate' : h.percentage < 75 ? 'busy' : 'very_busy',
+                level:
+                    h.percentage < 25
+                        ? "low"
+                        : h.percentage < 50
+                            ? "moderate"
+                            : h.percentage < 75
+                                ? "busy"
+                                : "very_busy",
               })),
             };
-          });
+          })
+          .filter(Boolean);
+
+      // Sort oldest -> newest
+      days.sort(
+          (a: any, b: any) =>
+              new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
 
       return { placeId, days };
     } catch (err) {
