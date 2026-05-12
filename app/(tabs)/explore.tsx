@@ -4,9 +4,9 @@ import * as Location from 'expo-location';
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import {JSX, useCallback, useEffect, useState} from "react";
 import {
-  ActivityIndicator,
+  ActivityIndicator, Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -31,7 +31,7 @@ const DEBOUNCE_MS = 400;
  * @return {JSX.Element} The `ExploreScreen` user interface, including the search bar, loading state,
  * error messages, and a list of places (either search results or nearby places based on the state).
  */
-export default function ExploreScreen() {
+export default function ExploreScreen(): JSX.Element {
   const {
     query,
     results,
@@ -50,16 +50,31 @@ export default function ExploreScreen() {
     typeof setTimeout
   > | null>(null);
 
+  //
+  const requestLocationPermission = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission denied', 'Location permission is required');
+      return false;
+    }
+    return true;
+  };
+
   // Load nearby places on mount
   useEffect(() => {
     (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
+      try {
+        const hasPermission = await requestLocationPermission();
+        if (!hasPermission) return;
+
         const loc = await Location.getCurrentPositionAsync();
-        fetchNearbyPlaces(loc.coords.latitude, loc.coords.longitude);
+        await fetchNearbyPlaces(loc.coords.latitude, loc.coords.longitude);
+      } catch (err) {
+        console.error('Location error:', err);
+        // Don't crash - just show empty state
       }
     })();
-  }, []);
+  }, [fetchNearbyPlaces]);
 
   // Debounced search
   const handleQueryChange = useCallback(
