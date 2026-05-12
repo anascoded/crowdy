@@ -3,6 +3,18 @@ import { Place } from '@/types';
 const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY;
 const BASE_URL = 'https://maps.googleapis.com/maps/api/place';
 
+/**
+ * Handles the status of a response object, particularly for API responses.
+ *
+ * This function evaluates the status property of the input data. If the status
+ * is neither 'OK' nor 'ZERO_RESULTS', it logs the error details to the console
+ * and throws an exception with the error message or status code.
+ *
+ * @param {any} data - The response data object containing a status property and
+ *                     an optional error_message property.
+ * @throws {Error} Throws an error with a message derived from the input data if
+ *                 the status is not 'OK' or 'ZERO_RESULTS'.
+ */
 const handleStatus = (data: any) => {
   if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
     console.error('Google API Error:', data.status, data.error_message);
@@ -10,6 +22,12 @@ const handleStatus = (data: any) => {
   }
 };
 
+/**
+ * Maps a raw result object to a 'Place' object.
+ *
+ * @param {any} result - The raw data object, typically from an API response, containing information about a place.
+ * @returns {Place} A formatted 'Place' object with essential information such as id, name, address, category, location, rating, and photo URL.
+ */
 const mapToPlace = (result: any): Place => ({
   id: result.place_id,
   name: result.name,
@@ -25,6 +43,12 @@ const mapToPlace = (result: any): Place => ({
       : undefined,
 });
 
+/**
+ * An object that provides methods for interacting with the Google Places API.
+ * This service includes functionalities for autocompleting place names, retrieving
+ * detailed information about a specific place, fetching nearby places based on
+ * location, and performing general text-based searches for places.
+ */
 export const placesService = {
   // 🔍 AUTOCOMPLETE (better than textsearch)
   autocomplete: async (input: string) => {
@@ -45,7 +69,17 @@ export const placesService = {
     }));
   },
 
-  // 📍 DETAILS (used after autocomplete)
+  /**
+   * Retrieves details of a place based on the provided place ID.
+   *
+   * @param {string} placeId - The unique identifier of the place to be retrieved.
+   *                             Must be a non-empty string with a minimum length of 10 characters.
+   * @returns {Promise<Place>} A promise that resolves to a Place object containing the
+   *                           details of the requested place, such as name, rating, address,
+   *                           geometry, photos, and types.
+   * @throws {Error} If the place ID is invalid, the place is not found, or there is an issue
+   *                 with the request.
+   */
   getById: async (placeId: string): Promise<Place> => {
     if (
         !placeId ||
@@ -69,7 +103,15 @@ export const placesService = {
     return mapToPlace(data.result);
   },
 
-  // 📌 NEARBY (more controlled)
+  /**
+   * Fetches nearby places of a specified type within a 1500-meter radius from the given latitude and longitude.
+   *
+   * @param {number} lat - The latitude of the location to search nearby.
+   * @param {number} lng - The longitude of the location to search nearby.
+   * @param {string} [type='restaurant'] - The type of place to search for. Defaults to 'restaurant' if not provided.
+   * @returns {Promise<Place[]>} A promise that resolves to a list of nearby places mapped to the `Place` type.
+   * @throws Will throw an error if the API response status indicates an unsuccessful request.
+   */
   getNearby: async (
       lat: number,
       lng: number,
@@ -85,7 +127,17 @@ export const placesService = {
     return data.results.map(mapToPlace);
   },
 
-  // 🔎 FALLBACK SEARCH (if needed)
+  /**
+   * Performs a search query to fetch a list of places based on the given input string.
+   *
+   * This function interacts with an external API to retrieve location-related data.
+   * If the query string is empty or contains only whitespace, an empty array is returned.
+   * The function handles the API's response, mapping the results into a list of Place objects.
+   *
+   * @param {string} query - The search term to query for places.
+   * @returns {Promise<Place[]>} A promise that resolves to an array of Place objects.
+   * @throws {Error} Throws an error if the API response indicates a failure or unexpected status.
+   */
   search: async (query: string): Promise<Place[]> => {
     if (!query.trim()) return [];
 
