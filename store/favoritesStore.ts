@@ -23,13 +23,13 @@ interface FavoritesState {
  * A Zustand store for managing favorites functionality, including adding, removing, and syncing favorite places.
  *
  * This store provides state management and utility functions for working with a list of favorite places.
- * It persists the favorites data to storage, handles optimistic updates, and integrates with a backend service.
+ * It persists the favorite data to storage, handles optimistic updates, and integrates with a backend service.
  *
  * State Properties:
  * - `favorites`: An array of favorite items.
  * - `isLoading`: A boolean indicating whether the favorites are being loaded from a backend.
  * - `isSyncing`: A boolean indicating whether a sync operation (add/remove) is in progress.
- * - `error`: A string or null specifying an error message, if an operation fails.
+ * - `error`: A string or null specifying an error message if an operation fails.
  *
  * Actions:
  * - `fetchFavorites`: Fetches favorites from the backend service and updates the store. Handles loading and error states.
@@ -50,16 +50,58 @@ const useFavoritesStore = create<FavoritesState>()(
           isSyncing: false,
           error: null,
 
-          fetchFavorites: async () => {
-            set({ isLoading: true, error: null });
-            try {
-              const { favoritesService } = await import('@/services/favoritesService');
-              const favorites = await favoritesService.getAll();
-              set({ favorites, isLoading: false });
-            } catch (err: any) {
-              set({ error: err.message ?? 'Failed to load favorites', isLoading: false });
-            }
-          },
+            fetchFavorites: async () => {
+                set({ isLoading: true, error: null });
+
+                try {
+                    const { favoritesService } = await import('@/services/favoritesService');
+                    const { placesService } = await import('@/services/placesService');
+
+                    const favorites = await favoritesService.getAll();
+
+                    const validFavorites: Favorite[] = [];
+
+                    for (const favorite of favorites) {
+                        try {
+                            // Skip malformed favorites
+                            if (!favorite?.place?.id) {
+                                console.warn('Removing malformed favorite:', favorite);
+                                continue;
+                            }
+
+                            // Validate Google Place ID
+                            await placesService.getById(favorite.place.id);
+
+                            validFavorites.push(favorite);
+                        } catch (err) {
+                            console.warn(
+                                'Removing invalid favorite:',
+                                favorite?.place?.id
+                            );
+                        }
+                    }
+
+                    await AsyncStorage.setItem(
+                        'favorites-storage',
+                        JSON.stringify({
+                            state: {
+                                favorites: validFavorites,
+                            },
+                            version: 0,
+                        })
+                    );
+
+                    set({
+                        favorites: validFavorites,
+                        isLoading: false,
+                    });
+                } catch (err: any) {
+                    set({
+                        error: err.message ?? 'Failed to load favorites',
+                        isLoading: false,
+                    });
+                }
+            },
 
           addFavorite: async (place: Place) => {
             const optimistic: Favorite = {

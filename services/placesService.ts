@@ -89,7 +89,8 @@ export const placesService = {
       throw new Error('Invalid place ID');
     }
 
-    const url = `${BASE_URL}/details/json?place_id=${placeId}&fields=name,rating,formatted_address,geometry,photos,types&key=${API_KEY}`;
+    // Remove the fields parameter or add place_id to it
+    const url = `${BASE_URL}/details/json?place_id=${placeId}&key=${API_KEY}`;
 
     const res = await fetch(url);
     const data = await res.json();
@@ -100,7 +101,13 @@ export const placesService = {
       throw new Error('Place not found');
     }
 
-    return mapToPlace(data.result);
+    // Manually add the place_id since we know it
+    const result = {
+      ...data.result,
+      place_id: placeId,  // ← Add this
+    };
+
+    return mapToPlace(result);
   },
 
   /**

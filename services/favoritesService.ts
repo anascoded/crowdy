@@ -12,7 +12,7 @@ const FAVORITES_KEY = 'crowdy_favorites';
  *
  * @type {{ getAll: () => Promise<Favorite[]>, add: (place: Place) => Promise<Favorite>, remove: (placeId: string) => Promise<void> }}
  */
-const favoritesService = {
+const favoritesService: { getAll: () => Promise<Favorite[]>; add: (place: Place) => Promise<Favorite>; remove: (placeId: string) => Promise<void>; } = {
   getAll: async (): Promise<Favorite[]> => {
     try {
       const stored = await AsyncStorage.getItem(FAVORITES_KEY);

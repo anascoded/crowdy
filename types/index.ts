@@ -12,6 +12,7 @@ export interface User {
 
 export interface Place {
   id: string;
+  place_id?: string;     // From Google Places API
   name: string;
   address: string;
   category: string;

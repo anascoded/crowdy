@@ -67,16 +67,17 @@ export default function PlaceDetailScreen(): JSX.Element {
   }, [id]);
 
   // ── Toggle favorite ────────────────────────────────────────────────────────
-  const handleFavoriteToggle = () => {
+  const handleFavoriteToggle = async () => {
     if (!isAuthenticated) {
       router.push({ pathname: "/(auth)/sign-in" });
       return;
     }
     if (!place) return;
+
     if (favorited) {
-      removeFavorite(place.id);
+      await removeFavorite(place.id);
     } else {
-      addFavorite(place);
+      await addFavorite(place);
     }
   };
 

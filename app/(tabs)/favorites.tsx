@@ -39,7 +39,12 @@ export default function FavoritesScreen(): JSX.Element {
 
   // Fetch favorites when authenticated
   useEffect(() => {
-    if (isAuthenticated) fetchFavorites();
+    const fetch = async () => {
+      if (isAuthenticated) {
+        await fetchFavorites();
+      }
+    };
+    fetch();
   }, [fetchFavorites, isAuthenticated]);
 
   /**
@@ -55,7 +60,7 @@ export default function FavoritesScreen(): JSX.Element {
    * @async
    * @returns {Promise<void>} A promise that resolves when the refresh operation is complete.
    */
-  const handleRefresh = async () => {
+  const handleRefresh = async (): Promise<void> => {
     setRefreshing(true);
     await fetchFavorites();
     setRefreshing(false);
@@ -73,6 +78,20 @@ export default function FavoritesScreen(): JSX.Element {
    */
   const handlePlacePress = (place: Place) => {
     router.push(`/place/${place.id}`);
+  };
+
+  /**
+   * Handles the removal of a favorite item identified by its place ID.
+   *
+   * This asynchronous function calls the `removeFavorite` function to
+   * remove the specified favorite entity. It is typically used to
+   * manage the state of user favorited items in an application.
+   *
+   * @param {string} placeId - The unique identifier of the place to be removed from favorites.
+   * @returns {Promise<void>} A promise that resolves when the removal operation completes.
+   */
+  const handleRemoveFavorite = async (placeId: string): Promise<void> => {
+    await removeFavorite(placeId);
   };
 
   // ── Not authenticated ────────────────────────────────────────────────────────
@@ -133,12 +152,12 @@ export default function FavoritesScreen(): JSX.Element {
         data={favorites}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <PlaceCard
-            place={item.place}
-            onPress={() => handlePlacePress(item.place)}
-            onFavoritePress={() => removeFavorite(item.place.id)}
-            isFavorite
-          />
+            <PlaceCard
+                place={item.place}
+                onPress={() => handlePlacePress(item.place)}
+                onFavoritePress={() => handleRemoveFavorite(item.place.id)}
+                isFavorite
+            />
         )}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
