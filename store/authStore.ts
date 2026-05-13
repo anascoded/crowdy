@@ -118,6 +118,17 @@ const useAuthStore = create<AuthState>()(
         }
       },
 
+        // ── Update Profile ───────────────────────────────────────────────────────────
+        updateProfile: async (updates: { displayName?: string }) => {
+            // Update Firebase user profile
+            // Implementation depends on your auth setup
+        },
+
+        // ── Update Password ───────────────────────────────────────────────────────────
+        updatePassword: async (currentPassword: string, newPassword: string) => {
+            // Update Firebase password
+            // Implementation depends on your auth setup
+        },
       // ── Sign out ───────────────────────────────────────────────────────────
       signOut: async () => {
         set({ isLoading: true });
