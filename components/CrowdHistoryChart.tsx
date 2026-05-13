@@ -46,7 +46,7 @@ const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const CHART_WIDTH = 340;
 const CHART_HEIGHT = 160;
-const PADDING = { top: 10, bottom: 30, left: 36, right: 8 };
+const PADDING = { top: 10, bottom: 30, left: 28, right: 8 };
 const PLOT_WIDTH = CHART_WIDTH - PADDING.left - PADDING.right;
 const PLOT_HEIGHT = CHART_HEIGHT - PADDING.top - PADDING.bottom;
 const BAR_COUNT = 24;
@@ -85,6 +85,7 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
   }, []);
 
   const selectedDay: CrowdDay | undefined = history.days[selectedDayIndex];
+  const currentHour = new Date().getHours();
 
   return (
       <View style={styles.container}>
@@ -149,7 +150,7 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
         {selectedDay ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <Svg width={CHART_WIDTH} height={CHART_HEIGHT}>
-                {/* Y axis gridlines at 25, 50, 75, 100 */}
+                {/* Y-axis gridlines at 25, 50, 75, 100 */}
                 {[25, 50, 75, 100].map((tick) => {
                   const y = PADDING.top + PLOT_HEIGHT - (tick / 100) * PLOT_HEIGHT;
                   return (
@@ -172,7 +173,7 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
                   return (
                       <SvgText
                           key={tick}
-                          x={PADDING.left - 4}
+                          x={PADDING.left - 10}
                           y={y + 4}
                           fontSize={9}
                           fill="#9CA3AF"
@@ -190,6 +191,9 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
                       PADDING.left + h.hour * BAR_GAP + (BAR_GAP - BAR_WIDTH) / 2;
                   const y = PADDING.top + PLOT_HEIGHT - barHeight;
 
+                  // Check if this bar is the current hour AND we're viewing today
+                  const isCurrentHour = h.hour === currentHour && selectedDayIndex === history.days.length - 1;
+
                   return (
                       <Rect
                           key={h.hour}
@@ -199,7 +203,9 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
                           height={Math.max(barHeight, 2)}
                           rx={2}
                           fill={LEVEL_COLORS[h.level]}
-                          opacity={0.9}
+                          opacity={isCurrentHour ? 1 : 0.9}
+                          stroke={isCurrentHour ? "#1A1A2E" : "none"}
+                          strokeWidth={isCurrentHour ? 2 : 0}
                           onPress={() =>
                               setTooltip(
                                   tooltip?.hour === h.hour
