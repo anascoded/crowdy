@@ -231,28 +231,19 @@ export default function ProfileScreen() {
             <MenuItem
                 icon="person-outline"
                 label="Edit profile"
-                onPress={() =>
-                    Alert.alert("Coming soon", "Profile editing is coming soon.")
-                }
+                onPress={() => router.push("/(tabs)/profile/edit-profile")}
             />
             <View style={styles.menuDivider} />
             <MenuItem
                 icon="notifications-outline"
                 label="Notifications"
-                onPress={() =>
-                    Alert.alert(
-                        "Coming soon",
-                        "Notification settings are coming soon.",
-                    )
-                }
+                onPress={() => router.push("/(tabs)/profile/notifications")}
             />
             <View style={styles.menuDivider} />
             <MenuItem
                 icon="lock-closed-outline"
                 label="Change password"
-                onPress={() =>
-                    Alert.alert("Coming soon", "Password change is coming soon.")
-                }
+                onPress={() => router.push("/(tabs)/profile/change-password")}
             />
           </View>
         </View>
@@ -265,17 +256,13 @@ export default function ProfileScreen() {
                 icon="moon-outline"
                 label="Appearance"
                 value="System"
-                onPress={() =>
-                    Alert.alert("Coming soon", "Theme settings are coming soon.")
-                }
+                onPress={() => router.push("/(tabs)/profile/appearance")}
             />
             <View style={styles.menuDivider} />
             <MenuItem
                 icon="location-outline"
                 label="Default location"
-                onPress={() =>
-                    Alert.alert("Coming soon", "Location settings are coming soon.")
-                }
+                onPress={() => router.push("/(tabs)/profile/location")}
             />
           </View>
         </View>
