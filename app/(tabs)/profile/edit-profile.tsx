@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/store/authStore";
+import useAuthStore from "@/store/authStore";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -14,6 +14,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 export default function EditProfileScreen() {
+    // @ts-ignore
     const { user, updateProfile, isLoading } = useAuthStore();
     const [displayName, setDisplayName] = useState(user?.displayName || "");
 
