@@ -4,7 +4,7 @@
 
 import { initializeApp } from 'firebase/app';
 // @ts-ignore
-import {getAuth, initializeAuth, getReactNativePersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, sendEmailVerification,} from 'firebase/auth';
+import {initializeAuth, getReactNativePersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, sendEmailVerification,} from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, SignInPayload, SignUpPayload } from '@/types';
 
@@ -28,13 +28,12 @@ const auth = initializeAuth(app, {
 /**
  * An authentication service providing methods for user sign-up, sign-in, sign-out,
  * and retrieval of the currently authenticated user's profile.
- *
- * @typedef {Object} authService
- *
- * @property {Function} signUp
- * Asynchronously registers a new user with an email and password, verifies their email,
- * and returns the newly created user object along with authentication tokens.
- *
+ */
+interface authService {
+  signUp: Function;
+}
+
+/**
  * @param {SignUpPayload} payload The sign-up details including email, password, and display name.
  * @returns {Promise<{user: User, accessToken: string, refreshToken: string}>} A promise that resolves
  * with the authenticated user details and tokens.
@@ -95,7 +94,7 @@ const authService = {
    * @returns {Promise<{ user: User, accessToken: string, refreshToken: string }>}
    * A promise resolving to an object containing the signed-in user's details and authentication tokens.
    */
-  signIn: async (payload: SignInPayload) => {
+  signIn: async (payload: SignInPayload): Promise<{ user: User; accessToken: string; refreshToken: string; }> => {
     const credential = await signInWithEmailAndPassword(
         auth,
         payload.email,
@@ -108,13 +107,13 @@ const authService = {
 
     /**
      * Represents a user object containing essential details of an authenticated user.
-     *
-     * @typedef {Object} User
-     * @property {string} id - Unique identifier for the user.
-     * @property {string} email - Email address of the user. Guaranteed to be non-null.
-     * @property {string | undefined} displayName - Display name of the user, if available.
-     * @property {string} createdAt - ISO 8601 formatted timestamp indicating when the user account was created.
      */
+    interface User {
+      id: string;
+      email: string;
+      displayName: string | undefined;
+      createdAt: string;
+    }
     const user: User = {
       id: credential.user.uid,
       email: credential.user.email!,
@@ -146,7 +145,7 @@ const authService = {
    * - displayName: The display name of the user, or `undefined` if not available.
    * - createdAt: The ISO string representation of the account creation date.
    */
-  me: async () => {
+  me: async (): Promise<object> => {
     const user = auth.currentUser;
     if (!user) throw new Error('Not authenticated');
     return {
@@ -158,4 +157,4 @@ const authService = {
   },
 };
 
-export { authService };
+export { authService, auth };

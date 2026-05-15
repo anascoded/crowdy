@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import {JSX} from "react";
 
 /**
  * Represents the properties for a menu item component.
@@ -50,7 +51,7 @@ const MenuItem = ({
                     onPress,
                     destructive,
                     value,
-                  }: MenuItemProps) => (
+                  }: MenuItemProps): JSX.Element => (
     <TouchableOpacity
         style={styles.menuItem}
         onPress={onPress}
@@ -92,7 +93,7 @@ const MenuItem = ({
  * profile details, settings options, and legal information, or a prompt to sign
  * in if the user is not authenticated.
  */
-export default function ProfileScreen() {
+export default function ProfileScreen(): JSX.Element {
   const { user, isAuthenticated, isLoading, signOut } = useAuthStore();
   const { favorites, clearFavorites } = useFavoritesStore();
 
@@ -231,19 +232,19 @@ export default function ProfileScreen() {
             <MenuItem
                 icon="person-outline"
                 label="Edit profile"
-                onPress={() => router.push("/(tabs)/profile/edit-profile")}
+                onPress={() => router.push("/(tabs)/profile-settings/edit-profile")}
             />
             <View style={styles.menuDivider} />
             <MenuItem
                 icon="notifications-outline"
                 label="Notifications"
-                onPress={() => router.push("/(tabs)/profile/notifications")}
+                onPress={() => router.push("/(tabs)/profile-settings/notifications")}
             />
             <View style={styles.menuDivider} />
             <MenuItem
                 icon="lock-closed-outline"
                 label="Change password"
-                onPress={() => router.push("/(tabs)/profile/change-password")}
+                onPress={() => router.push("/(tabs)/profile-settings/change-password")}
             />
           </View>
         </View>
@@ -256,13 +257,13 @@ export default function ProfileScreen() {
                 icon="moon-outline"
                 label="Appearance"
                 value="System"
-                onPress={() => router.push("/(tabs)/profile/appearance")}
+                onPress={() => router.push("/(tabs)/profile-settings/appearance")}
             />
             <View style={styles.menuDivider} />
             <MenuItem
                 icon="location-outline"
                 label="Default location"
-                onPress={() => router.push("/(tabs)/profile/location")}
+                onPress={() => router.push("/(tabs)/profile-settings/location")}
             />
           </View>
         </View>
@@ -303,7 +304,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Loading overlay for sign out */}
+        {/* Loading overlay for sign-out */}
         {isLoading && (
             <View style={styles.loadingOverlay}>
               <ActivityIndicator size="large" color="#6C63FF" />
