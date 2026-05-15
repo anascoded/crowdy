@@ -195,25 +195,32 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
                   const isCurrentHour = h.hour === currentHour && selectedDayIndex === history.days.length - 1;
 
                   return (
-                      <Rect
-                          key={h.hour}
-                          x={x}
-                          y={barHeight > 0 ? y : PADDING.top + PLOT_HEIGHT - 2}
-                          width={BAR_WIDTH}
-                          height={Math.max(barHeight, 2)}
-                          rx={2}
-                          fill={LEVEL_COLORS[h.level]}
-                          opacity={isCurrentHour ? 1 : 0.9}
-                          stroke={isCurrentHour ? "#1A1A2E" : "none"}
-                          strokeWidth={isCurrentHour ? 2 : 0}
-                          onPress={() =>
-                              setTooltip(
-                                  tooltip?.hour === h.hour
-                                      ? null
-                                      : { hour: h.hour, percentage: h.percentage },
-                              )
-                          }
-                      />
+                      <View key={h.hour}>
+                        {isCurrentHour && (
+                            <View style={[styles.liveLabel, { marginLeft: x - 10 }]}>
+                              <Text style={styles.liveLabelText}>Live</Text>
+                            </View>
+                        )}
+                        <Rect
+                            key={h.hour}
+                            x={x}
+                            y={barHeight > 0 ? y : PADDING.top + PLOT_HEIGHT - 2}
+                            width={BAR_WIDTH}
+                            height={Math.max(barHeight, 2)}
+                            rx={2}
+                            fill={LEVEL_COLORS[h.level]}
+                            opacity={isCurrentHour ? 1 : 0.9}
+                            stroke={isCurrentHour ? "#1A1A2E" : "none"}
+                            strokeWidth={isCurrentHour ? 2 : 0}
+                            onPress={() =>
+                                setTooltip(
+                                    tooltip?.hour === h.hour
+                                        ? null
+                                        : { hour: h.hour, percentage: h.percentage },
+                                )
+                            }
+                        />
+                      </View>
                   );
                 })}
 
@@ -307,6 +314,19 @@ const styles = StyleSheet.create({
   },
   dayTabDateSelected: {
     color: "#EDE9FE",
+  },
+  liveLabel: {
+    backgroundColor: "#EF4444",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginBottom: 4,
+    alignSelf: "center",
+  },
+  liveLabelText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#fff",
   },
   tooltip: {
     alignSelf: "center",
