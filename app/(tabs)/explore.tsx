@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     backgroundColor: "#fff",
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === "ios" ? 80 : 30,
+    paddingTop: Platform.OS === "ios" ? 70 : 30,
     paddingBottom: 12,
     borderBottomWidth: 0.5,
     borderBottomColor: "#E5E7EB",

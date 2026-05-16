@@ -10,11 +10,97 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import useAuthStore from '@/store/authStore';
 import useFavoritesStore from '@/store/favoritesStore';
-import {getFirstName} from "@/utils";
+import { getFirstName } from "@/utils";
+import { useState, useEffect } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+interface Activity {
+    id: string;
+    type: 'favorite_added' | 'favorite_removed' | 'place_busy';
+    placeName: string;
+    timestamp: Date;
+}
 
 export default function HomeScreen() {
     const { user } = useAuthStore();
     const { favorites } = useFavoritesStore();
+    const [activities, setActivities] = useState<Activity[]>([]);
+
+    // Load activities from AsyncStorage
+    useEffect(() => {
+        loadActivities();
+    }, []);
+
+    const loadActivities = async () => {
+        try {
+            const stored = await AsyncStorage.getItem('crowdy_activities');
+            if (stored) {
+                const parsed = JSON.parse(stored).map((a: any) => ({
+                    ...a,
+                    timestamp: new Date(a.timestamp),
+                }));
+                setActivities(parsed.sort((a: { timestamp: { getTime: () => number; }; }, b: { timestamp: { getTime: () => number; }; }) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 5));
+            }
+        } catch (err) {
+            console.error('Failed to load activities:', err);
+        }
+    };
+
+    const addActivity = async (activity: Omit<Activity, 'id' | 'timestamp'>) => {
+        const newActivity: Activity = {
+            ...activity,
+            id: Date.now().toString(),
+            timestamp: new Date(),
+        };
+
+        const updated = [newActivity, ...activities].slice(0, 10);
+        setActivities(updated);
+
+        try {
+            await AsyncStorage.setItem('crowdy_activities', JSON.stringify(updated));
+        } catch (err) {
+            console.error('Failed to save activity:', err);
+        }
+    };
+
+    const formatTimeAgo = (date: Date): string => {
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffMins < 1) return 'now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        return `${diffDays}d ago`;
+    };
+
+    const getActivityIcon = (type: Activity['type']) => {
+        switch (type) {
+            case 'favorite_added':
+                return <Ionicons name="heart" size={18} color="#EF4444" />;
+            case 'favorite_removed':
+                return <Ionicons name="heart-outline" size={18} color="#9CA3AF" />;
+            case 'place_busy':
+                return <Ionicons name="alert-circle" size={18} color="#F59E0B" />;
+            default:
+                return null;
+        }
+    };
+
+    const getActivityText = (activity: Activity) => {
+        switch (activity.type) {
+            case 'favorite_added':
+                return `You saved ${activity.placeName} to favorites`;
+            case 'favorite_removed':
+                return `You removed ${activity.placeName} from favorites`;
+            case 'place_busy':
+                return `${activity.placeName} is currently busy`;
+            default:
+                return 'Unknown activity';
+        }
+    };
 
     return (
         <ScrollView
@@ -39,7 +125,7 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.statCard}>
                     <Ionicons name="location" size={24} color="#31C950" />
-                    <Text style={styles.statValue}>42</Text>
+                    <Text style={styles.statValue}>{favorites.length * 3}</Text>
                     <Text style={styles.statLabel}>Visited</Text>
                 </View>
                 <View style={styles.statCard}>
@@ -84,18 +170,25 @@ export default function HomeScreen() {
             {/* Recent Activity */}
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Recent Activity</Text>
-                <View style={styles.activityCard}>
-                    <Text style={styles.activityText}>
-                        You saved Central Park to favorites
-                    </Text>
-                    <Text style={styles.activityTime}>2 hours ago</Text>
-                </View>
-                <View style={styles.activityCard}>
-                    <Text style={styles.activityText}>
-                        Times Square is currently busy
-                    </Text>
-                    <Text style={styles.activityTime}>1 hour ago</Text>
-                </View>
+                {activities.length === 0 ? (
+                    <View style={styles.emptyActivity}>
+                        <Text style={styles.emptyText}>No activity yet. Start exploring!</Text>
+                    </View>
+                ) : (
+                    activities.map((activity) => (
+                        <View key={activity.id} style={styles.activityCard}>
+                            <View style={styles.activityLeft}>
+                                {getActivityIcon(activity.type)}
+                                <Text style={styles.activityText}>
+                                    {getActivityText(activity)}
+                                </Text>
+                            </View>
+                            <Text style={styles.activityTime}>
+                                {formatTimeAgo(activity.timestamp)}
+                            </Text>
+                        </View>
+                    ))
+                )}
             </View>
         </ScrollView>
     );
@@ -188,6 +281,9 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
     activityCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         backgroundColor: '#fff',
         borderRadius: 12,
         padding: 14,
@@ -195,14 +291,33 @@ const styles = StyleSheet.create({
         borderWidth: 0.5,
         borderColor: '#E5E7EB',
     },
+    activityLeft: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
     activityText: {
         fontSize: 14,
         color: '#1A1A2E',
         fontWeight: '500',
+        flex: 1,
     },
     activityTime: {
         fontSize: 12,
         color: '#9CA3AF',
-        marginTop: 4,
+        fontWeight: '600',
+    },
+    emptyActivity: {
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        padding: 24,
+        alignItems: 'center',
+        borderWidth: 0.5,
+        borderColor: '#E5E7EB',
+    },
+    emptyText: {
+        fontSize: 14,
+        color: '#9CA3AF',
     },
 });

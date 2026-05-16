@@ -1,15 +1,22 @@
-/*
- *
- */
-
 import { initializeApp } from 'firebase/app';
-// @ts-ignore
-import {initializeAuth, getReactNativePersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, sendEmailVerification,} from 'firebase/auth';
+import {
+  initializeAuth,
+  browserLocalPersistence,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut
+} from 'firebase/auth';
+
+// @ts-ignore - Necessary for TypeScript environments with older module resolution
+import { getReactNativePersistence } from 'firebase/auth/react-native';
+
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, SignInPayload, SignUpPayload } from '@/types';
 
 /**
- *
+ * Firebase Configuration
  */
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -21,41 +28,17 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
+
+// Exports
+export const auth = initializeAuth(app, {
+  persistence: Platform.OS === 'web'
+      ? browserLocalPersistence
+      : getReactNativePersistence(AsyncStorage)
 });
 
 /**
  * An authentication service providing methods for user sign-up, sign-in, sign-out,
  * and retrieval of the currently authenticated user's profile.
- */
-interface authService {
-  signUp: Function;
-}
-
-/**
- * @param {SignUpPayload} payload The sign-up details including email, password, and display name.
- * @returns {Promise<{user: User, accessToken: string, refreshToken: string}>} A promise that resolves
- * with the authenticated user details and tokens.
- *
- * @property {Function} signIn
- * Asynchronously signs in an existing user with an email and password. The method ensures
- * that the user's email is verified before authentication is completed.
- *
- * @param {SignInPayload} payload The sign-in details including email and password.
- * @returns {Promise<{user: User, accessToken: string, refreshToken: string}>} A promise that resolves
- * with the authenticated user details and tokens.
- *
- * @property {Function} signOut
- * Asynchronously signs out the currently authenticated user from the session.
- *
- * @returns {Promise<void>} A promise that resolves when the sign-out process is completed.
- *
- * @property {Function} me
- * Retrieves the profile of the currently authenticated user. Throws an error if no user
- * is authenticated in the current session.
- *
- * @returns {Promise<User>} A promise that resolves with the currently authenticated user's details.
  */
 const authService = {
   signUp: async (payload: SignUpPayload) => {
@@ -67,15 +50,6 @@ const authService = {
 
     await sendEmailVerification(credential.user);
 
-    /**
-     * Represents a user in the system with unique identification, contact information, display name, and account creation timestamp.
-     *
-     * Properties:
-     * - `id` (string): A unique identifier for the user.
-     * - `email` (string): The email address of the user. This is a mandatory field.
-     * - `displayName` (string): The display name of the user, as specified in the payload.
-     * - `createdAt` (string): The ISO 8601 formatted timestamp indicating when the user was created.
-     */
     const user: User = {
       id: credential.user.uid,
       email: credential.user.email!,
@@ -87,12 +61,14 @@ const authService = {
   },
 
   /**
-   * Handles the sign-in process for a user using their email and password.
+   * Authenticates a user using their email and password.
+   * Verifies if the user's email is confirmed before granting access.
    *
-   * @param {SignInPayload} payload - The payload containing the user's email and password.
-   * @throws {Error} Throws an error if the user's email has not been verified.
-   * @returns {Promise<{ user: User, accessToken: string, refreshToken: string }>}
-   * A promise resolving to an object containing the signed-in user's details and authentication tokens.
+   * @param {SignInPayload} payload - The payload containing email and password for authentication.
+   * @return {Promise<{ user: User, accessToken: string, refreshToken: string }>}
+   * Resolves to an object containing the authenticated user details, an access token, and a refresh token.
+   *
+   * @throws {Error} Throws an error if the user's email is not verified.
    */
   signIn: async (payload: SignInPayload): Promise<{ user: User; accessToken: string; refreshToken: string; }> => {
     const credential = await signInWithEmailAndPassword(
@@ -105,15 +81,6 @@ const authService = {
       throw new Error('Please verify your email before signing in');
     }
 
-    /**
-     * Represents a user object containing essential details of an authenticated user.
-     */
-    interface User {
-      id: string;
-      email: string;
-      displayName: string | undefined;
-      createdAt: string;
-    }
     const user: User = {
       id: credential.user.uid,
       email: credential.user.email!,
@@ -126,25 +93,16 @@ const authService = {
 
   /**
    * Signs out the currently authenticated user.
-   * This function uses the Firebase authentication system
-   * to log out the user from the application.
    *
-   * @returns {Promise<void>} A promise that resolves when the sign-out operation is complete.
+   * This function uses the Firebase authentication service to log out the user.
+   * It ensures the user's session is terminated and their authentication state is cleared.
+   *
+   * @returns {Promise<void>} A promise that resolves when the user is successfully signed out.
    */
   signOut: async (): Promise<void> => {
     await firebaseSignOut(auth);
   },
 
-  /**
-   * Retrieves the currently authenticated user's information.
-   *
-   * @throws {Error} Throws an error if there is no authenticated user.
-   * @returns {Promise<Object>} A promise that resolves to an object containing the user's details:
-   * - id: The unique identifier of the user.
-   * - email: The email address of the user.
-   * - displayName: The display name of the user, or `undefined` if not available.
-   * - createdAt: The ISO string representation of the account creation date.
-   */
   me: async (): Promise<object> => {
     const user = auth.currentUser;
     if (!user) throw new Error('Not authenticated');
@@ -157,4 +115,4 @@ const authService = {
   },
 };
 
-export { authService, auth };
+export { authService };
