@@ -114,8 +114,8 @@ export default function AboutScreen(): JSX.Element {
                         onPress={() => openLink('https://www.crowdy.app')}
                     />
                     <ContactItem
-                        icon="logo-twitter"
-                        label="Twitter"
+                        icon="logo-x"
+                        label="X"
                         value="@CrowdyApp"
                         onPress={() => openLink('https://twitter.com/CrowdyApp')}
                     />
@@ -207,9 +207,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '700',
         color: '#1A1A2E',
+        textAlign: 'center',
     },
     spacer: {
-        width: 32,
+        width: 44,
     },
     logoSection: {
         alignItems: 'center',
