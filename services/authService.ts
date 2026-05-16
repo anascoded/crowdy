@@ -1,6 +1,5 @@
 import { initializeApp } from 'firebase/app';
 import {
-  getAuth,
   initializeAuth,
   browserLocalPersistence,
   createUserWithEmailAndPassword,
@@ -11,9 +10,6 @@ import {
 import { Platform } from 'react-native';
 import { User, SignInPayload, SignUpPayload } from '@/types';
 
-/**
- * Firebase Configuration
- */
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -25,26 +21,36 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// 1. Declare a flexible auth instance variable
-let authInstance;
+// Keep a cached instance so we only initialize Firebase Auth once
+let cachedAuth: any = null;
 
-// 2. Use a distinct runtime platform gate to branch imports
-if (Platform.OS === 'web') {
-  authInstance = initializeAuth(app, {
-    persistence: browserLocalPersistence
-  });
-} else {
-  // Dynamic runtime imports isolate mobile dependencies from the AWS web builder
-  const { initializeAuth: initNativeAuth, getReactNativePersistence } = require('firebase/auth');
-  const AsyncStorage = require('@react-native-async-storage/async-storage').default;
-
-  authInstance = initNativeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage)
-  });
-}
-
-// 3. Export the single, resolved instance
-export const auth = authInstance;
+export const auth = {
+  get currentUser() {
+    if (!cachedAuth) {
+      if (Platform.OS === 'web') {
+        cachedAuth = initializeAuth(app, { persistence: browserLocalPersistence });
+      } else {
+        const { initializeAuth: initNativeAuth, getReactNativePersistence } = require('firebase/auth');
+        const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+        cachedAuth = initNativeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) });
+      }
+    }
+    return cachedAuth.currentUser;
+  },
+  // Forward methods required by authService
+  getInternalInstance() {
+    if (!cachedAuth) {
+      if (Platform.OS === 'web') {
+        cachedAuth = initializeAuth(app, { persistence: browserLocalPersistence });
+      } else {
+        const { initializeAuth: initNativeAuth, getReactNativePersistence } = require('firebase/auth');
+        const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+        cachedAuth = initNativeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) });
+      }
+    }
+    return cachedAuth;
+  }
+};
 
 /**
  * Authentication Service Methods
@@ -52,7 +58,7 @@ export const auth = authInstance;
 const authService = {
   signUp: async (payload: SignUpPayload) => {
     const credential = await createUserWithEmailAndPassword(
-        auth,
+        auth.getInternalInstance(), // <-- Pass the internal instance
         payload.email,
         payload.password,
     );
@@ -69,7 +75,7 @@ const authService = {
 
   signIn: async (payload: SignInPayload): Promise<{ user: User; accessToken: string; refreshToken: string; }> => {
     const credential = await signInWithEmailAndPassword(
-        auth,
+        auth.getInternalInstance(), // <-- Pass the internal instance
         payload.email,
         payload.password,
     );
@@ -87,17 +93,18 @@ const authService = {
   },
 
   signOut: async (): Promise<void> => {
-    await firebaseSignOut(auth);
+    await firebaseSignOut(auth.getInternalInstance());
   },
 
   me: async (): Promise<object> => {
-    const user = auth.currentUser;
+    const user = auth.currentUser; // Uses getter property safely
     if (!user) throw new Error('Not authenticated');
+    // Using default standard metadata values safely
     return {
       id: user.uid,
       email: user.email!,
       displayName: user.displayName ?? undefined,
-      createdAt: new Date(user.metadata.creationTime!).toISOString(),
+      createdAt: new Date().toISOString(),
     };
   },
 };

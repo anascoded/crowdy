@@ -117,7 +117,7 @@ export default function AboutScreen(): JSX.Element {
                         icon="logo-x"
                         label="X"
                         value="@CrowdyApp"
-                        onPress={() => openLink('https://twitter.com/CrowdyApp')}
+                        onPress={() => openLink('https://x.com/CrowdyApp')}
                     />
                 </View>
             </View>
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#fff',
         paddingHorizontal: 12,
-        paddingTop: Platform.OS === 'ios' ? 60 : 16,
+        paddingTop: Platform.OS === 'ios' ? 60 : 60,
         paddingBottom: 12,
         borderBottomWidth: 0.5,
         borderBottomColor: '#E5E7EB',

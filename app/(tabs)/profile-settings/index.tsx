@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import {
   ActivityIndicator,
   Alert,
-  Image,
+  Image, Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -129,29 +129,12 @@ export default function ProfileScreen(): JSX.Element {
   };
 
   /**
-   * Displays an alert dialog with the application's Privacy Policy information.
-   * The alert includes a brief message about data handling and security measures,
-   * ensuring users are informed about how their information is managed.
-   */
-  const showPrivacy = () => {
-    Alert.alert(
-        "Privacy Policy",
-        "We respect your privacy. Your location and favorite places are stored securely. We never share your data with third parties.\n\nFor more details, visit our website.",
-    );
-  };
-
-  /**
-   * Displays an alert dialog showing the "Terms of Service" message.
+   * Opens the specified URL in the default web browser or the appropriate application.
    *
-   * This function triggers a modal alert to inform users about the app's terms of service.
-   * The message encourages responsible usage of the app and respect for others' privacy.
-   * It also provides guidance to access the full terms via the website.
+   * @param {string} url - The URL to be opened. This should be a properly formatted and valid URL string.
    */
-  const showTerms = () => {
-    Alert.alert(
-        "Terms of Service",
-        "By using Crowdy, you agree to our terms of service. Please use the app responsibly and respect the privacy of others.\n\nFor full terms, visit our website.",
-    );
+  const openLink = (url: string) => {
+    Linking.openURL(url);
   };
 
   // ── Not authenticated ──────────────────────────────────────────────────────
@@ -275,13 +258,13 @@ export default function ProfileScreen(): JSX.Element {
             <MenuItem
                 icon="document-text-outline"
                 label="Terms of Service"
-                onPress={showTerms}
+                onPress={() => openLink('https://www.crowdy.app/terms-of-serivce')}
             />
             <View style={styles.menuDivider} />
             <MenuItem
                 icon="shield-checkmark-outline"
                 label="Privacy Policy"
-                onPress={showPrivacy}
+                onPress={() => openLink('https://www.crowdy.app/privacy-policy')}
             />
             <View style={styles.menuDivider} />
             <MenuItem
@@ -333,7 +316,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: "#fff",
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === "ios" ? 60 : 16,
+    paddingTop: Platform.OS === "ios" ? 60 : 60,
     paddingBottom: 12,
     borderBottomWidth: 0.5,
     borderBottomColor: "#E5E7EB",
