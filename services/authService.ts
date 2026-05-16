@@ -67,6 +67,7 @@ const authService = {
       id: credential.user.uid,
       email: credential.user.email!,
       displayName: payload.displayName,
+      //location: payload.location,
       createdAt: new Date().toISOString(),
     };
     const token = await credential.user.getIdToken();

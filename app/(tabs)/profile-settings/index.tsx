@@ -184,7 +184,7 @@ export default function ProfileScreen(): JSX.Element {
               <View style={styles.avatarFallback}>
                 <Text style={styles.avatarInitial}>
                   {user?.displayName?.[0]?.toUpperCase() ??
-                      user?.email?.[0]?.toUpperCase() ??
+                      user?.location?.[0]?.toUpperCase() ??
                       "?"}
                 </Text>
               </View>
