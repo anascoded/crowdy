@@ -77,7 +77,7 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
     percentage: number;
   } | null>(null);
 
-  // Scroll to today on mount
+  // Scroll to "today" on mount
   useEffect(() => {
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -195,32 +195,25 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
                   const isCurrentHour = h.hour === currentHour && selectedDayIndex === history.days.length - 1;
 
                   return (
-                      <View key={h.hour}>
-                        {isCurrentHour && (
-                            <View style={[styles.liveLabel, { marginLeft: x - 10 }]}>
-                              <Text style={styles.liveLabelText}>Live</Text>
-                            </View>
-                        )}
-                        <Rect
-                            key={h.hour}
-                            x={x}
-                            y={barHeight > 0 ? y : PADDING.top + PLOT_HEIGHT - 2}
-                            width={BAR_WIDTH}
-                            height={Math.max(barHeight, 2)}
-                            rx={2}
-                            fill={LEVEL_COLORS[h.level]}
-                            opacity={isCurrentHour ? 1 : 0.9}
-                            stroke={isCurrentHour ? "#1A1A2E" : "none"}
-                            strokeWidth={isCurrentHour ? 2 : 0}
-                            onPress={() =>
-                                setTooltip(
-                                    tooltip?.hour === h.hour
-                                        ? null
-                                        : { hour: h.hour, percentage: h.percentage },
-                                )
-                            }
-                        />
-                      </View>
+                      <Rect
+                          key={h.hour}
+                          x={x}
+                          y={barHeight > 0 ? y : PADDING.top + PLOT_HEIGHT - 2}
+                          width={BAR_WIDTH}
+                          height={Math.max(barHeight, 2)}
+                          rx={2}
+                          fill={LEVEL_COLORS[h.level]}
+                          opacity={isCurrentHour ? 0.6 : 0.9}
+                          //stroke={isCurrentHour ? "#1A1A2E" : "none"}
+                          strokeWidth={isCurrentHour ? 2 : 0}
+                          onPress={() =>
+                              setTooltip(
+                                  tooltip?.hour === h.hour
+                                      ? null
+                                      : { hour: h.hour, percentage: h.percentage },
+                              )
+                          }
+                      />
                   );
                 })}
 
@@ -324,7 +317,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   liveLabelText: {
-    fontSize: 10,
+    fontSize: 14,
     fontWeight: "700",
     color: "#fff",
   },
