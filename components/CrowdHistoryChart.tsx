@@ -1,5 +1,6 @@
 import { CrowdDay, CrowdHistory, CrowdLevel } from "@/types";
 import {useState, useRef, useEffect, JSX} from "react";
+import { Animated } from "react-native";
 import {
   ScrollView,
   StyleSheet,
@@ -77,12 +78,41 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
     percentage: number;
   } | null>(null);
 
+  const [opacityValue, setOpacityValue] = useState(1);
+  // Blinking animation
+  const blinkAnim = useRef(new Animated.Value(1)).current;
+
   // Scroll to "today" on mount
   useEffect(() => {
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }, 100);
   }, []);
+
+  useEffect(() => {
+    blinkAnim.addListener(({ value }) => {
+      setOpacityValue(value);
+    });
+
+    Animated.loop(
+        Animated.sequence([
+          Animated.timing(blinkAnim, {
+            toValue: 0.4,
+            duration: 800,
+            useNativeDriver: false,
+          }),
+          Animated.timing(blinkAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: false,
+          }),
+        ]),
+    ).start();
+
+    return () => {
+      blinkAnim.removeAllListeners();
+    };
+  }, [blinkAnim]);
 
   const selectedDay: CrowdDay | undefined = history.days[selectedDayIndex];
   const currentHour = new Date().getHours();
@@ -191,7 +221,6 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
                       PADDING.left + h.hour * BAR_GAP + (BAR_GAP - BAR_WIDTH) / 2;
                   const y = PADDING.top + PLOT_HEIGHT - barHeight;
 
-                  // Check if this bar is the current hour AND we're viewing today
                   const isCurrentHour = h.hour === currentHour && selectedDayIndex === history.days.length - 1;
 
                   return (
@@ -203,9 +232,9 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
                           height={Math.max(barHeight, 2)}
                           rx={2}
                           fill={LEVEL_COLORS[h.level]}
-                          opacity={isCurrentHour ? 0.6 : 0.9}
-                          //stroke={isCurrentHour ? "#1A1A2E" : "none"}
-                          strokeWidth={isCurrentHour ? 2 : 0}
+                          opacity={isCurrentHour ? opacityValue : 0.9}
+                          stroke={isCurrentHour ? "#A6A09B" : "none"}
+                          strokeWidth={isCurrentHour ? 0.5 : 0}
                           onPress={() =>
                               setTooltip(
                                   tooltip?.hour === h.hour
