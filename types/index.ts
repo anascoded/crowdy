@@ -77,7 +77,6 @@ export interface ApiError {
 }
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
-
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;

@@ -3,7 +3,7 @@ import CrowdMeter from "@/components/CrowdMeter";
 import { useCrowdHistory } from "@/hooks/useCrowdHistory";
 import { useCrowdLive } from "@/hooks/useCrowdLive";
 import { placesService } from "@/services/placesService";
-import useAuthStore from "@/store/authStore";
+import { useAuthStore } from "@/store/authStore";
 import useFavoritesStore from "@/store/favoritesStore";
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,6 +20,7 @@ import {
   View,
 } from "react-native";
 import {capitalizeWords} from "@/utils";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /**
  * Displays the details of a specific place, including its name, category, address, live crowd data,
@@ -63,8 +64,39 @@ export default function PlaceDetailScreen(): JSX.Element {
       }
     };
 
-    fetchPlace();
+    // Fetch place details when the component mounts or when the id changes
+    fetchPlace().catch((error) => {
+      console.error("Unhandled exception inside fetchPlace hook execution:", error);
+    });
   }, [id]);
+
+  /**
+   * Logs a user activity, such as adding or removing a favorite location, and stores it persistently.
+   * The activity is saved along with a timestamp and other related details in local storage.
+   * Only the most recent 10 activities are retained.
+   *
+   * @param {'favorite_added' | 'favorite_removed'} type - The type of activity performed by the user.
+   * @param {string} placeName - The name of the place associated with the activity.
+   * @returns {Promise<void>} A promise that resolves once the activity is successfully logged and saved.
+   */
+  const logActivity = async (type: 'favorite_added' | 'favorite_removed', placeName: string): Promise<void> => {
+    try {
+      const stored = await AsyncStorage.getItem('crowdy_activities') || '[]';
+      const activities = JSON.parse(stored);
+
+      const newActivity = {
+        id: Date.now().toString(),
+        type,
+        placeName,
+        timestamp: new Date().toISOString(),
+      };
+
+      const updated = [newActivity, ...activities].slice(0, 10);
+      await AsyncStorage.setItem('crowdy_activities', JSON.stringify(updated));
+    } catch (err) {
+      console.error('Failed to log activity:', err);
+    }
+  };
 
   // ── Toggle favorite ────────────────────────────────────────────────────────
   const handleFavoriteToggle = async () => {
@@ -76,8 +108,10 @@ export default function PlaceDetailScreen(): JSX.Element {
 
     if (favorited) {
       await removeFavorite(place.id);
+      await logActivity('favorite_removed', place.name);
     } else {
       await addFavorite(place);
+      await logActivity('favorite_added', place.name);
     }
   };
 
@@ -114,6 +148,15 @@ export default function PlaceDetailScreen(): JSX.Element {
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
+      {/* Back button */}
+      <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+          activeOpacity={0.7}
+      >
+        <Ionicons name="chevron-back" size={28} color="#1A1A2E" />
+      </TouchableOpacity>
+
       {/* Hero image */}
       <View style={styles.hero}>
         {place.photoUrl ? (
@@ -123,19 +166,6 @@ export default function PlaceDetailScreen(): JSX.Element {
             <Ionicons name="location-outline" size={48} color="#9CA3AF" />
           </View>
         )}
-
-        {/* Favorite button overlay */}
-        <TouchableOpacity
-          style={styles.favoriteButton}
-          onPress={handleFavoriteToggle}
-          activeOpacity={0.85}
-        >
-          <Ionicons
-            name={favorited ? "heart" : "heart-outline"}
-            size={24}
-            color={favorited ? "#EF4444" : "#fff"}
-          />
-        </TouchableOpacity>
       </View>
 
       {/* Place info */}
@@ -158,6 +188,35 @@ export default function PlaceDetailScreen(): JSX.Element {
           <Ionicons name="location-outline" size={14} color="#9CA3AF" />
           <Text style={styles.addressText}>{place.address}</Text>
         </View>
+
+        {/* Favorite button overlay */}
+        <TouchableOpacity
+            style={styles.favoriteButton}
+            onPress={handleFavoriteToggle}
+            activeOpacity={0.85}
+        >
+          <Ionicons
+              name={favorited ? "heart" : "heart-outline"}
+              size={24}
+              color={favorited ? "#EF4444" : "#fff"}
+          />
+        </TouchableOpacity>
+
+        {/* Direction button */}
+        <TouchableOpacity
+            style={styles.directionButton}
+            onPress={() => {
+              // TODO: Open maps with directions
+            }}
+            activeOpacity={0.85}
+        >
+          <Ionicons
+              name="navigate"
+              size={24}
+              color="#fff"
+          />
+        </TouchableOpacity>
+
       </View>
 
       {/* Live crowd meter */}
@@ -217,6 +276,18 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     textAlign: "center",
   },
+  backButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 16,
+    left: 16,
+    zIndex: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   retryButton: {
     marginTop: 8,
     paddingHorizontal: 24,
@@ -247,12 +318,23 @@ const styles = StyleSheet.create({
   },
   favoriteButton: {
     position: "absolute",
-    top: Platform.OS === "ios" ? 16 : 12,
-    right: 16,
+    top: 10,
+    right: 10,
     width: 44,
     height: 44,
     borderRadius: 22,
     backgroundColor: "rgba(0,0,0,0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  directionButton: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: "#31C950",
     alignItems: "center",
     justifyContent: "center",
   },

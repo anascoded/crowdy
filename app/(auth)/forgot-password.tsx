@@ -1,4 +1,4 @@
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import {JSX, useState} from "react";
 import {
     ActivityIndicator,
@@ -54,12 +54,6 @@ export default function ForgotPasswordScreen(): JSX.Element {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
             <View style={styles.inner}>
-                {/* Header with back button */}
-                <View style={styles.headerContainer}>
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Ionicons name="chevron-back" size={28} color="#1A1A2E" />
-                    </TouchableOpacity>
-                </View>
 
                 {/* Title */}
                 <View style={styles.header}>
@@ -141,6 +135,7 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     header: {
+        paddingTop: 120,
         marginBottom: 40,
     },
     title: {

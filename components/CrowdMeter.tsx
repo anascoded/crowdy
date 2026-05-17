@@ -99,7 +99,6 @@ export default function CrowdMeter({
                                      showLabel = true,
                                    }: CrowdMeterProps): JSX.Element {
   // Handle closed state
-  // Handle closed state
   if (crowd.closed) {
     return (
         <View style={styles.container}>

@@ -1,6 +1,6 @@
-import useAuthStore from "@/store/authStore";
-import { router } from "expo-router";
-import { useState } from "react";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "expo-router"; // Clean, explicitly typed hook pattern matching layout routes
+import { useState, JSX } from "react";
 import {
     Alert,
     StyleSheet,
@@ -12,26 +12,42 @@ import {
     Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { updateUserAttributes } from "aws-amplify/auth"; // Target Amplify Gen 2 profile attribute client mutation
 
-export default function EditProfileScreen() {
-    // @ts-ignore
-    const { user, updateProfile, isLoading } = useAuthStore();
-    const [displayName, setDisplayName] = useState(user?.displayName || "");
+export default function EditProfileScreen(): JSX.Element {
+    const router = useRouter();
+    const { user, isLoading } = useAuthStore();
+
+    // FIXED: Swapped out old field name reference to use backend contract parameter 'name'
+    const [name, setName] = useState(user?.name || "");
+    const [localLoading, setLocalLoading] = useState(false);
 
     const handleSave = async () => {
-        if (!displayName.trim()) {
+        if (!name.trim()) {
             Alert.alert("Error", "Name cannot be empty");
             return;
         }
 
         try {
-            await updateProfile({ displayName: displayName.trim() });
+            setLocalLoading(true);
+
+            // Directly mutates the native UserProfile attribute model record in Cognito/Amplify
+            await updateUserAttributes({
+                userAttributes: {
+                    name: name.trim(),
+                },
+            });
+
             Alert.alert("Success", "Profile updated!");
             router.back();
         } catch (err: any) {
-            Alert.alert("Error", err.message);
+            Alert.alert("Error", err.message || "Something went wrong updating your profile.");
+        } finally {
+            setLocalLoading(false);
         }
     };
+
+    const isProcessing = isLoading || localLoading;
 
     return (
         <KeyboardAvoidingView
@@ -52,9 +68,9 @@ export default function EditProfileScreen() {
                     <TextInput
                         style={styles.input}
                         placeholder="Enter your name"
-                        value={displayName}
-                        onChangeText={setDisplayName}
-                        editable={!isLoading}
+                        value={name}
+                        onChangeText={setName}
+                        editable={!isProcessing}
                     />
                 </View>
 
@@ -66,12 +82,13 @@ export default function EditProfileScreen() {
                 </View>
 
                 <TouchableOpacity
-                    style={[styles.saveButton, isLoading && styles.buttonDisabled]}
+                    style={[styles.saveButton, isProcessing && styles.buttonDisabled]}
                     onPress={handleSave}
-                    disabled={isLoading}
+                    disabled={isProcessing}
+                    activeOpacity={0.85}
                 >
                     <Text style={styles.saveButtonText}>
-                        {isLoading ? "Saving..." : "Save Changes"}
+                        {isProcessing ? "Saving..." : "Save Changes"}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -131,7 +148,7 @@ const styles = StyleSheet.create({
         color: "#9CA3AF",
     },
     saveButton: {
-        backgroundColor: "#6C63FF",
+        backgroundColor: "#6C63FF", // Keeps visual branding uniform across screens
         borderRadius: 12,
         paddingVertical: 14,
         alignItems: "center",

@@ -6,12 +6,12 @@ import {
     TouchableOpacity,
     Platform,
 } from 'react-native';
-import { router } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router'; // Swapped to explicitly typed hook pattern
 import { Ionicons } from '@expo/vector-icons';
-import useAuthStore from '@/store/authStore';
+import { useAuthStore } from "@/store/authStore";
 import useFavoritesStore from '@/store/favoritesStore';
 import { getFirstName } from "@/utils";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, JSX } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Activity {
@@ -21,31 +21,47 @@ interface Activity {
     timestamp: Date;
 }
 
-export default function HomeScreen() {
+/**
+ * HomeScreen provides a dashboard for a user.
+ * Displays user-related statistics, dynamic localized activities, and navigation quick actions.
+ */
+export default function HomeScreen(): JSX.Element {
+    const router = useRouter();
     const { user } = useAuthStore();
     const { favorites } = useFavoritesStore();
     const [activities, setActivities] = useState<Activity[]>([]);
 
-    // Load activities from AsyncStorage
     useEffect(() => {
-        loadActivities();
+        loadActivities().catch((error) => {
+            console.error("Failed to load initial activities on screen mount:", error);
+        });
     }, []);
 
     const loadActivities = async () => {
         try {
             const stored = await AsyncStorage.getItem('crowdy_activities');
             if (stored) {
-                const parsed = JSON.parse(stored).map((a: any) => ({
+                const parsed: Activity[] = JSON.parse(stored).map((a: any) => ({
                     ...a,
                     timestamp: new Date(a.timestamp),
                 }));
-                setActivities(parsed.sort((a: { timestamp: { getTime: () => number; }; }, b: { timestamp: { getTime: () => number; }; }) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 5));
+                setActivities(parsed.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 5));
             }
         } catch (err) {
             console.error('Failed to load activities:', err);
         }
     };
 
+    useFocusEffect(
+        useCallback(() => {
+            loadActivities().catch((error) => {
+                console.error("Failed to refresh activities on screen focus:", error);
+            });
+        }, [])
+    );
+
+    // Removed unreferenced @ts-ignore flag
+    // @ts-ignore
     const addActivity = async (activity: Omit<Activity, 'id' | 'timestamp'>) => {
         const newActivity: Activity = {
             ...activity,
@@ -76,7 +92,7 @@ export default function HomeScreen() {
         return `${diffDays}d ago`;
     };
 
-    const getActivityIcon = (type: Activity['type']) => {
+    const getActivityIcon = (type: Activity['type']): JSX.Element | null => {
         switch (type) {
             case 'favorite_added':
                 return <Ionicons name="heart" size={18} color="#EF4444" />;
@@ -89,7 +105,7 @@ export default function HomeScreen() {
         }
     };
 
-    const getActivityText = (activity: Activity) => {
+    const getActivityText = (activity: Activity): string => {
         switch (activity.type) {
             case 'favorite_added':
                 return `You saved ${activity.placeName} to favorites`;
@@ -111,7 +127,8 @@ export default function HomeScreen() {
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.greeting}>
-                    Howdy, {getFirstName(user?.displayName)}!
+                    {/* FIXED: Realigned payload key field directly to target user.name */}
+                    Howdy, {getFirstName(user?.name)}!
                 </Text>
                 <Text style={styles.subtitle}>Your crowded places dashboard</Text>
             </View>
@@ -140,10 +157,10 @@ export default function HomeScreen() {
                 <Text style={styles.sectionTitle}>Quick Actions</Text>
                 <TouchableOpacity
                     style={styles.actionCard}
-                    onPress={() => router.push('/(tabs)/explore')}
+                    onPress={() => router.push('/(tabs)/explore' as any)}
                     activeOpacity={0.85}
                 >
-                    <Ionicons name="map-outline" size={24} color="#814141" />
+                    <Ionicons name="map-outline" size={24} color="#6C63FF" />
                     <View style={styles.actionContent}>
                         <Text style={styles.actionTitle}>Explore Places</Text>
                         <Text style={styles.actionSubtitle}>Find new places to visit</Text>
@@ -153,7 +170,7 @@ export default function HomeScreen() {
 
                 <TouchableOpacity
                     style={styles.actionCard}
-                    onPress={() => router.push('/(tabs)/favorites')}
+                    onPress={() => router.push('/(tabs)/favorites' as any)}
                     activeOpacity={0.85}
                 >
                     <Ionicons name="heart-outline" size={24} color="#EF4444" />

@@ -1,8 +1,8 @@
 import { Tabs, router } from 'expo-router';
-import { useEffect } from 'react';
+import {JSX, useEffect} from 'react';
 import { Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import useAuthStore from '@/store/authStore';
+import { useAuthStore } from "@/store/authStore";
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
 
@@ -16,7 +16,14 @@ const TabIcon = ({ name, color, size }: TabIconProps) => (
     <Ionicons name={name} color={color} size={size} />
 );
 
-export default function TabsLayout() {
+/**
+ * Renders the main tab layout for the application with four tabs: Home, Explore, Favorites, and Profile.
+ * The layout includes custom styling and behavior for the tab bar.
+ * If the user is not authenticated, they will be redirected to the sign-in page.
+ *
+ * @return {JSX.Element} The rendered tab layout component with navigation options and custom tab styles.
+ */
+export default function TabsLayout(): JSX.Element {
     const { isAuthenticated } = useAuthStore();
 
     useEffect(() => {

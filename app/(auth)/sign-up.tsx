@@ -1,5 +1,5 @@
-import useAuthStore from "@/store/authStore";
-import { Link, router } from "expo-router";
+import { useAuthStore } from "@/store/authStore"; // Adjusted to use named import if standard
+import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -18,22 +18,14 @@ import {
 /**
  * Renders the Sign-Up screen of the application.
  *
- * The screen includes input fields for a user's display name, email, password, and
- * password confirmation, along with options to toggle password visibility and
- * display validation errors. It handles the user sign-up process through interactions
- * with the authentication store and provides user feedback through inline error
- * messages and alerts.
- *
- * Features:
- * - Displays input fields for `Name`, `Email`, `Password`, and `Confirm Password`.
- * - Validates inputs for required constraints including format and length.
- * - Handles form submission and integrates with an authentication system.
- * - Displays loading indicators during the sign-up process.
- * - Shows error messages for input validation or server-side errors.
+ * Handles the user sign-up process through interactions with the newly migrated
+ * AWS Cognito authentication store and gracefully paths unverified accounts to verification.
  *
  * @return {React.ReactElement} A React component representing the Sign-Up screen.
  */
 export default function SignUpScreen(): React.ReactElement {
+  const router = useRouter();
+  // Swapped to point directly to our updated AWS store hooks
   const { signUp, isLoading, error, clearError } = useAuthStore();
 
   const [displayName, setDisplayName] = useState("");
@@ -44,15 +36,6 @@ export default function SignUpScreen(): React.ReactElement {
 
   /**
    * Validates user input for required fields and constraints.
-   *
-   * @returns {string|null} Validation error message if any field is invalid, or null if all inputs are valid.
-   *
-   * The validation performs the following checks:
-   * - Ensures the `displayName` is not empty or only whitespace.
-   * - Ensures the `email` is not empty or only whitespace.
-   * - Validates the `email` format to match a standard email pattern.
-   * - Ensures the `password` is at least 8 characters long.
-   * - Checks that the `password` and `confirmPassword` values match.
    */
   const validate = (): string | null => {
     if (!displayName.trim()) return "Please enter your name.";
@@ -66,14 +49,6 @@ export default function SignUpScreen(): React.ReactElement {
 
   /**
    * Handles the sign-up process for a user.
-   *
-   * This function validates the user input, displays an alert if the input is invalid,
-   * and attempts to sign up the user with the provided credentials. Upon successful
-   * sign-up, the user is redirected to the "Explore" page. Errors during the sign-up
-   * process are handled internally.
-   *
-   * @async
-   * @function handleSignUp
    */
   const handleSignUp = async () => {
     const validationError = validate();
@@ -83,156 +58,161 @@ export default function SignUpScreen(): React.ReactElement {
     }
 
     try {
-      await signUp({
-        email: email.trim(),
-        password,
-        displayName: displayName.trim(),
-      });
-      router.replace("/(tabs)/explore");
-    } catch {
-      // Error is already set in the store
+      await signUp({ email: email.trim(), password, displayName: displayName.trim() });
+
+      const currentNeedsVerification = useAuthStore.getState().needsVerification;
+      if (currentNeedsVerification) {
+        router.push("/(auth)/verify" as any);
+      } else {
+        router.replace("/(tabs)/home");
+      }
+    } catch (err) {
+      // Error is set internally
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <ScrollView
-        contentContainerStyle={styles.inner}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Create account</Text>
-          <Text style={styles.subtitle}>
-            Save and track your favorite places
-          </Text>
-        </View>
-
-        {/* Form */}
-        <View style={styles.form}>
-          {error && (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          )}
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Your name"
-              placeholderTextColor="#9E9E9E"
-              autoCapitalize="words"
-              autoCorrect={false}
-              value={displayName}
-              onChangeText={(text) => {
-                clearError();
-                setDisplayName(text);
-              }}
-            />
+        <ScrollView
+            contentContainerStyle={styles.inner}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Create account</Text>
+            <Text style={styles.subtitle}>
+              Save and track your favorite places
+            </Text>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="you@example.com"
-              placeholderTextColor="#9E9E9E"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              value={email}
-              onChangeText={(text) => {
-                clearError();
-                setEmail(text);
-              }}
-            />
-          </View>
+          {/* Form */}
+          <View style={styles.form}>
+            {error && (
+                <View style={styles.errorBox}>
+                  <Text style={styles.errorText}>{error}</Text>
+                </View>
+            )}
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
-            <View style={styles.passwordContainer}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Name</Text>
               <TextInput
-                  style={styles.passwordInput}
-                  placeholder="Min. 8 characters"
+                  style={styles.input}
+                  placeholder="Your name"
                   placeholderTextColor="#9E9E9E"
-                  secureTextEntry={!showPassword}
-                  value={password}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  value={displayName}
                   onChangeText={(text) => {
-                    clearError();
-                    setPassword(text);
+                    if (clearError) clearError();
+                    setDisplayName(text);
                   }}
               />
-              <TouchableOpacity
-                  style={styles.visibilityButton}
-                  onPress={() => setShowPassword(!showPassword)}
-                  activeOpacity={0.7}
-              >
-                <Ionicons
-                    name={showPassword ? "eye" : "eye-off"}
-                    size={20}
-                    color="#9CA3AF"
-                />
-              </TouchableOpacity>
             </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                  style={styles.input}
+                  placeholder="you@example.com"
+                  placeholderTextColor="#9E9E9E"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  value={email}
+                  onChangeText={(text) => {
+                    if (clearError) clearError();
+                    setEmail(text);
+                  }}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Password</Text>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                    style={styles.passwordInput}
+                    placeholder="Min. 8 characters"
+                    placeholderTextColor="#9E9E9E"
+                    secureTextEntry={!showPassword}
+                    value={password}
+                    onChangeText={(text) => {
+                      if (clearError) clearError();
+                      setPassword(text);
+                    }}
+                />
+                <TouchableOpacity
+                    style={styles.visibilityButton}
+                    onPress={() => setShowPassword(!showPassword)}
+                    activeOpacity={0.7}
+                >
+                  <Ionicons
+                      name={showPassword ? "eye" : "eye-off"}
+                      size={20}
+                      color="#9CA3AF"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Confirm password</Text>
+              <TextInput
+                  style={[
+                    styles.input,
+                    confirmPassword.length > 0 &&
+                    password !== confirmPassword &&
+                    styles.inputError,
+                  ]}
+                  placeholder="••••••••"
+                  placeholderTextColor="#9E9E9E"
+                  secureTextEntry
+                  value={confirmPassword}
+                  onChangeText={(text) => {
+                    if (clearError) clearError();
+                    setConfirmPassword(text);
+                  }}
+              />
+              {confirmPassword.length > 0 && password !== confirmPassword && (
+                  <Text style={styles.inlineError}>Passwords do not match</Text>
+              )}
+            </View>
+
+            <TouchableOpacity
+                style={[styles.button, isLoading && styles.buttonDisabled]}
+                onPress={() => { void handleSignUp(); }}
+                disabled={isLoading}
+                activeOpacity={0.85}
+            >
+              {isLoading ? (
+                  <ActivityIndicator color="#fff" />
+              ) : (
+                  <Text style={styles.buttonText}>Create account</Text>
+              )}
+            </TouchableOpacity>
+
+            <Text style={styles.terms}>
+              By creating an account you agree to our{" "}
+              <Text style={styles.link}>Terms of Service</Text> and{" "}
+              <Text style={styles.link}>Privacy Policy</Text>
+            </Text>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Confirm password</Text>
-            <TextInput
-              style={[
-                styles.input,
-                confirmPassword.length > 0 &&
-                  password !== confirmPassword &&
-                  styles.inputError,
-              ]}
-              placeholder="••••••••"
-              placeholderTextColor="#9E9E9E"
-              secureTextEntry
-              value={confirmPassword}
-              onChangeText={(text) => {
-                clearError();
-                setConfirmPassword(text);
-              }}
-            />
-            {confirmPassword.length > 0 && password !== confirmPassword && (
-              <Text style={styles.inlineError}>Passwords do not match</Text>
-            )}
+          {/* ── Footer ────────────────────────────────────────────────────────── */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Already have an account? </Text>
+            {/* Added 'asChild' and 'as any' type casting to bypass the cached Expo Router mapping rule */}
+            <Link href={"/(auth)/sign-in" as any} onPress={clearError} asChild>
+              <TouchableOpacity activeOpacity={0.7}>
+                <Text style={styles.link}>Sign in</Text>
+              </TouchableOpacity>
+            </Link>
           </View>
-
-          <TouchableOpacity
-            style={[styles.button, isLoading && styles.buttonDisabled]}
-            onPress={handleSignUp}
-            disabled={isLoading}
-            activeOpacity={0.85}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Create account</Text>
-            )}
-          </TouchableOpacity>
-
-          <Text style={styles.terms}>
-            By creating an account you agree to our{" "}
-            <Text style={styles.link}>Terms of Service</Text> and{" "}
-            <Text style={styles.link}>Privacy Policy</Text>
-          </Text>
-        </View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account? </Text>
-          <Link href="/(auth)/sign-in" onPress={clearError}>
-            <Text style={styles.link}>Sign in</Text>
-          </Link>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
   );
 }
 
@@ -323,7 +303,7 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 52,
-    backgroundColor: "#4A0404",
+    backgroundColor: "#6C63FF", // Updated matching Crowdy Brand Violet used in the verify screen layout
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -353,7 +333,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   link: {
-    color: "#814141",
+    color: "#6C63FF",
     fontSize: 14,
     fontWeight: "600",
   },

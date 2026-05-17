@@ -35,6 +35,7 @@ const parseTime = (timeStr?: string): number => {
 };
 
 // Helper to get timezone offset for a location
+// @ts-ignore
 const getLocationTimezone = (latitude: number, longitude: number): number => {
   // This is a simplified approach using device timezone
   // For precise location-based timezone, you'd need a timezone API
@@ -62,7 +63,7 @@ export async function pollForResults(resultsUrl: string): Promise<object> {
 
       if (!response.ok) {
         console.warn(`Outscraper server responded with HTTP status: ${response.status}`);
-        continue; // Keep trying if it's a temporary gateway hiccup
+        continue; // Keep trying if it's temporary gateway hiccup
       }
 
       const data = await response.json();
@@ -151,7 +152,9 @@ const isOpenNow = (workingHours: any): boolean => {
 };
 
 /**
- * A service for collecting live and historical crowd data for a specific place.
+ * A service for retrieving crowd data of specific places, including live crowd statistics and historical crowd levels.
+ *
+ * @namespace crowdService
  */
 const crowdService = {
   getLive: async (placeId: string): Promise<CrowdLive> => {
@@ -270,8 +273,11 @@ const crowdService = {
             date.setDate(today.getDate() - diff);
 
             // Safer local formatting (avoids toISOString timezone bugs)
+            // @ts-ignore
             const month = date.getMonth() + 1;
+            // @ts-ignore
             const day = date.getDate();
+            // @ts-ignore
             const year = date.getFullYear();
 
             const localDate = date.getTime();

@@ -1,6 +1,13 @@
 import { Stack } from 'expo-router';
+import {JSX} from "react";
 
-export default function ProfileSettingsLayout() {
+/**
+ * Renders the ProfileSettingsLayout component, which defines a stack navigator
+ * with various screens for managing user profile settings.
+ *
+ * @return {JSX.Element} The stack navigator containing multiple profile settings-related screens.
+ */
+export default function ProfileSettingsLayout(): JSX.Element {
     return (
         <Stack
             screenOptions={{

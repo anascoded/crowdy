@@ -5,7 +5,7 @@ import {
     ScrollView,
     Platform,
     TouchableOpacity,
-    Linking,
+    Linking, Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,8 +22,32 @@ import {JSX} from "react";
 export default function AboutScreen(): JSX.Element {
     const router = useRouter();
 
-    const openLink = (url: string) => {
-        Linking.openURL(url);
+    /**
+     * Asynchronously attempts to open the provided URL using the device's available apps.
+     *
+     * The function first checks if the URL can be opened by querying the device for a supported handler.
+     * If a handler exists, it opens the URL. Otherwise, it alerts the user that the URL type is unsupported.
+     *
+     * If an error occurs during this process, an error message is logged to the console, and an alert
+     * is displayed to inform the user of the failure.
+     *
+     * @param {string} url - The URL string to open.
+     * @throws Will log an error to the console and display an alert if an exception is thrown during execution.
+     */
+    const openLink = async (url: string) => {
+        try {
+            // Check if the device has a handler installed capable of parsing this specific URL string
+            const supported = await Linking.canOpenURL(url);
+
+            if (supported) {
+                await Linking.openURL(url);
+            } else {
+                Alert.alert("Invalid Link", `Your device cannot open this type of URL: ${url}`);
+            }
+        } catch (error) {
+            console.error("An error occurred while opening the URL:", error);
+            Alert.alert("Error", "Something went wrong trying to open this link.");
+        }
     };
 
     return (
@@ -126,7 +150,7 @@ export default function AboutScreen(): JSX.Element {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Built With</Text>
                 <Text style={styles.description}>
-                    Crowdy is built with React Native, Expo, Firebase, and powered by Google Places API and crowd data providers.
+                    Crowdy is built with React Native, AWS, and powered by Google Places API and crowd data providers.
                 </Text>
             </View>
 
@@ -146,7 +170,17 @@ interface FeatureItemProps {
     description: string;
 }
 
-const FeatureItem = ({ icon, title, description }: FeatureItemProps) => (
+/**
+ * A functional component that represents a feature item.
+ * It displays an icon, a title, and a description, styled properly for visual representation.
+ *
+ * @param {Object} props - The property object.
+ * @param {string} props.icon - The name of the Ionicons icon to be displayed.
+ * @param {string} props.title - The title text of the feature item.
+ * @param {string} props.description - The descriptive text of the feature item.
+ * @returns {JSX.Element} - The rendered feature item component.
+ */
+const FeatureItem = ({ icon, title, description }: FeatureItemProps): JSX.Element => (
     <View style={styles.featureItem}>
         <View style={styles.featureIcon}>
             <Ionicons name={icon} size={24} color="#814141" />
@@ -158,6 +192,9 @@ const FeatureItem = ({ icon, title, description }: FeatureItemProps) => (
     </View>
 );
 
+/**
+ * Represents the properties required for rendering a contact item.
+ */
 interface ContactItemProps {
     icon: keyof typeof Ionicons.glyphMap;
     label: string;
@@ -165,7 +202,19 @@ interface ContactItemProps {
     onPress: () => void;
 }
 
-const ContactItem = ({ icon, label, value, onPress }: ContactItemProps) => (
+/**
+ * A functional component that renders a clickable contact item.
+ * The component displays an icon, a label, and a value, with an optional action
+ * triggered when the item is pressed.
+ *
+ * @param {Object} props - The properties for the ContactItem component.
+ * @param {string} props.icon - The name of the icon to be displayed on the contact item.
+ * @param {string} props.label - The label text to describe the contact information.
+ * @param {string} props.value - The value text representing the contact detail.
+ * @param {function} props.onPress - The callback function to be invoked when the item is pressed.
+ * @returns {JSX.Element} A TouchableOpacity component styled as a contact item with provided details.
+ */
+const ContactItem = ({ icon, label, value, onPress }: ContactItemProps): JSX.Element => (
     <TouchableOpacity
         style={styles.contactItem}
         onPress={onPress}

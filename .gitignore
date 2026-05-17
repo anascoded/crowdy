@@ -43,3 +43,8 @@ app-example
 /android
 
 .early.coverage
+
+# amplify
+.amplify
+amplify_outputs*
+amplifyconfiguration*

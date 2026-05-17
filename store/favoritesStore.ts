@@ -54,48 +54,18 @@ const useFavoritesStore = create<FavoritesState>()(
                 set({ isLoading: true, error: null });
 
                 try {
-                    const { favoritesService } = await import('@/services/favoritesService');
-                    const { placesService } = await import('@/services/placesService');
+                    const stored = await AsyncStorage.getItem('crowdy_favorites');
 
-                    const favorites = await favoritesService.getAll();
-
-                    const validFavorites: Favorite[] = [];
-
-                    for (const favorite of favorites) {
-                        try {
-                            // Skip malformed favorites
-                            if (!favorite?.place?.id) {
-                                console.warn('Removing malformed favorite:', favorite);
-                                continue;
-                            }
-
-                            // Validate Google Place ID
-                            await placesService.getById(favorite.place.id);
-
-                            validFavorites.push(favorite);
-                        } catch (err) {
-                            console.warn(
-                                'Removing invalid favorite:',
-                                favorite?.place?.id
-                            );
-                        }
+                    if (stored) {
+                        const favorites = JSON.parse(stored);
+                        console.log('Loaded favorites:', favorites);
+                        set({ favorites, isLoading: false });
+                    } else {
+                        console.log('No favorites found');
+                        set({ favorites: [], isLoading: false });
                     }
-
-                    await AsyncStorage.setItem(
-                        'favorites-storage',
-                        JSON.stringify({
-                            state: {
-                                favorites: validFavorites,
-                            },
-                            version: 0,
-                        })
-                    );
-
-                    set({
-                        favorites: validFavorites,
-                        isLoading: false,
-                    });
                 } catch (err: any) {
+                    console.error('Failed to fetch favorites:', err);
                     set({
                         error: err.message ?? 'Failed to load favorites',
                         isLoading: false,
@@ -103,27 +73,41 @@ const useFavoritesStore = create<FavoritesState>()(
                 }
             },
 
-          addFavorite: async (place: Place) => {
-            const optimistic: Favorite = {
-              id: `fav-${place.id}`,
-              userId: 'local-user',
-              place,
-              addedAt: new Date().toISOString(),
-            };
-            set((state) => ({ favorites: [optimistic, ...state.favorites], isSyncing: true }));
+            addFavorite: async (place: Place) => {
+                const optimistic: Favorite = {
+                    id: `fav-${place.id}`,
+                    userId: 'local-user',
+                    place,
+                    addedAt: new Date().toISOString(),
+                };
+                set((state) => ({ favorites: [optimistic, ...state.favorites], isSyncing: true }));
 
-            try {
-              const { favoritesService } = await import('@/services/favoritesService');
-              await favoritesService.add(place);
-              set({ isSyncing: false });
-            } catch (err: any) {
-              set((state) => ({
-                favorites: state.favorites.filter((f) => f.id !== optimistic.id),
-                error: err.message ?? 'Failed to add favorite',
-                isSyncing: false,
-              }));
-            }
-          },
+                try {
+                    const current = get().favorites;
+                    await AsyncStorage.setItem('crowdy_favorites', JSON.stringify(current));
+                    console.log('Added favorite:', optimistic);
+
+                    // Log activity
+                    const stored = await AsyncStorage.getItem('crowdy_activities') || '[]';
+                    const activities = JSON.parse(stored);
+                    const newActivity = {
+                        id: Date.now().toString(),
+                        type: 'favorite_added',
+                        placeName: place.name,
+                        timestamp: new Date().toISOString(),
+                    };
+                    const updatedActivities = [newActivity, ...activities].slice(0, 10);
+                    await AsyncStorage.setItem('crowdy_activities', JSON.stringify(updatedActivities));
+
+                    set({ isSyncing: false });
+                } catch (err: any) {
+                    set((state) => ({
+                        favorites: state.favorites.filter((f) => f.id !== optimistic.id),
+                        error: err.message ?? 'Failed to add favorite',
+                        isSyncing: false,
+                    }));
+                }
+            },
 
           removeFavorite: async (placeId: string) => {
             const previous = get().favorites;

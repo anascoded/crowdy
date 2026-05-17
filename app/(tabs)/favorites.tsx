@@ -1,10 +1,11 @@
 import PlaceCard from "@/components/PlaceCard";
-import useAuthStore from "@/store/authStore";
+import { useAuthStore } from "@/store/authStore";
 import useFavoritesStore from "@/store/favoritesStore";
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import {JSX, useEffect, useState} from "react";
+import { JSX, useEffect, useState } from "react";
+import { ScrollView, LayoutAnimation } from "react-native";
 import {
   ActivityIndicator,
   FlatList,
@@ -17,12 +18,12 @@ import {
 } from "react-native";
 
 /**
- * Represents the FavoritesScreen component, which displays the user's favorite places.
- * The component adjusts its behavior based on the authentication state and the data loading status.
+ * Renders the FavoritesScreen component, which displays a list of the user's saved favorite places,
+ * along with features for filtering by category, refreshing the list, and removing favorites.
+ * It adapts dynamically based on the user's authentication status and the current state of the data.
  *
- * @return {JSX.Element} The rendered FavoritesScreen component, displaying
- * either the authentication prompt, a loading indicator, or the user's list of favorite places.
- * Includes functionality for refreshing the list, handling errors, and navigating to specific places or the explore screen.
+ * @return {JSX.Element} The FavoritesScreen component with conditional rendering for
+ * loading states, authentication status, and favorite place categories.
  */
 export default function FavoritesScreen(): JSX.Element {
   const { isAuthenticated } = useAuthStore();
@@ -36,60 +37,60 @@ export default function FavoritesScreen(): JSX.Element {
   } = useFavoritesStore();
 
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Get unique categories from favorites
+  const categories = Array.from(
+      new Set(
+          favorites
+              .map((fav) => fav.place?.category)
+              .filter(Boolean) as string[]
+      )
+  ).sort();
+
+  // Filter favorites by selected category
+  const filteredFavorites = selectedCategory
+      ? favorites.filter((fav) => fav.place?.category === selectedCategory)
+      : favorites;
+
+  // Handle category selection with a smooth micro-animation
+  const handleCategorySelect = (category: string | null) => {
+    if (Platform.OS !== 'web') {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }
+    setSelectedCategory(category);
+  };
+
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log('Categories found:', categories);
+    console.log('Favorites loaded:', favorites);
+    console.log('Favorites length:', favorites.length);
+  }, [favorites, categories]);
 
   // Fetch favorites when authenticated
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => { // Renamed slightly to avoid namespace confusion
       if (isAuthenticated) {
         await fetchFavorites();
       }
     };
-    fetch();
+
+    fetchData().catch((error) => {
+      console.error("Failed to automatically synchronize user favorites on mount:", error);
+    });
   }, [fetchFavorites, isAuthenticated]);
 
-  /**
-   * Handles the refresh action by updating the refreshing state,
-   * fetching the latest favorites data, and then resetting the
-   * refreshing state.
-   *
-   * This asynchronous function is typically used to trigger a
-   * refresh operation for updating the data displayed in the
-   * user interface.
-   *
-   * @function
-   * @async
-   * @returns {Promise<void>} A promise that resolves when the refresh operation is complete.
-   */
   const handleRefresh = async (): Promise<void> => {
     setRefreshing(true);
     await fetchFavorites();
     setRefreshing(false);
   };
 
-  /**
-   * Handles the event when a place is selected.
-   *
-   * This function navigates the user to the detailed page
-   * of the specified place, using its unique identifier.
-   *
-   * @param {Place} place - The place object containing details
-   *                        about the selected location. It must
-   *                        include an `id` property.
-   */
   const handlePlacePress = (place: Place) => {
     router.push(`/place/${place.id}`);
   };
 
-  /**
-   * Handles the removal of a favorite item identified by its place ID.
-   *
-   * This asynchronous function calls the `removeFavorite` function to
-   * remove the specified favorite entity. It is typically used to
-   * manage the state of user favorited items in an application.
-   *
-   * @param {string} placeId - The unique identifier of the place to be removed from favorites.
-   * @returns {Promise<void>} A promise that resolves when the removal operation completes.
-   */
   const handleRemoveFavorite = async (placeId: string): Promise<void> => {
     await removeFavorite(placeId);
   };
@@ -97,98 +98,154 @@ export default function FavoritesScreen(): JSX.Element {
   // ── Not authenticated ────────────────────────────────────────────────────────
   if (!isAuthenticated) {
     return (
-      <View style={styles.centeredContainer}>
-        <Ionicons name="heart-outline" size={64} color="#E5E7EB" />
-        <Text style={styles.gateTitle}>Save your favorite places</Text>
-        <Text style={styles.gateSubtitle}>
-          Sign in to keep track of places you love and check their crowd levels
-          anytime.
-        </Text>
-        <TouchableOpacity
-          style={styles.signInButton}
-          onPress={() => router.push("/(auth)/sign-in")}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.signInButtonText}>Sign in</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.signUpButton}
-          onPress={() => router.push("/(auth)/sign-up")}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.signUpButtonText}>Create account</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.centeredContainer}>
+          <Ionicons name="heart-outline" size={64} color="#E5E7EB" />
+          <Text style={styles.gateTitle}>Save your favorite places</Text>
+          <Text style={styles.gateSubtitle}>
+            Sign in to keep track of places you love and check their crowd levels
+            anytime.
+          </Text>
+          <TouchableOpacity
+              style={styles.signInButton}
+              onPress={() => router.push("/(auth)/sign-in")}
+              activeOpacity={0.85}
+          >
+            <Text style={styles.signInButtonText}>Sign in</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+              style={styles.signUpButton}
+              onPress={() => router.push("/(auth)/sign-up")}
+              activeOpacity={0.85}
+          >
+            <Text style={styles.signUpButtonText}>Create account</Text>
+          </TouchableOpacity>
+        </View>
     );
   }
 
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (isLoading && favorites.length === 0) {
     return (
-      <View style={styles.centeredContainer}>
-        <ActivityIndicator size="large" color="#6C63FF" />
-      </View>
+        <View style={styles.centeredContainer}>
+          <ActivityIndicator size="large" color="#6C63FF" />
+        </View>
     );
   }
 
   // ── Authenticated ────────────────────────────────────────────────────────────
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Favorites</Text>
-        {isSyncing && <ActivityIndicator size="small" color="#6C63FF" />}
-      </View>
-
-      {/* Error */}
-      {error && (
-        <View style={styles.errorBox}>
-          <Text style={styles.errorText}>{error}</Text>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Favorites</Text>
+          {isSyncing && <ActivityIndicator size="small" color="#6C63FF" />}
         </View>
-      )}
 
-      {/* List */}
-      <FlatList
-        data={favorites}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-            <PlaceCard
-                place={item.place}
-                onPress={() => handlePlacePress(item.place)}
-                onFavoritePress={() => handleRemoveFavorite(item.place.id)}
-                isFavorite
-            />
+        {/* Category Filter */}
+        {categories.length > 0 && favorites.length > 0 && (
+            <View style={styles.filterContainer}>
+              <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.filterScroll}
+              >
+                <TouchableOpacity
+                    style={[
+                      styles.filterTag,
+                      selectedCategory === null && styles.filterTagActive,
+                    ]}
+                    onPress={() => handleCategorySelect(null)}
+                >
+                  <Text
+                      style={[
+                        styles.filterTagText,
+                        selectedCategory === null && styles.filterTagTextActive,
+                      ]}
+                  >
+                    All
+                  </Text>
+                </TouchableOpacity>
+
+                {categories.map((category) => (
+                    <TouchableOpacity
+                        key={category}
+                        style={[
+                          styles.filterTag,
+                          selectedCategory === category && styles.filterTagActive,
+                        ]}
+                        onPress={() => handleCategorySelect(category)}
+                    >
+                      <Text
+                          style={[
+                            styles.filterTagText,
+                            selectedCategory === category &&
+                            styles.filterTagTextActive,
+                          ]}
+                      >
+                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                      </Text>
+                    </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
         )}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            tintColor="#6C63FF"
-          />
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="heart-outline" size={48} color="#E5E7EB" />
-            <Text style={styles.emptyTitle}>No favorites yet</Text>
-            <Text style={styles.emptySubtitle}>
-              Tap the heart on any place to save it here.
-            </Text>
-            <TouchableOpacity
-              style={styles.exploreButton}
-              onPress={() => router.push("/(tabs)/explore")}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.exploreButtonText}>Explore places</Text>
-            </TouchableOpacity>
-          </View>
-        }
-      />
-    </View>
+
+        {/* Error */}
+        {error && (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+        )}
+
+        {/* List */}
+        <FlatList
+            data={filteredFavorites}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+                <PlaceCard
+                    place={item.place}
+                    onPress={() => handlePlacePress(item.place)}
+                    onFavoritePress={() => handleRemoveFavorite(item.place.id)}
+                    isFavorite
+                />
+            )}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                  tintColor="#6C63FF"
+              />
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Ionicons name="heart-outline" size={48} color="#E5E7EB" />
+                <Text style={styles.emptyTitle}>
+                  {selectedCategory
+                      ? `No ${selectedCategory}s saved`
+                      : "No favorites yet"}
+                </Text>
+                <Text style={styles.emptySubtitle}>
+                  {selectedCategory
+                      ? "Try another category or explore more places."
+                      : "Tap the heart on any place to save it here."}
+                </Text>
+                <TouchableOpacity
+                    style={styles.exploreButton}
+                    onPress={() => router.push("/(tabs)/explore")}
+                    activeOpacity={0.85}
+                >
+                  <Text style={styles.exploreButtonText}>Explore places</Text>
+                </TouchableOpacity>
+              </View>
+            }
+        />
+      </View>
   );
 }
 
+// ── A set of predefined styles for various UI components used in the application. ──
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -231,6 +288,36 @@ const styles = StyleSheet.create({
     color: "#DC2626",
     fontSize: 14,
   },
+  filterContainer: {
+    backgroundColor: "#F9FAFB",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F9FAFB",
+    paddingVertical: 10,
+  },
+  filterScroll: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  filterTag: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20, // Rounded pill looks much more modern than a strict block corner
+    backgroundColor: "#F3F4F6",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  filterTagActive: {
+    backgroundColor: "#E7180B",
+    borderColor: "#E7180B",
+  },
+  filterTagText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#6B7280",
+  },
+  filterTagTextActive: {
+    color: "#fff",
+  },
   listContent: {
     paddingHorizontal: 16,
     paddingTop: 12,
@@ -253,12 +340,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#9CA3AF",
     textAlign: "center",
+    paddingHorizontal: 24,
   },
   exploreButton: {
     marginTop: 8,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    backgroundColor: "#814141",
+    backgroundColor: "#6C63FF", // Fixed theme color to match the primary purple
     borderRadius: 12,
   },
   exploreButtonText: {

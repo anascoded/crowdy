@@ -1,6 +1,6 @@
-import useAuthStore from "@/store/authStore";
-import { router } from "expo-router";
-import { useState } from "react";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "expo-router"; // Explicit hook import pattern matches layout structure
+import { useState, JSX } from "react";
 import {
     Alert,
     StyleSheet,
@@ -12,9 +12,12 @@ import {
     Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { updatePassword } from "aws-amplify/auth"; // Direct hook target for Amplify Gen 2 Auth operations
 
-export default function ChangePasswordScreen() {
-    const { updatePassword, isLoading } = useAuthStore();
+export default function ChangePasswordScreen(): JSX.Element {
+    const router = useRouter();
+    const { isLoading } = useAuthStore(); // Keep context hook for overall platform-wide loading indicator overlay states
+    const [localLoading, setLocalLoading] = useState(false); // Manages button lock during execution thread
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -39,21 +42,39 @@ export default function ChangePasswordScreen() {
         }
 
         try {
-            await updatePassword(currentPassword, newPassword);
-            Alert.alert("Success", "Password updated!");
+            setLocalLoading(true);
+
+            // Native Amplify Auth utility handles standard cloud cognitive token rotations seamlessly
+            await updatePassword({
+                oldPassword: currentPassword,
+                newPassword: newPassword
+            });
+
+            Alert.alert("Success", "Password updated successfully!");
             router.back();
         } catch (err: any) {
-            Alert.alert("Error", err.message);
+            Alert.alert("Error", err.message || "An error occurred while updating your password.");
+        } finally {
+            setLocalLoading(false);
         }
     };
 
+    const isProcessing = isLoading || localLoading;
+
+    // Added explicit type parameters to the component sub-wrapper definition
     const PasswordInput = ({
                                label,
                                value,
                                onChangeText,
                                showPassword,
                                onToggleShow,
-                           }: any) => (
+                           }: {
+        label: string;
+        value: string;
+        onChangeText: (text: string) => void;
+        showPassword: boolean;
+        onToggleShow: () => void;
+    }) => (
         <View style={styles.section}>
             <Text style={styles.label}>{label}</Text>
             <View style={styles.passwordInputContainer}>
@@ -63,9 +84,11 @@ export default function ChangePasswordScreen() {
                     secureTextEntry={!showPassword}
                     value={value}
                     onChangeText={onChangeText}
-                    editable={!isLoading}
+                    editable={!isProcessing}
+                    autoCapitalize="none"
+                    autoCorrect={false}
                 />
-                <TouchableOpacity onPress={onToggleShow}>
+                <TouchableOpacity onPress={onToggleShow} disabled={isProcessing}>
                     <Ionicons
                         name={showPassword ? "eye" : "eye-off"}
                         size={20}
@@ -115,12 +138,13 @@ export default function ChangePasswordScreen() {
                 />
 
                 <TouchableOpacity
-                    style={[styles.saveButton, isLoading && styles.buttonDisabled]}
+                    style={[styles.saveButton, isProcessing && styles.buttonDisabled]}
                     onPress={handleChangePassword}
-                    disabled={isLoading}
+                    disabled={isProcessing}
+                    activeOpacity={0.85}
                 >
                     <Text style={styles.saveButtonText}>
-                        {isLoading ? "Updating..." : "Change Password"}
+                        {isProcessing ? "Updating..." : "Change Password"}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -178,7 +202,7 @@ const styles = StyleSheet.create({
         color: "#1A1A2E",
     },
     saveButton: {
-        backgroundColor: "#6C63FF",
+        backgroundColor: "#6C63FF", // Matches targeted brand token palette definitions
         borderRadius: 12,
         paddingVertical: 14,
         alignItems: "center",

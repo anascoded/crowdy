@@ -1,6 +1,6 @@
-import useAuthStore from "@/store/authStore";
-import { Link, router } from "expo-router";
-import {JSX, useState} from "react";
+import { useAuthStore } from "@/store/authStore"; // Fixed named import syntax
+import { Link, useRouter } from "expo-router"; // Using useRouter for cleaner imperative redirects
+import { JSX, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,15 +13,17 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import {authService} from "@/services/authService";
 
 /**
  * Represents the SignInScreen component, which renders a user interface for signing in to the application.
- * This screen includes input fields for email and password, error handling, a "Remember Me" option, and navigation links for password recovery or account registration.
- * It also integrates with the authentication store for managing sign-in functionality and displaying relevant error messages.
+ * Integrates with the migrated AWS Cognito authentication store and routes users cleanly upon validation.
  *
  * @return {JSX.Element} The rendered SignInScreen component.
  */
 export default function SignInScreen(): JSX.Element {
+  const router = useRouter();
+  // Map actions to match your updated Zustand store signature
   const { signIn, isLoading, error, clearError } = useAuthStore();
 
   const [email, setEmail] = useState("");
@@ -36,10 +38,17 @@ export default function SignInScreen(): JSX.Element {
     }
 
     try {
+      // Sign out any existing session first
+      await authService.signOut().catch(() => {
+        // Ignore if no session exists
+      });
+
       await signIn({ email: email.trim(), password });
-      router.replace("/(tabs)/explore");
-    } catch {
-      // Error is already set in the store
+      router.replace("/(tabs)/home");
+    } catch (err: any) {
+      if (err?.message) {
+        Alert.alert("Sign In Error", err.message);
+      }
     }
   };
 
@@ -76,7 +85,7 @@ export default function SignInScreen(): JSX.Element {
                   autoCorrect={false}
                   value={email}
                   onChangeText={(text) => {
-                    clearError();
+                    if (clearError) clearError();
                     setEmail(text);
                   }}
               />
@@ -92,7 +101,7 @@ export default function SignInScreen(): JSX.Element {
                     secureTextEntry={!showPassword}
                     value={password}
                     onChangeText={(text) => {
-                      clearError();
+                      if (clearError) clearError();
                       setPassword(text);
                     }}
                 />
@@ -140,7 +149,7 @@ export default function SignInScreen(): JSX.Element {
 
             <TouchableOpacity
                 style={[styles.button, isLoading && styles.buttonDisabled]}
-                onPress={handleSignIn}
+                onPress={() => { void handleSignIn(); }}
                 disabled={isLoading}
                 activeOpacity={0.85}
             >
@@ -155,8 +164,11 @@ export default function SignInScreen(): JSX.Element {
           {/* Footer */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>Don&apos;t have an account? </Text>
-            <Link href="/(auth)/sign-up" onPress={clearError}>
-              <Text style={styles.link}>Sign up</Text>
+            {/* Swapped link explicitly to point to your new register file template routing path */}
+            <Link href={"/(auth)/sign-up" as any} asChild>
+              <TouchableOpacity onPress={clearError}>
+                <Text style={styles.link}>Sign up</Text>
+              </TouchableOpacity>
             </Link>
           </View>
         </View>
@@ -260,8 +272,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9FAFB",
   },
   checkboxChecked: {
-    backgroundColor: "#F77A05",
-    borderColor: "#F77A05",
+    backgroundColor: "#6C63FF", // Aligned brand aesthetic
+    borderColor: "#6C63FF",
   },
   checkboxLabel: {
     fontSize: 14,
@@ -269,13 +281,13 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   forgotLink: {
-    color: "#C82909",
+    color: "#6C63FF", // Aligned brand aesthetic
     fontSize: 14,
     fontWeight: "600",
   },
   button: {
     height: 52,
-    backgroundColor: "#F77A05",
+    backgroundColor: "#6C63FF", // Aligned brand aesthetic
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -299,7 +311,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   link: {
-    color: "#C82909",
+    color: "#6C63FF", // Aligned brand aesthetic
     fontSize: 14,
     fontWeight: "600",
   },
