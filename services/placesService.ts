@@ -50,8 +50,20 @@ const mapToPlace = (result: any): Place => ({
  * location, and performing general text-based searches for places.
  */
 export const placesService = {
-  // 🔍 AUTOCOMPLETE (better than textsearch)
-  autocomplete: async (input: string) => {
+  /**
+   * Fetches autocomplete suggestions based on the given input.
+   * Sends a request to a predefined API endpoint with the input string and processes the response.
+   *
+   * @param {string} input - The search string for which autocomplete suggestions are to be fetched.
+   * @returns {Promise<Array<Object>>} A promise that resolves to an array of suggestion objects.
+   * Each object contains:
+   *   - {string} description - The suggestion description.
+   *   - {string} placeId - The unique identifier for the suggested place.
+   *
+   * The function returns an empty array if the input string is empty or consists only of whitespace.
+   * The response is processed through the `handleStatus` function to handle any potential status information.
+   */
+  autocomplete: async (input: string): Promise<Array<object>> => {
     if (!input.trim()) return [];
 
     const url = `${BASE_URL}/autocomplete/json?input=${encodeURIComponent(
@@ -89,7 +101,7 @@ export const placesService = {
       throw new Error('Invalid place ID');
     }
 
-    // Remove the fields parameter or add place_id to it
+    // Add the place_id to the URL
     const url = `${BASE_URL}/details/json?place_id=${placeId}&key=${API_KEY}`;
 
     const res = await fetch(url);

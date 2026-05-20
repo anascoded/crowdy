@@ -150,14 +150,14 @@ export default function AboutScreen(): JSX.Element {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Built With</Text>
                 <Text style={styles.description}>
-                    Crowdy is built with React Native, AWS, and powered by Google Places API and crowd data providers.
+                    Crowdy is built with React Native, Expo, AWS, and powered by Google Places API and crowd data providers.
                 </Text>
             </View>
 
             {/* Footer */}
             <View style={styles.footer}>
                 <Text style={styles.footerText}>
-                    © 2026 Crowdy. All rights reserved.
+                    © 2026 Crowdy, Ltd. All rights reserved.
                 </Text>
             </View>
         </ScrollView>

@@ -36,7 +36,7 @@ export default function TabsLayout(): JSX.Element {
         <Tabs
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: '#E7180B',
+                tabBarActiveTintColor: '#5C4033',
                 tabBarInactiveTintColor: '#9E9E9E',
                 tabBarStyle: {
                     backgroundColor: '#ffffff',
@@ -62,7 +62,7 @@ export default function TabsLayout(): JSX.Element {
                 options={{
                     title: 'Home',
                     tabBarIcon: ({ color, size }) => (
-                        <TabIcon name="home-outline" color={color} size={size} />
+                        <TabIcon name="home" color={color} size={size} />
                     ),
                 }}
             />

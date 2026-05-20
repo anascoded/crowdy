@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
     minWidth: 56,
   },
   dayTabSelected: {
-    backgroundColor: "#52188B",
+    backgroundColor: "#0A0A0A",
   },
   dayTabLabel: {
     fontSize: 13,
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   },
   tooltip: {
     alignSelf: "center",
-    backgroundColor: "#1A1A2E",
+    backgroundColor: "#E7180B",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,

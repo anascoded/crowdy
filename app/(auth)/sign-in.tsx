@@ -272,8 +272,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9FAFB",
   },
   checkboxChecked: {
-    backgroundColor: "#6C63FF", // Aligned brand aesthetic
-    borderColor: "#6C63FF",
+    backgroundColor: "#0A0A0A", // Aligned brand aesthetic
+    borderColor: "#CA3519",
   },
   checkboxLabel: {
     fontSize: 14,
@@ -281,13 +281,13 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   forgotLink: {
-    color: "#6C63FF", // Aligned brand aesthetic
+    color: "#0A0A0A", // Aligned brand aesthetic
     fontSize: 14,
     fontWeight: "600",
   },
   button: {
     height: 52,
-    backgroundColor: "#6C63FF", // Aligned brand aesthetic
+    backgroundColor: "#0A0A0A", // Aligned brand aesthetic #483D8B
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   link: {
-    color: "#6C63FF", // Aligned brand aesthetic
+    color: "#0A0A0A", // Aligned brand aesthetic
     fontSize: 14,
     fontWeight: "600",
   },

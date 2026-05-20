@@ -44,7 +44,7 @@ const MenuItem = ({
         <Ionicons
             name={icon}
             size={18}
-            color={destructive ? "#DC2626" : "#6C63FF"}
+            color={destructive ? "#E7180B" : "#4A0404"}
         />
       </View>
       <Text
@@ -162,9 +162,14 @@ export default function ProfileScreen(): JSX.Element {
   // Safe checks for metadata attributes using type-casting handles variant store profiles cleanly
   const userRecord = user as any;
   const userLocation: string | undefined = userRecord?.location;
+
   const memberSinceYear = userRecord?.createdAt
       ? new Date(userRecord.createdAt).getFullYear()
-      : new Date().getFullYear(); // Standard fallback context to current runtime year (2026)
+      : new Date().getFullYear();
+
+  const memberSinceMonth = userRecord?.createdAt
+      ? new Date(userRecord.createdAt).toLocaleString('default', { month: 'long' })
+      : new Date().toLocaleString('default', { month: 'long' });
 
   // ── Authenticated ──────────────────────────────────────────────────────────
   return (
@@ -199,7 +204,7 @@ export default function ProfileScreen(): JSX.Element {
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{memberSinceYear}</Text>
+            <Text style={styles.statValue}>{memberSinceMonth} {memberSinceYear}</Text>
             <Text style={styles.statLabel}>Member since</Text>
           </View>
         </View>
@@ -341,7 +346,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     fontSize: 36,
     fontWeight: "700",
-    color: "#6C63FF",
+    color: "#4A0404",
   },
   displayName: {
     fontSize: 20,
@@ -455,7 +460,7 @@ const styles = StyleSheet.create({
   signInButton: {
     width: "100%",
     height: 52,
-    backgroundColor: "#6C63FF",
+    backgroundColor: "#4A0404",
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -474,10 +479,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: "#6C63FF",
+    borderColor: "#4A0404",
   },
   signUpButtonText: {
-    color: "#6C63FF",
+    color: "#4A0404",
     fontSize: 16,
     fontWeight: "600",
   },

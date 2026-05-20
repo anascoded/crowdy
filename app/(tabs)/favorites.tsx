@@ -307,8 +307,8 @@ const styles = StyleSheet.create({
     borderColor: "#E5E7EB",
   },
   filterTagActive: {
-    backgroundColor: "#E7180B",
-    borderColor: "#E7180B",
+    backgroundColor: "#CA3519",
+    borderColor: "#CA3519",
   },
   filterTagText: {
     fontSize: 13,
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    backgroundColor: "#6C63FF", // Fixed theme color to match the primary purple
+    backgroundColor: "#CA3519", // Fixed theme color to match the primary purple
     borderRadius: 12,
   },
   exploreButtonText: {
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   signInButton: {
     width: "100%",
     height: 52,
-    backgroundColor: "#6C63FF",
+    backgroundColor: "#CA3519",
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -389,10 +389,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: "#6C63FF",
+    borderColor: "#CA3519",
   },
   signUpButtonText: {
-    color: "#6C63FF",
+    color: "#CA3519",
     fontSize: 16,
     fontWeight: "600",
   },

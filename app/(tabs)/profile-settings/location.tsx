@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     StyleSheet,
     Text,
@@ -7,11 +7,61 @@ import {
     View,
     Platform,
     TextInput,
+    ScrollView,
+    ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { placesService } from "@/services/placesService";
+
+interface CityPrediction {
+    description: string;
+    placeId: string;
+}
 
 export default function LocationScreen() {
     const [city, setCity] = useState("Boston, MA");
+    const [suggestions, setSuggestions] = useState<CityPrediction[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Fetch city suggestions
+    useEffect(() => {
+        if (city.length < 2) {
+            setSuggestions([]);
+            return;
+        }
+
+        const fetchSuggestions = async () => {
+            try {
+                setIsLoading(true);
+                const predictions = await placesService.autocomplete(city);
+
+                // Filter for cities/regions only
+                const cities = (predictions as CityPrediction[]).filter((p) => {
+                    const desc = p.description.toLowerCase();
+                    return desc.includes('city') ||
+                        desc.includes('town') ||
+                        desc.includes('region') ||
+                        desc.includes('administrative') ||
+                        /^[^,]+,\s*[^,]+/.test(p.description);
+                });
+
+                setSuggestions(cities.slice(0, 5));
+            } catch (error) {
+                console.error('Error fetching cities:', error);
+                setSuggestions([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        const timer = setTimeout(fetchSuggestions, 300);
+        return () => clearTimeout(timer);
+    }, [city]);
+
+    const handleSelectCity = (selectedCity: string) => {
+        setCity(selectedCity);
+        setSuggestions([]);
+    };
 
     return (
         <View style={styles.container}>
@@ -32,6 +82,30 @@ export default function LocationScreen() {
                         value={city}
                         onChangeText={setCity}
                     />
+
+                    {/* Suggestions dropdown */}
+                    {suggestions.length > 0 && (
+                        <View style={styles.suggestionsContainer}>
+                            {isLoading && (
+                                <View style={styles.loadingContainer}>
+                                    <ActivityIndicator size="small" color="#6C63FF" />
+                                </View>
+                            )}
+                            <ScrollView style={styles.suggestionsList}>
+                                {suggestions.map((suggestion) => (
+                                    <TouchableOpacity
+                                        key={suggestion.placeId}
+                                        style={styles.suggestionItem}
+                                        onPress={() => handleSelectCity(suggestion.description)}
+                                    >
+                                        <Ionicons name="location-outline" size={16} color="#9CA3AF" />
+                                        <Text style={styles.suggestionText}>{suggestion.description}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
+                        </View>
+                    )}
+
                     <Text style={styles.hint}>
                         This location is used to show nearby places when you open the app.
                     </Text>
@@ -89,6 +163,35 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: "#1A1A2E",
         marginBottom: 8,
+    },
+    suggestionsContainer: {
+        backgroundColor: "#fff",
+        borderWidth: 1.5,
+        borderColor: "#E5E7EB",
+        borderRadius: 12,
+        marginBottom: 8,
+        maxHeight: 200,
+    },
+    suggestionsList: {
+        maxHeight: 200,
+    },
+    loadingContainer: {
+        padding: 12,
+        alignItems: "center",
+    },
+    suggestionItem: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderBottomWidth: 0.5,
+        borderBottomColor: "#F0F0F0",
+        gap: 10,
+    },
+    suggestionText: {
+        fontSize: 14,
+        color: "#1A1A2E",
+        flex: 1,
     },
     hint: {
         fontSize: 13,

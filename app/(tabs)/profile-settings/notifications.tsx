@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import {useState, version} from "react";
 import {
     StyleSheet,
     Text,
@@ -29,8 +29,8 @@ export default function NotificationsScreen() {
             <Switch
                 value={value}
                 onValueChange={onToggle}
-                trackColor={{ false: "#E5E7EB", true: "#A78BFA" }}
-                thumbColor={value ? "#6C63FF" : "#9CA3AF"}
+                trackColor={{ false: "#E5E7EB", true: "#EADDCA" }}
+                thumbColor={value ? "#5C4033" : "#9CA3AF"}
             />
         </View>
     );
@@ -72,6 +72,9 @@ export default function NotificationsScreen() {
                             onToggle={setAppUpdates}
                         />
                     </View>
+                </View>
+                <View style={styles.section}>
+                    <Text style={styles.version}>  Current version: {version}</Text>
                 </View>
             </View>
         </View>
@@ -135,5 +138,13 @@ const styles = StyleSheet.create({
     divider: {
         height: 0.5,
         backgroundColor: "#E5E7EB",
+    },
+    version: {
+        fontSize: 10,
+        fontWeight: "600",
+        color: "#9CA3AF",
+        textTransform: "uppercase",
+        letterSpacing: 0.5,
+        marginBottom: 8,
     },
 });

@@ -197,8 +197,8 @@ export default function PlaceDetailScreen(): JSX.Element {
         >
           <Ionicons
               name={favorited ? "heart" : "heart-outline"}
-              size={24}
-              color={favorited ? "#EF4444" : "#fff"}
+              size={30}
+              color={favorited ? "#FF6467" : "#0A0A0A"}
           />
         </TouchableOpacity>
 
@@ -212,8 +212,8 @@ export default function PlaceDetailScreen(): JSX.Element {
         >
           <Ionicons
               name="navigate"
-              size={24}
-              color="#fff"
+              size={30}
+              color="#2984D1"
           />
         </TouchableOpacity>
 
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? 60 : 16,
+    top: Platform.OS === 'ios' ? 60 : 60,
     left: 16,
     zIndex: 10,
     width: 44,
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    backgroundColor: "#6C63FF",
+    backgroundColor: "#CA3519",
     borderRadius: 12,
   },
   retryButtonText: {
@@ -318,12 +318,9 @@ const styles = StyleSheet.create({
   },
   favoriteButton: {
     position: "absolute",
-    top: 10,
+    top: 15,
     right: 10,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(0,0,0,0.35)",
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -331,10 +328,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 10,
     right: 10,
-    width: 44,
-    height: 44,
     borderRadius: 8,
-    backgroundColor: "#31C950",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -359,7 +353,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 12,
     fontWeight: "500",
-    color: "#6C63FF",
+    color: "#CA3519",
   },
   ratingRow: {
     flexDirection: "row",
@@ -382,7 +376,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   addressText: {
-    fontSize: 13,
+    fontSize: 12,
     color: "#9CA3AF",
     flex: 1,
   },

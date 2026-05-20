@@ -37,6 +37,21 @@ export default function HomeScreen(): JSX.Element {
         });
     }, []);
 
+    /**
+     * Loads user activity data asynchronously from local storage.
+     *
+     * Retrieves the stored activity data identified by the key 'crowdy_activities' from AsyncStorage.
+     * If the data exists, it parses the retrieved JSON string into an array of activity objects,
+     * converts the timestamp properties into `Date` objects, and sorts the activities in descending
+     * order based on their timestamps. The top 5 most recent activities are then stored into the
+     * state using the `setActivities` function.
+     *
+     * In case of an error during retrieval or parsing, the error is logged to the console.
+     *
+     * @async
+     * @function
+     * @throws Will log an error message to the console if reading from or parsing AsyncStorage data fails.
+     */
     const loadActivities = async () => {
         try {
             const stored = await AsyncStorage.getItem('crowdy_activities');
@@ -79,6 +94,18 @@ export default function HomeScreen(): JSX.Element {
         }
     };
 
+    /**
+     * Formats a given date as a relative time string indicating how much time
+     * has passed since the given date compared to the current time.
+     *
+     * - Returns 'now' if less than a minute has passed.
+     * - Returns minutes followed by "m ago" if less than an hour has passed.
+     * - Returns hours followed by "h ago" if less than a day has passed.
+     * - Returns days followed by "d ago" if more than a day has passed.
+     *
+     * @param {Date} date - The date to format as a relative time.
+     * @returns {string} A human-readable relative time string.
+     */
     const formatTimeAgo = (date: Date): string => {
         const now = new Date();
         const diffMs = now.getTime() - date.getTime();
@@ -146,9 +173,11 @@ export default function HomeScreen(): JSX.Element {
                     <Text style={styles.statLabel}>Visited</Text>
                 </View>
                 <View style={styles.statCard}>
-                    <Ionicons name="star" size={24} color="#F59E0B" />
-                    <Text style={styles.statValue}>4.8</Text>
-                    <Text style={styles.statLabel}>Avg Rating</Text>
+                    <TouchableOpacity onPress={() => router.push('/screens/events')}>
+                        <Ionicons name="calendar" size={24} color="#F59E0B" />
+                        <Text style={styles.statValue}>Events</Text>
+                        <Text style={styles.statLabel}>Nearby</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -160,7 +189,7 @@ export default function HomeScreen(): JSX.Element {
                     onPress={() => router.push('/(tabs)/explore' as any)}
                     activeOpacity={0.85}
                 >
-                    <Ionicons name="map-outline" size={24} color="#6C63FF" />
+                    <Ionicons name="map-outline" size={24} color="#5C4033" />
                     <View style={styles.actionContent}>
                         <Text style={styles.actionTitle}>Explore Places</Text>
                         <Text style={styles.actionSubtitle}>Find new places to visit</Text>

@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 52,
-    backgroundColor: "#6C63FF", // Updated matching Crowdy Brand Violet used in the verify screen layout
+    backgroundColor: "#CA3519", // Updated matching Crowdy Brand Violet used in the verify screen layout
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   link: {
-    color: "#6C63FF",
+    color: "#CA3519",
     fontSize: 14,
     fontWeight: "600",
   },

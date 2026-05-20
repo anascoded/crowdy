@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   errorText: {
-    color: "#DC2626",
+    color: "#5C4033",
     fontSize: 14,
   },
   listContent: {

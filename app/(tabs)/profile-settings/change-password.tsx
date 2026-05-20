@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
         color: "#1A1A2E",
     },
     saveButton: {
-        backgroundColor: "#6C63FF", // Matches targeted brand token palette definitions
+        backgroundColor: "#5C4033", // Matches targeted brand token palette definitions
         borderRadius: 12,
         paddingVertical: 14,
         alignItems: "center",

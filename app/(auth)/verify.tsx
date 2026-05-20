@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     emailHighlight: {
         fontSize: 15,
         fontWeight: '600',
-        color: '#6C63FF', // Crowdy Brand Violet
+        color: '#5C4033', // Crowdy Brand Violet
         marginTop: 4,
         textAlign: 'center',
     },
@@ -171,12 +171,12 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     verifyButton: {
-        backgroundColor: '#6C63FF', // Crowdy Brand Violet
+        backgroundColor: '#5C4033', // Crowdy Brand Violet
         height: 52,
         borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#6C63FF',
+        shadowColor: '#5C4033',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 6,

@@ -22,6 +22,21 @@ export default function EditProfileScreen(): JSX.Element {
     const [name, setName] = useState(user?.name || "");
     const [localLoading, setLocalLoading] = useState(false);
 
+    /**
+     * Handles the user profile save operation.
+     *
+     * This asynchronous function validates the user's input, updates the user profile
+     * in AWS Cognito/Amplify by directly mutating the UserProfile attribute model,
+     * and provides feedback to the user through alerts.
+     *
+     * Key behaviors:
+     * - Ensures that the `name` field is not empty.
+     * - Displays an error alert if `name` is invalid.
+     * - Temporarily sets a loading state while the update operation is performed.
+     * - Updates the user's attributes in the Cognito/Amplify backend.
+     * - Provides success or error notification to the user via alerts.
+     * - Navigates back after a successful update operation.
+     */
     const handleSave = async () => {
         if (!name.trim()) {
             Alert.alert("Error", "Name cannot be empty");
@@ -148,7 +163,7 @@ const styles = StyleSheet.create({
         color: "#9CA3AF",
     },
     saveButton: {
-        backgroundColor: "#6C63FF", // Keeps visual branding uniform across screens
+        backgroundColor: "#5C4033", // Keeps visual branding uniform across screens
         borderRadius: 12,
         paddingVertical: 14,
         alignItems: "center",

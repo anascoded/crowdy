@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 11,
     fontWeight: "500",
-    color: "#4A0404",
+    color: "#CA3519",
   },
   rating: {
     flexDirection: "row",
