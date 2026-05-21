@@ -174,7 +174,7 @@ export default function HomeScreen(): JSX.Element {
                 </View>
                 <View style={styles.statCard}>
                     <TouchableOpacity onPress={() => router.push('/screens/events')}>
-                        <Ionicons name="calendar" size={24} color="#F59E0B" />
+                        <Ionicons name="calendar" size={30} color="#F59E0B" />
                         <Text style={styles.statValue}>Events</Text>
                         <Text style={styles.statLabel}>Nearby</Text>
                     </TouchableOpacity>
