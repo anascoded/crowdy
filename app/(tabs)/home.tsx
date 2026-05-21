@@ -173,7 +173,10 @@ export default function HomeScreen(): JSX.Element {
                     <Text style={styles.statLabel}>Visited</Text>
                 </View>
                 <View style={styles.statCard}>
-                    <TouchableOpacity onPress={() => router.push('/screens/events')}>
+                    <TouchableOpacity
+                        onPress={() => router.push('/screens/events')}
+                        style={styles.statContent}
+                    >
                         <Ionicons name="calendar" size={30} color="#F59E0B" />
                         <Text style={styles.statValue}>Events</Text>
                         <Text style={styles.statLabel}>Nearby</Text>
@@ -271,6 +274,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingTop: 16,
         gap: 12,
+    },
+    statContent: {
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     statCard: {
         flex: 1,
