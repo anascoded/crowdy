@@ -7,7 +7,7 @@ import {
     Platform,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router'; // Swapped to explicitly typed hook pattern
-import { Ionicons } from '@expo/vector-icons';
+import { Circle, Heart, MapPin, Calendar, Map, ChevronRight } from 'lucide-react-native';
 import { useAuthStore } from "@/store/authStore";
 import useFavoritesStore from '@/store/favoritesStore';
 import { getFirstName } from "@/utils";
@@ -122,11 +122,11 @@ export default function HomeScreen(): JSX.Element {
     const getActivityIcon = (type: Activity['type']): JSX.Element | null => {
         switch (type) {
             case 'favorite_added':
-                return <Ionicons name="heart" size={18} color="#EF4444" />;
+                return <Heart size={24} color="#EF4444" />;
             case 'favorite_removed':
-                return <Ionicons name="heart-outline" size={18} color="#9CA3AF" />;
+                return <Heart size={24} color="#EF4444" fill="none"/>;
             case 'place_busy':
-                return <Ionicons name="alert-circle" size={18} color="#F59E0B" />;
+                return <Circle size={18} color="#F59E0B" />;
             default:
                 return null;
         }
@@ -163,12 +163,12 @@ export default function HomeScreen(): JSX.Element {
             {/* Stats */}
             <View style={styles.statsContainer}>
                 <View style={styles.statCard}>
-                    <Ionicons name="heart" size={24} color="#EF4444" />
+                    <Heart size={24} color="#EF4444" />
                     <Text style={styles.statValue}>{favorites.length}</Text>
                     <Text style={styles.statLabel}>Favorites</Text>
                 </View>
                 <View style={styles.statCard}>
-                    <Ionicons name="location" size={24} color="#31C950" />
+                    <MapPin size={24} color="#31C950" />
                     <Text style={styles.statValue}>{favorites.length * 3}</Text>
                     <Text style={styles.statLabel}>Visited</Text>
                 </View>
@@ -177,7 +177,7 @@ export default function HomeScreen(): JSX.Element {
                         onPress={() => router.push('/screens/events')}
                         style={styles.statContent}
                     >
-                        <Ionicons name="calendar" size={30} color="#F59E0B" />
+                        <Calendar size={30} color="#F59E0B" />
                         <Text style={styles.statValue}>Events</Text>
                         <Text style={styles.statLabel}>Nearby</Text>
                     </TouchableOpacity>
@@ -192,12 +192,12 @@ export default function HomeScreen(): JSX.Element {
                     onPress={() => router.push('/(tabs)/explore' as any)}
                     activeOpacity={0.85}
                 >
-                    <Ionicons name="map-outline" size={24} color="#5C4033" />
+                    <Map size={24} color="#5C4033" />
                     <View style={styles.actionContent}>
                         <Text style={styles.actionTitle}>Explore Places</Text>
                         <Text style={styles.actionSubtitle}>Find new places to visit</Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                    <ChevronRight size={20} color="#9CA3AF" />
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -205,14 +205,14 @@ export default function HomeScreen(): JSX.Element {
                     onPress={() => router.push('/(tabs)/favorites' as any)}
                     activeOpacity={0.85}
                 >
-                    <Ionicons name="heart-outline" size={24} color="#EF4444" />
+                    <Heart size={24} color="#EF4444" fill="none"/>
                     <View style={styles.actionContent}>
                         <Text style={styles.actionTitle}>Your Favorites</Text>
                         <Text style={styles.actionSubtitle}>
                             View your saved places
                         </Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                    <ChevronRight size={20} color="#9CA3AF" />
                 </TouchableOpacity>
             </View>
 

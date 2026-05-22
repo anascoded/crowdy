@@ -1,28 +1,30 @@
 import { Tabs, router } from 'expo-router';
-import {JSX, useEffect} from 'react';
+import { JSX, useEffect } from 'react';
 import { Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Home, Map, Heart, User } from 'lucide-react-native';
 import { useAuthStore } from "@/store/authStore";
 
-type IoniconName = keyof typeof Ionicons.glyphMap;
-
 interface TabIconProps {
-    name: IoniconName;
     color: string;
     size: number;
+    name: 'home' | 'explore' | 'favorites' | 'profile';
 }
 
-const TabIcon = ({ name, color, size }: TabIconProps) => (
-    <Ionicons name={name} color={color} size={size} />
-);
+const TabIcon = ({ name, color, size }: TabIconProps) => {
+    switch (name) {
+        case 'home':
+            return <Home color={color} size={size} />;
+        case 'explore':
+            return <Map color={color} size={size} />;
+        case 'favorites':
+            return <Heart color={color} size={size} fill={color} />;
+        case 'profile':
+            return <User color={color} size={size} />;
+        default:
+            return null;
+    }
+};
 
-/**
- * Renders the main tab layout for the application with four tabs: Home, Explore, Favorites, and Profile.
- * The layout includes custom styling and behavior for the tab bar.
- * If the user is not authenticated, they will be redirected to the sign-in page.
- *
- * @return {JSX.Element} The rendered tab layout component with navigation options and custom tab styles.
- */
 export default function TabsLayout(): JSX.Element {
     const { isAuthenticated } = useAuthStore();
 
@@ -72,7 +74,7 @@ export default function TabsLayout(): JSX.Element {
                 options={{
                     title: 'Explore',
                     tabBarIcon: ({ color, size }) => (
-                        <TabIcon name="map-outline" color={color} size={size} />
+                        <TabIcon name="explore" color={color} size={size} />
                     ),
                 }}
             />
@@ -82,11 +84,7 @@ export default function TabsLayout(): JSX.Element {
                 options={{
                     title: 'Favorites',
                     tabBarIcon: ({ color, size }) => (
-                        <TabIcon
-                            name={isAuthenticated ? 'heart' : 'heart-outline'}
-                            color={color}
-                            size={size}
-                        />
+                        <TabIcon name="favorites" color={color} size={size} />
                     ),
                 }}
             />
@@ -96,11 +94,7 @@ export default function TabsLayout(): JSX.Element {
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color, size }) => (
-                        <TabIcon
-                            name={isAuthenticated ? 'person' : 'person-outline'}
-                            color={color}
-                            size={size}
-                        />
+                        <TabIcon name="profile" color={color} size={size} />
                     ),
                 }}
             />

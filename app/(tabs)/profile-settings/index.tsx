@@ -1,6 +1,5 @@
 import { useAuthStore } from "@/store/authStore";
 import useFavoritesStore from "@/store/favoritesStore";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -12,11 +11,24 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native"; // Removed unused 'Image' import to resolve TS6133
+} from "react-native";
 import { JSX } from "react";
+import {
+  User,
+  Bell,
+  Lock,
+  Moon,
+  MapPin,
+  FileText,
+  Shield,
+  Info,
+  LogOut,
+  UserCircle,
+  ChevronRight,
+} from 'lucide-react-native';
 
 interface MenuItemProps {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: JSX.Element;
   label: string;
   onPress: () => void;
   destructive?: boolean;
@@ -41,11 +53,7 @@ const MenuItem = ({
             destructive && styles.menuIconDestructive,
           ]}
       >
-        <Ionicons
-            name={icon}
-            size={18}
-            color={destructive ? "#E7180B" : "#4A0404"}
-        />
+        {icon}
       </View>
       <Text
           style={[styles.menuLabel, destructive && styles.menuLabelDestructive]}
@@ -55,32 +63,17 @@ const MenuItem = ({
       <View style={styles.menuRight}>
         {value && <Text style={styles.menuValue}>{value}</Text>}
         {!destructive && (
-            <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+            <ChevronRight size={16} color="#9CA3AF" />
         )}
       </View>
     </TouchableOpacity>
 );
 
-/**
- * Renders the ProfileScreen component.
- * Syncs seamlessly with the provisioned Amplify Gen 2 custom UserProfile model configurations.
- */
 export default function ProfileScreen(): JSX.Element {
   const router = useRouter();
   const { user, isAuthenticated, isLoading, signOut } = useAuthStore();
   const { favorites, clearFavorites } = useFavoritesStore();
 
-  /**
-   * Handles the user sign-out process by displaying a confirmation alert.
-   *
-   * This function presents an alert dialog with two options: "Cancel" and "Sign out".
-   * - If "Cancel" is chosen, the dialog is dismissed without taking further action.
-   * - If "Sign out" is selected, the user's favorite data is cleared, the sign-out process
-   *   is executed asynchronously, and the user is redirected to the sign-in screen.
-   *
-   * Note: The function makes use of asynchronous operations and performs a redirect
-   * upon successful sign-out.
-   */
   const handleSignOut = () => {
     Alert.alert("Sign out", "Are you sure you want to sign out?", [
       { text: "Cancel", style: "cancel" },
@@ -96,28 +89,10 @@ export default function ProfileScreen(): JSX.Element {
     ]);
   };
 
-  /**
-   * Navigates the application to the "About" screen.
-   *
-   * This function triggers a route change to the "/screens/about" path,
-   * allowing the user to view details or information presented on the "About" screen.
-   *
-   * Note: The route path is cast to "any" to suppress type errors in the routing implementation.
-   */
   const showAbout = () => {
     router.push('/screens/about' as any);
   };
 
-  /**
-   * Asynchronously attempts to open a given URL using the device's default URL handler.
-   *
-   * If the device supports opening the URL, it will be opened. Otherwise, an alert will notify the user
-   * that their device cannot open the specified type of URL. If an error occurs during the process,
-   * an alert will notify the user of the issue and an error will be logged to the console.
-   *
-   * @param {string} url - The URL to be opened.
-   * @throws Will log an error to the console if opening the URL fails unexpectedly.
-   */
   const openLink = async (url: string) => {
     try {
       const supported = await Linking.canOpenURL(url);
@@ -132,25 +107,24 @@ export default function ProfileScreen(): JSX.Element {
     }
   };
 
-  // ── Not authenticated ──────────────────────────────────────────────────────
   if (!isAuthenticated) {
     return (
         <View style={styles.centeredContainer}>
-          <Ionicons name="person-circle-outline" size={80} color="#E5E7EB" />
+          <UserCircle size={80} color="#E5E7EB" />
           <Text style={styles.gateTitle}>Your profile</Text>
           <Text style={styles.gateSubtitle}>
             Sign in to manage your account and preferences.
           </Text>
           <TouchableOpacity
               style={styles.signInButton}
-              onPress={() => router.push("/(auth)/login" as any)}
+              onPress={() => router.push("/(auth)/sign-in" as any)}
               activeOpacity={0.85}
           >
             <Text style={styles.signInButtonText}>Sign in</Text>
           </TouchableOpacity>
           <TouchableOpacity
               style={styles.signUpButton}
-              onPress={() => router.push("/(auth)/register" as any)}
+              onPress={() => router.push("/(auth)/sign-up" as any)}
               activeOpacity={0.85}
           >
             <Text style={styles.signUpButtonText}>Create account</Text>
@@ -159,7 +133,6 @@ export default function ProfileScreen(): JSX.Element {
     );
   }
 
-  // Safe checks for metadata attributes using type-casting handles variant store profiles cleanly
   const userRecord = user as any;
   const userLocation: string | undefined = userRecord?.location;
 
@@ -171,7 +144,6 @@ export default function ProfileScreen(): JSX.Element {
       ? new Date(userRecord.createdAt).toLocaleString('default', { month: 'long' })
       : new Date().toLocaleString('default', { month: 'long' });
 
-  // ── Authenticated ──────────────────────────────────────────────────────────
   return (
       <ScrollView
           style={styles.container}
@@ -214,19 +186,19 @@ export default function ProfileScreen(): JSX.Element {
           <Text style={styles.sectionTitle}>Account</Text>
           <View style={styles.menuCard}>
             <MenuItem
-                icon="person-outline"
+                icon={<User size={18} color="#4A0404" />}
                 label="Edit profile"
                 onPress={() => router.push("/(tabs)/profile-settings/edit-profile" as any)}
             />
             <View style={styles.menuDivider} />
             <MenuItem
-                icon="notifications-outline"
+                icon={<Bell size={18} color="#4A0404" />}
                 label="Notifications"
                 onPress={() => router.push("/(tabs)/profile-settings/notifications" as any)}
             />
             <View style={styles.menuDivider} />
             <MenuItem
-                icon="lock-closed-outline"
+                icon={<Lock size={18} color="#4A0404" />}
                 label="Change password"
                 onPress={() => router.push("/(tabs)/profile-settings/change-password" as any)}
             />
@@ -238,14 +210,14 @@ export default function ProfileScreen(): JSX.Element {
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.menuCard}>
             <MenuItem
-                icon="moon-outline"
+                icon={<Moon size={18} color="#4A0404" />}
                 label="Appearance"
                 value="System"
                 onPress={() => router.push("/(tabs)/profile-settings/appearance" as any)}
             />
             <View style={styles.menuDivider} />
             <MenuItem
-                icon="location-outline"
+                icon={<MapPin size={18} color="#4A0404" />}
                 label="Default location"
                 onPress={() => router.push("/(tabs)/profile-settings/location" as any)}
             />
@@ -257,19 +229,19 @@ export default function ProfileScreen(): JSX.Element {
           <Text style={styles.sectionTitle}>Legal</Text>
           <View style={styles.menuCard}>
             <MenuItem
-                icon="document-text-outline"
+                icon={<FileText size={18} color="#4A0404" />}
                 label="Terms of Service"
-                onPress={() => openLink('https://www.crowdy.app/terms-of-serivce')}
+                onPress={() => openLink('https://www.crowdy.app/terms-of-service')}
             />
             <View style={styles.menuDivider} />
             <MenuItem
-                icon="shield-checkmark-outline"
+                icon={<Shield size={18} color="#4A0404" />}
                 label="Privacy Policy"
                 onPress={() => openLink('https://www.crowdy.app/privacy-policy')}
             />
             <View style={styles.menuDivider} />
             <MenuItem
-                icon="information-circle-outline"
+                icon={<Info size={18} color="#4A0404" />}
                 label="About"
                 onPress={showAbout}
             />
@@ -280,7 +252,7 @@ export default function ProfileScreen(): JSX.Element {
         <View style={styles.section}>
           <View style={styles.menuCard}>
             <MenuItem
-                icon="log-out-outline"
+                icon={<LogOut size={18} color="#DC2626" />}
                 label="Sign out"
                 onPress={handleSignOut}
                 destructive
@@ -291,7 +263,7 @@ export default function ProfileScreen(): JSX.Element {
         {/* Loading overlay for sign-out */}
         {isLoading && (
             <View style={styles.loadingOverlay}>
-              <ActivityIndicator size="large" color="#6C63FF" />
+              <ActivityIndicator size="large" color="#4A0404" />
             </View>
         )}
       </ScrollView>
