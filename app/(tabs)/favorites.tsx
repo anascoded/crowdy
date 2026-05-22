@@ -143,7 +143,6 @@ export default function FavoritesScreen(): JSX.Element {
 
         {/* Category Filter */}
         {categories.length > 0 && favorites.length > 0 && (
-            <View style={styles.filterContainerWrapper}>
               <View style={styles.filterContainer}>
                 <ScrollView
                     horizontal
@@ -189,7 +188,6 @@ export default function FavoritesScreen(): JSX.Element {
                   ))}
                 </ScrollView>
               </View>
-            </View>
         )}
 
         {/* Error */}
@@ -290,14 +288,13 @@ const styles = StyleSheet.create({
     color: "#DC2626",
     fontSize: 14,
   },
-  filterContainerWrapper: {
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 12,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#E5E7EB',
-  },
   filterContainer: {
-    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 0.5,
+    borderColor: '#E5E7EB',
   },
   filterScroll: {
     paddingHorizontal: 16,
