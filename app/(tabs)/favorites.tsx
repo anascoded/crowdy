@@ -143,50 +143,52 @@ export default function FavoritesScreen(): JSX.Element {
 
         {/* Category Filter */}
         {categories.length > 0 && favorites.length > 0 && (
-            <View style={styles.filterContainer}>
-              <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.filterScroll}
-              >
-                <TouchableOpacity
-                    style={[
-                      styles.filterTag,
-                      selectedCategory === null && styles.filterTagActive,
-                    ]}
-                    onPress={() => handleCategorySelect(null)}
+            <View style={styles.filterContainerWrapper}>
+              <View style={styles.filterContainer}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.filterScroll}
                 >
-                  <Text
+                  <TouchableOpacity
                       style={[
-                        styles.filterTagText,
-                        selectedCategory === null && styles.filterTagTextActive,
+                        styles.filterTag,
+                        selectedCategory === null && styles.filterTagActive,
                       ]}
+                      onPress={() => handleCategorySelect(null)}
                   >
-                    All
-                  </Text>
-                </TouchableOpacity>
-
-                {categories.map((category) => (
-                    <TouchableOpacity
-                        key={category}
+                    <Text
                         style={[
-                          styles.filterTag,
-                          selectedCategory === category && styles.filterTagActive,
+                          styles.filterTagText,
+                          selectedCategory === null && styles.filterTagTextActive,
                         ]}
-                        onPress={() => handleCategorySelect(category)}
                     >
-                      <Text
+                      All
+                    </Text>
+                  </TouchableOpacity>
+
+                  {categories.map((category) => (
+                      <TouchableOpacity
+                          key={category}
                           style={[
-                            styles.filterTagText,
-                            selectedCategory === category &&
-                            styles.filterTagTextActive,
+                            styles.filterTag,
+                            selectedCategory === category && styles.filterTagActive,
                           ]}
+                          onPress={() => handleCategorySelect(category)}
                       >
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
-                      </Text>
-                    </TouchableOpacity>
-                ))}
-              </ScrollView>
+                        <Text
+                            style={[
+                              styles.filterTagText,
+                              selectedCategory === category &&
+                              styles.filterTagTextActive,
+                            ]}
+                        >
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </Text>
+                      </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
             </View>
         )}
 
@@ -288,11 +290,14 @@ const styles = StyleSheet.create({
     color: "#DC2626",
     fontSize: 14,
   },
+  filterContainerWrapper: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 12,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#E5E7EB',
+  },
   filterContainer: {
-    backgroundColor: "#F9FAFB",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F9FAFB",
-    paddingVertical: 10,
+    paddingHorizontal: 16,
   },
   filterScroll: {
     paddingHorizontal: 16,

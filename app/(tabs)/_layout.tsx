@@ -1,7 +1,7 @@
 import { Tabs, router } from 'expo-router';
 import { JSX, useEffect } from 'react';
 import { Platform } from 'react-native';
-import { Home, Map, Heart, User } from 'lucide-react-native';
+import { Home, Map, Heart, UserRound } from 'lucide-react-native';
 import { useAuthStore } from "@/store/authStore";
 
 interface TabIconProps {
@@ -19,7 +19,7 @@ const TabIcon = ({ name, color, size }: TabIconProps) => {
         case 'favorites':
             return <Heart color={color} size={size} fill={color} />;
         case 'profile':
-            return <User color={color} size={size} />;
+            return <UserRound color={color} size={size} />;
         default:
             return null;
     }
