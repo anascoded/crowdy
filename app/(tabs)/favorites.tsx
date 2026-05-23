@@ -249,7 +249,7 @@ export default function FavoritesScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#F4F2EE",
   },
   centeredContainer: {
     flex: 1,
@@ -289,28 +289,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   filterContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 24,
-    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 12,
+    borderRadius: 16,
+    padding: 12,
     borderWidth: 0.5,
-    borderColor: '#E5E7EB',
+    borderColor: '#DFDEDA',
   },
   filterScroll: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 4,
     gap: 8,
   },
   filterTag: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20, // Rounded pill looks much more modern than a strict block corner
-    backgroundColor: "#F3F4F6",
+    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
   filterTagActive: {
     backgroundColor: "#CA3519",
-    borderColor: "#CA3519",
   },
   filterTagText: {
     fontSize: 13,
