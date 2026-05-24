@@ -13,22 +13,10 @@ import {
   View,
 } from "react-native";
 import { JSX } from "react";
-import {
-  User,
-  Bell,
-  Lock,
-  Moon,
-  MapPin,
-  FileText,
-  Shield,
-  Info,
-  LogOut,
-  UserCircle,
-  ChevronRight,
-} from 'lucide-react-native';
+import { Ionicons } from "@expo/vector-icons";
 
 interface MenuItemProps {
-  icon: JSX.Element;
+  icon: keyof typeof Ionicons.glyphMap;
   label: string;
   onPress: () => void;
   destructive?: boolean;
@@ -53,7 +41,11 @@ const MenuItem = ({
             destructive && styles.menuIconDestructive,
           ]}
       >
-        {icon}
+        <Ionicons
+            name={icon}
+            size={18}
+            color={destructive ? "#DC2626" : "#4A0404"}
+        />
       </View>
       <Text
           style={[styles.menuLabel, destructive && styles.menuLabelDestructive]}
@@ -63,7 +55,7 @@ const MenuItem = ({
       <View style={styles.menuRight}>
         {value && <Text style={styles.menuValue}>{value}</Text>}
         {!destructive && (
-            <ChevronRight size={16} color="#9CA3AF" />
+            <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
         )}
       </View>
     </TouchableOpacity>
@@ -110,7 +102,7 @@ export default function ProfileScreen(): JSX.Element {
   if (!isAuthenticated) {
     return (
         <View style={styles.centeredContainer}>
-          <UserCircle size={80} color="#E5E7EB" />
+          <Ionicons name="person-circle-outline" size={80} color="#E5E7EB" />
           <Text style={styles.gateTitle}>Your profile</Text>
           <Text style={styles.gateSubtitle}>
             Sign in to manage your account and preferences.
@@ -186,19 +178,19 @@ export default function ProfileScreen(): JSX.Element {
           <Text style={styles.sectionTitle}>Account</Text>
           <View style={styles.menuCard}>
             <MenuItem
-                icon={<User size={18} color="#4A0404" />}
+                icon="person-outline"
                 label="Edit profile"
                 onPress={() => router.push("/(tabs)/profile-settings/edit-profile" as any)}
             />
             <View style={styles.menuDivider} />
             <MenuItem
-                icon={<Bell size={18} color="#4A0404" />}
+                icon="notifications-outline"
                 label="Notifications"
                 onPress={() => router.push("/(tabs)/profile-settings/notifications" as any)}
             />
             <View style={styles.menuDivider} />
             <MenuItem
-                icon={<Lock size={18} color="#4A0404" />}
+                icon="lock-closed-outline"
                 label="Change password"
                 onPress={() => router.push("/(tabs)/profile-settings/change-password" as any)}
             />
@@ -210,14 +202,14 @@ export default function ProfileScreen(): JSX.Element {
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.menuCard}>
             <MenuItem
-                icon={<Moon size={18} color="#4A0404" />}
+                icon="moon-outline"
                 label="Appearance"
                 value="System"
                 onPress={() => router.push("/(tabs)/profile-settings/appearance" as any)}
             />
             <View style={styles.menuDivider} />
             <MenuItem
-                icon={<MapPin size={18} color="#4A0404" />}
+                icon="location-outline"
                 label="Default location"
                 onPress={() => router.push("/(tabs)/profile-settings/location" as any)}
             />
@@ -229,19 +221,19 @@ export default function ProfileScreen(): JSX.Element {
           <Text style={styles.sectionTitle}>Legal</Text>
           <View style={styles.menuCard}>
             <MenuItem
-                icon={<FileText size={18} color="#4A0404" />}
+                icon="document-text-outline"
                 label="Terms of Service"
                 onPress={() => openLink('https://www.crowdy.app/terms-of-service')}
             />
             <View style={styles.menuDivider} />
             <MenuItem
-                icon={<Shield size={18} color="#4A0404" />}
+                icon="shield-checkmark-outline"
                 label="Privacy Policy"
                 onPress={() => openLink('https://www.crowdy.app/privacy-policy')}
             />
             <View style={styles.menuDivider} />
             <MenuItem
-                icon={<Info size={18} color="#4A0404" />}
+                icon="information-circle-outline"
                 label="About"
                 onPress={showAbout}
             />
@@ -252,7 +244,7 @@ export default function ProfileScreen(): JSX.Element {
         <View style={styles.section}>
           <View style={styles.menuCard}>
             <MenuItem
-                icon={<LogOut size={18} color="#DC2626" />}
+                icon="log-out-outline"
                 label="Sign out"
                 onPress={handleSignOut}
                 destructive
@@ -273,7 +265,7 @@ export default function ProfileScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#FAFAF9",
   },
   scrollContent: {
     paddingBottom: 48,

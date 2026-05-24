@@ -1,29 +1,20 @@
 import { Tabs, router } from 'expo-router';
 import { JSX, useEffect } from 'react';
 import { Platform } from 'react-native';
-import { Home, Map, Heart, UserRound } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from "@/store/authStore";
 
+type IoniconName = keyof typeof Ionicons.glyphMap;
+
 interface TabIconProps {
+    name: IoniconName;
     color: string;
     size: number;
-    name: 'home' | 'explore' | 'favorites' | 'profile';
 }
 
-const TabIcon = ({ name, color, size }: TabIconProps) => {
-    switch (name) {
-        case 'home':
-            return <Home color={color} size={size} />;
-        case 'explore':
-            return <Map color={color} size={size} />;
-        case 'favorites':
-            return <Heart color={color} size={size} fill={color} />;
-        case 'profile':
-            return <UserRound color={color} size={size} />;
-        default:
-            return null;
-    }
-};
+const TabIcon = ({ name, color, size }: TabIconProps) => (
+    <Ionicons name={name} color={color} size={size} />
+);
 
 export default function TabsLayout(): JSX.Element {
     const { isAuthenticated } = useAuthStore();
@@ -74,7 +65,7 @@ export default function TabsLayout(): JSX.Element {
                 options={{
                     title: 'Explore',
                     tabBarIcon: ({ color, size }) => (
-                        <TabIcon name="explore" color={color} size={size} />
+                        <TabIcon name="map-outline" color={color} size={size} />
                     ),
                 }}
             />
@@ -84,7 +75,7 @@ export default function TabsLayout(): JSX.Element {
                 options={{
                     title: 'Favorites',
                     tabBarIcon: ({ color, size }) => (
-                        <TabIcon name="favorites" color={color} size={size} />
+                        <TabIcon name="heart" color={color} size={size} />
                     ),
                 }}
             />
@@ -94,7 +85,7 @@ export default function TabsLayout(): JSX.Element {
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color, size }) => (
-                        <TabIcon name="profile" color={color} size={size} />
+                        <TabIcon name="person" color={color} size={size} />
                     ),
                 }}
             />
