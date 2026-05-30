@@ -220,7 +220,7 @@ const ContactItem = ({ icon, label, value, onPress }: ContactItemProps): JSX.Ele
         onPress={onPress}
         activeOpacity={0.7}
     >
-        <Ionicons name={icon} size={20} color="#814141" />
+        <Ionicons name={icon} size={24} color="#814141" />
         <View style={styles.contactContent}>
             <Text style={styles.contactLabel}>{label}</Text>
             <Text style={styles.contactValue}>{value}</Text>
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         flex: 1,
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: '700',
         color: '#1A1A2E',
         textAlign: 'center',

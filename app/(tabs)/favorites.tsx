@@ -81,12 +81,30 @@ export default function FavoritesScreen(): JSX.Element {
     });
   }, [fetchFavorites, isAuthenticated]);
 
+  /**
+   * Asynchronous function to handle the refresh action.
+   *
+   * Sets the refreshing state to true before initiating
+   * the process to fetch favorites. After the favorites
+   * are successfully fetched, it resets the refreshing
+   * state to false.
+   *
+   * @returns {Promise<void>} A Promise that resolves when the refresh action is complete.
+   */
   const handleRefresh = async (): Promise<void> => {
     setRefreshing(true);
     await fetchFavorites();
     setRefreshing(false);
   };
 
+  /**
+   * Handles the action when a place is selected.
+   *
+   * This function is triggered when a specific place is pressed or selected.
+   * It navigates the user to the dynamic route associated with the selected place's ID.
+   *
+   * @param {Place} place - The selected place object containing details such as its unique ID.
+   */
   const handlePlacePress = (place: Place) => {
     router.push(`/place/${place.id}`);
   };
@@ -271,9 +289,11 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E5E7EB",
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#1A1A2E",
+    flex: 1,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    textAlign: 'center',
   },
   errorBox: {
     marginHorizontal: 16,
@@ -311,7 +331,7 @@ const styles = StyleSheet.create({
     borderColor: "#E5E7EB",
   },
   filterTagActive: {
-    backgroundColor: "#CA3519",
+    backgroundColor: "#FDCD5D",
   },
   filterTagText: {
     fontSize: 13,
@@ -319,7 +339,7 @@ const styles = StyleSheet.create({
     color: "#6B7280",
   },
   filterTagTextActive: {
-    color: "#fff",
+    color: "#0A0A0A",
   },
   listContent: {
     paddingHorizontal: 16,

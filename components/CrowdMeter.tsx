@@ -102,7 +102,9 @@ export default function CrowdMeter({
   if (crowd.closed) {
     return (
         <View style={styles.container}>
+          {/* Title */}
           <View style={styles.headerRow}>
+            <Text style={styles.title}>Live Crowd</Text>
             <View style={[styles.badge, { backgroundColor: "#F3F4F6" }]}>
               <Text style={styles.badgeEmoji}>🔒</Text>
               <Text style={[styles.badgeLabel, { color: "#9CA3AF" }]}>
@@ -212,6 +214,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  title: {
+    fontSize: 16,
+    fontWeight: "700",
+    fontFamily: 'Poppins-Bold',
+    color: "#1A1A2E",
+  },
   badge: {
     flexDirection: "row",
     alignItems: "center",
@@ -226,10 +234,12 @@ const styles = StyleSheet.create({
   badgeLabel: {
     fontSize: 14,
     fontWeight: "600",
+    fontFamily: 'Poppins-Bold',
   },
   percentage: {
     fontSize: 28,
     fontWeight: "700",
+    fontFamily: 'Poppins-Bold',
     color: "#1A1A2E",
   },
   barBackground: {

@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
         elevation: 4,
     },
     disabledButton: {
-        backgroundColor: '#A5A1FF',
+        backgroundColor: '#C4A484',
     },
     buttonText: {
         color: '#FFF',

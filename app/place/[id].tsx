@@ -9,6 +9,7 @@ import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import {JSX, useEffect, useState} from "react";
+import { Linking } from 'react-native';
 import {
   ActivityIndicator,
   Image,
@@ -115,6 +116,108 @@ export default function PlaceDetailScreen(): JSX.Element {
     }
   };
 
+  /**
+   * Asynchronously opens the device's map application with the specified location and place details.
+   *
+   * The function determines the appropriate map URL scheme based on the platform (iOS, Android, or Web)
+   * and attempts to open the corresponding map application or service. If the place information is missing, the function exits gracefully.
+   *
+   * @function handleOpenMaps
+   * @async
+   *
+   * @throws Will log an error to the console if it fails to open the maps.
+   *
+   * @remarks
+   * - For iOS devices, it uses the Apple Maps URL scheme.
+   * - For Android devices, it uses the Google Maps URL scheme with the geo protocol.
+   * - For other platforms, it defaults to using Google Maps in the browser.
+   * - Encodes the place name to ensure special characters in the name do not cause URL issues.
+   */
+  const handleOpenMaps = async () => {
+    if (!place) return;
+
+    const { lat, lng } = place.location;
+    const placeName = encodeURIComponent(place.name);
+
+    // iOS and Android map URLs
+    const iosUrl = `maps://maps.apple.com/?daddr=${lat},${lng}&q=${placeName}`;
+    const androidUrl = `geo:${lat},${lng}?q=${placeName}`;
+    const webUrl = `https://maps.google.com/?q=${lat},${lng}`;
+
+    try {
+      if (Platform.OS === 'ios') {
+        await Linking.openURL(iosUrl);
+      } else if (Platform.OS === 'android') {
+        await Linking.openURL(androidUrl);
+      } else {
+        await Linking.openURL(webUrl);
+      }
+    } catch (error) {
+      console.error('Failed to open maps:', error);
+    }
+  };
+
+  /**
+   * Finds the best time to visit based on the lowest crowd level in the future.
+   * Returns the hour and crowd percentage of the least busy time.
+   */
+  const getBestTimeToVisit = () => {
+    if (!crowdHistory?.days || crowdHistory.days.length === 0) {
+      return null;
+    }
+
+    const today = crowdHistory.days[crowdHistory.days.length - 1];
+
+    if (!today?.hours) {
+      return null;
+    }
+
+    const now = new Date();
+    const currentHour = now.getHours();
+
+    // Filter future hours today
+    let futureHours = today.hours.filter((h) => h.hour > currentHour);
+
+    // If no future hours today, use tomorrow's first hours
+    if (futureHours.length === 0 && crowdHistory.days.length > 1) {
+      const tomorrow = crowdHistory.days[crowdHistory.days.length]; // Next day if available
+      if (tomorrow?.hours) {
+        futureHours = tomorrow.hours.slice(0, 5); // Show first 5 hours of next day
+      }
+    }
+
+    // If still no hours, just show the best hour overall
+    if (futureHours.length === 0) {
+      futureHours = today.hours;
+    }
+
+    if (futureHours.length === 0) {
+      return null;
+    }
+
+    // Find hour with lowest crowd
+    const bestHour = futureHours.reduce((min, current) =>
+        current.crowd < min.crowd ? current : min
+    );
+
+    return bestHour;
+  };
+
+  /**
+   * Converts a given hour in 24-hour format to a string representing the time in 12-hour format with AM/PM.
+   *
+   * @param {number} hour - The hour in 24-hour format. Should be a number between 0 and 23 inclusive.
+   * @returns {string} The formatted time string in 12-hour format with AM/PM.
+   */
+  const formatHour = (hour: number): string => {
+    if (hour === 0) return '12:00 AM';
+    if (hour < 12) return `${hour}:00 AM`;
+    if (hour === 12) return '12:00 PM';
+    return `${hour - 12}:00 PM`;
+  };
+
+  const bestTime = getBestTimeToVisit();
+
   // ── Loading ────────────────────────────────────────────────────────────────
   if (isLoadingPlace) {
     return (
@@ -197,7 +300,7 @@ export default function PlaceDetailScreen(): JSX.Element {
         >
           <Ionicons
               name={favorited ? "heart" : "heart-outline"}
-              size={30}
+              size={31}
               color={favorited ? "#FF6467" : "#0A0A0A"}
           />
         </TouchableOpacity>
@@ -205,15 +308,13 @@ export default function PlaceDetailScreen(): JSX.Element {
         {/* Direction button */}
         <TouchableOpacity
             style={styles.directionButton}
-            onPress={() => {
-              // TODO: Open maps with directions
-            }}
+            onPress={handleOpenMaps}
             activeOpacity={0.85}
         >
           <Ionicons
-              name="navigate"
-              size={30}
-              color="#2984D1"
+              name="navigate-circle"
+              size={35}
+              color="#31C950"
           />
         </TouchableOpacity>
 
@@ -221,7 +322,6 @@ export default function PlaceDetailScreen(): JSX.Element {
 
       {/* Live crowd meter */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>  Live Crowd</Text>
         {isLoadingCrowd ? (
           <View style={styles.crowdLoading}>
             <ActivityIndicator size="small" color="#6C63FF" />
@@ -244,6 +344,34 @@ export default function PlaceDetailScreen(): JSX.Element {
           <CrowdHistoryChart history={crowdHistory} />
         ) : (
           <Text style={styles.noDataText}>No history available</Text>
+        )}
+      </View>
+
+      {/* Best Time to Visit */}
+      <View style={styles.section}>
+        {bestTime ? (
+            <View style={styles.bestTimeContainer}>
+              <Text style={styles.sectionTitle}>Best Time to Visit</Text>
+              <View style={styles.bestTimeContent}>
+                <Ionicons name="checkmark-circle" size={24} color="#31C950" />
+                <View style={styles.bestTimeText}>
+                  <Text style={styles.bestTimeLabel}>Least Crowded</Text>
+                  <Text style={styles.bestTimeValue}>
+                    {formatHour(bestTime.hour)} - {bestTime.crowd}% busy
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.bestTimeCrowd}>
+                <View
+                    style={[
+                      styles.bestTimeCrowdBar,
+                      { width: `${bestTime.crowd}%`, backgroundColor: '#31C950' },
+                    ]}
+                />
+              </View>
+            </View>
+        ) : (
+            <Text style={styles.noDataText}>No future times available</Text>
         )}
       </View>
     </ScrollView>
@@ -345,7 +473,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   categoryBadge: {
-    backgroundColor: "#EDE9FE",
+    backgroundColor: "#FDCD5D",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -353,7 +481,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 12,
     fontWeight: "500",
-    color: "#CA3519",
+    color: "#0A0A0A",
   },
   ratingRow: {
     flexDirection: "row",
@@ -412,5 +540,42 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 0.5,
     borderColor: "#E5E7EB",
+  },
+  bestTimeContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 0.5,
+    borderColor: "#E5E7EB",
+    gap: 12,
+  },
+  bestTimeContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  bestTimeText: {
+    flex: 1,
+  },
+  bestTimeLabel: {
+    fontSize: 12,
+    color: "#9CA3AF",
+    fontWeight: "500",
+  },
+  bestTimeValue: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1A1A2E",
+    marginTop: 2,
+  },
+  bestTimeCrowd: {
+    height: 6,
+    backgroundColor: "#F0F0F0",
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+  bestTimeCrowdBar: {
+    height: "100%",
+    borderRadius: 3,
   },
 });

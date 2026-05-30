@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   },
   checkboxChecked: {
     backgroundColor: "#0A0A0A", // Aligned brand aesthetic
-    borderColor: "#CA3519",
+    borderColor: "#0A0A0A",
   },
   checkboxLabel: {
     fontSize: 14,
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 52,
-    backgroundColor: "#0A0A0A", // Aligned brand aesthetic #483D8B
+    backgroundColor: "#0A0A0A",
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   link: {
-    color: "#0A0A0A", // Aligned brand aesthetic
+    color: "#0A0A0A",
     fontSize: 14,
     fontWeight: "600",
   },

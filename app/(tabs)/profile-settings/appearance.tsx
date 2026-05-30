@@ -116,13 +116,13 @@ const styles = StyleSheet.create({
         marginRight: 12,
     },
     radioSelected: {
-        borderColor: "#5C4033",
+        borderColor: "#FDCD5D",
     },
     radioDot: {
         width: 10,
         height: 10,
         borderRadius: 5,
-        backgroundColor: "#5C4033",
+        backgroundColor: "#0A0A0A",
     },
     themeLabel: {
         fontSize: 15,

@@ -6,8 +6,8 @@ import {
     TouchableOpacity,
     Platform,
 } from 'react-native';
-import { useRouter, useFocusEffect } from 'expo-router'; // Swapped to explicitly typed hook pattern
-import { Circle, Heart, MapPin, Calendar, Map, ChevronRight } from 'lucide-react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/store/authStore";
 import useFavoritesStore from '@/store/favoritesStore';
 import { getFirstName } from "@/utils";
@@ -119,19 +119,36 @@ export default function HomeScreen(): JSX.Element {
         return `${diffDays}d ago`;
     };
 
+    /**
+     * Returns a JSX element representing an icon based on the provided activity type.
+     *
+     * @param {Activity['type']} type - The type of the activity. Possible values include:
+     *   - 'favorite_added': Represents an activity where a favorite was added.
+     *   - 'favorite_removed': Represents an activity where a favorite was removed.
+     *   - 'place_busy': Represents an activity indicating a busy place.
+     *
+     * @returns {JSX.Element | null} - The corresponding icon for the provided activity type,
+     * or null if the type is not recognized.
+     */
     const getActivityIcon = (type: Activity['type']): JSX.Element | null => {
         switch (type) {
             case 'favorite_added':
-                return <Heart size={24} color="#EF4444" />;
+                return <Ionicons name="heart" size={24} color="#EF4444" />;
             case 'favorite_removed':
-                return <Heart size={24} color="#EF4444" fill="none"/>;
+                return <Ionicons name="heart-outline" size={24} color="#EF4444" />;
             case 'place_busy':
-                return <Circle size={18} color="#F59E0B" />;
+                return <Ionicons name="alert-circle" size={18} color="#F59E0B" />;
             default:
                 return null;
         }
     };
 
+    /**
+     * Generates a descriptive text based on the provided activity.
+     *
+     * @param {Activity} activity - The activity object containing information about the type of activity and related data.
+     * @returns {string} A string describing the activity, such as favorite additions, removals, or place status. Returns 'Unknown activity' if the activity type is unrecognized.
+     */
     const getActivityText = (activity: Activity): string => {
         switch (activity.type) {
             case 'favorite_added':
@@ -163,21 +180,21 @@ export default function HomeScreen(): JSX.Element {
             {/* Stats */}
             <View style={styles.statsContainer}>
                 <View style={styles.statCard}>
-                    <Heart size={24} color="#EF4444" />
+                    <Ionicons name="heart" size={30} color="#EF4444" />
                     <Text style={styles.statValue}>{favorites.length}</Text>
                     <Text style={styles.statLabel}>Favorites</Text>
                 </View>
                 <View style={styles.statCard}>
-                    <MapPin size={24} color="#31C950" />
+                    <Ionicons name="location" size={30} color="#31C950" />
                     <Text style={styles.statValue}>{favorites.length * 3}</Text>
                     <Text style={styles.statLabel}>Visited</Text>
                 </View>
                 <View style={styles.statCard}>
                     <TouchableOpacity
-                        onPress={() => router.push('/screens/events')}
+                        onPress={() => router.push('/(tabs)/events')}
                         style={styles.statContent}
                     >
-                        <Calendar size={30} color="#F59E0B" />
+                        <Ionicons name="calendar" size={30} color="#28B463" />
                         <Text style={styles.statValue}>Events</Text>
                         <Text style={styles.statLabel}>Nearby</Text>
                     </TouchableOpacity>
@@ -192,12 +209,12 @@ export default function HomeScreen(): JSX.Element {
                     onPress={() => router.push('/(tabs)/explore' as any)}
                     activeOpacity={0.85}
                 >
-                    <Map size={24} color="#5C4033" />
+                    <Ionicons name="map-outline" size={24} color="#5C4033" />
                     <View style={styles.actionContent}>
                         <Text style={styles.actionTitle}>Explore Places</Text>
                         <Text style={styles.actionSubtitle}>Find new places to visit</Text>
                     </View>
-                    <ChevronRight size={20} color="#9CA3AF" />
+                    <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -205,14 +222,14 @@ export default function HomeScreen(): JSX.Element {
                     onPress={() => router.push('/(tabs)/favorites' as any)}
                     activeOpacity={0.85}
                 >
-                    <Heart size={24} color="#EF4444" fill="none"/>
+                    <Ionicons name="heart-outline" size={24} color="#EF4444" />
                     <View style={styles.actionContent}>
                         <Text style={styles.actionTitle}>Your Favorites</Text>
                         <Text style={styles.actionSubtitle}>
                             View your saved places
                         </Text>
                     </View>
-                    <ChevronRight size={20} color="#9CA3AF" />
+                    <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
                 </TouchableOpacity>
             </View>
 
@@ -289,13 +306,13 @@ const styles = StyleSheet.create({
         borderColor: '#E5E7EB',
     },
     statValue: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '700',
         color: '#1A1A2E',
         marginTop: 8,
     },
     statLabel: {
-        fontSize: 11,
+        fontSize: 10,
         color: '#9CA3AF',
         marginTop: 2,
     },

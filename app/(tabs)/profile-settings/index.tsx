@@ -202,7 +202,7 @@ export default function ProfileScreen(): JSX.Element {
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.menuCard}>
             <MenuItem
-                icon="moon-outline"
+                icon="contrast-outline"
                 label="Appearance"
                 value="System"
                 onPress={() => router.push("/(tabs)/profile-settings/appearance" as any)}
@@ -287,9 +287,11 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E5E7EB",
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#1A1A2E",
+    flex: 1,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    textAlign: 'center',
   },
   avatarSection: {
     alignItems: "center",
@@ -310,7 +312,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     fontSize: 36,
     fontWeight: "700",
-    color: "#4A0404",
+    color: "#FDCD5D",
   },
   displayName: {
     fontSize: 20,
@@ -424,7 +426,7 @@ const styles = StyleSheet.create({
   signInButton: {
     width: "100%",
     height: 52,
-    backgroundColor: "#4A0404",
+    backgroundColor: "#FDCD5D",
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -443,10 +445,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: "#4A0404",
+    borderColor: "#FDCD5D",
   },
   signUpButtonText: {
-    color: "#4A0404",
+    color: "#FDCD5D",
     fontSize: 16,
     fontWeight: "600",
   },

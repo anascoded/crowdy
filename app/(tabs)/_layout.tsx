@@ -12,10 +12,29 @@ interface TabIconProps {
     size: number;
 }
 
-const TabIcon = ({ name, color, size }: TabIconProps) => (
+/**
+ * TabIcon Component
+ *
+ * A functional component that renders an icon using the Ionicons library.
+ *
+ * @param {Object} props - The properties passed to the TabIcon component.
+ * @param {string} props.name - The name of the icon to be displayed.
+ * @param {string} props.color - The color of the icon.
+ * @param {number} props.size - The size of the icon.
+ *
+ * @returns {JSX.Element} The rendered Ionicons component with the specified properties.
+ */
+const TabIcon = ({ name, color, size }: TabIconProps): JSX.Element => (
     <Ionicons name={name} color={color} size={size} />
 );
 
+/**
+ * Renders a tab-based navigation layout using the `Tabs` component.
+ * The layout includes multiple screens with individual configurations, styling, and icons.
+ * It ensures user authentication by redirecting unauthenticated users to the sign-in page.
+ *
+ * @return {JSX.Element} The rendered JSX element for the tab-based navigation layout.
+ */
 export default function TabsLayout(): JSX.Element {
     const { isAuthenticated } = useAuthStore();
 
@@ -29,7 +48,7 @@ export default function TabsLayout(): JSX.Element {
         <Tabs
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: '#5C4033',
+                tabBarActiveTintColor: '#0A0A0A',
                 tabBarInactiveTintColor: '#9E9E9E',
                 tabBarStyle: {
                     backgroundColor: '#ffffff',
@@ -65,7 +84,7 @@ export default function TabsLayout(): JSX.Element {
                 options={{
                     title: 'Explore',
                     tabBarIcon: ({ color, size }) => (
-                        <TabIcon name="map-outline" color={color} size={size} />
+                        <TabIcon name="map" color={color} size={size} />
                     ),
                 }}
             />
@@ -87,6 +106,14 @@ export default function TabsLayout(): JSX.Element {
                     tabBarIcon: ({ color, size }) => (
                         <TabIcon name="person" color={color} size={size} />
                     ),
+                }}
+            />
+
+            <Tabs.Screen
+                name="events"
+                options={{
+                    href: null,
+                    headerShown: false,
                 }}
             />
         </Tabs>

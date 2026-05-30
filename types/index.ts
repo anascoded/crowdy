@@ -39,6 +39,7 @@ export interface CrowdLive {
 
 export interface CrowdHour {
   hour: number; // 0–23
+  crowd: number;
   percentage: number; // 0–100
   level: CrowdLevel;
 }
