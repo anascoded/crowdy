@@ -1,19 +1,18 @@
 {
-  "cli": {
-    "version": ">= 18.13.0",
-    "appVersionSource": "remote"
-  },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
     "preview": {
-      "distribution": "internal"
+      "android": { "buildType": "apk" },
+      "ios": { "buildType": "simulator" }
     },
-    "production": {
-      "autoIncrement": true
-    }
+    "preview2": {
+      "android": { "buildType": "apk" },
+      "ios": { "buildType": "simulator" }
+    },
+    "preview3": {
+      "android": { "buildType": "apk" },
+      "ios": { "buildType": "simulator" }
+    },
+    "production": {}
   },
   "submit": {
     "production": {}
