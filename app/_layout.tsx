@@ -1,8 +1,8 @@
 import { Stack } from 'expo-router';
 import { Amplify } from 'aws-amplify';
 import * as SplashScreen from 'expo-splash-screen';
-import { useFonts } from 'expo-font';
-import {JSX, useEffect} from 'react';
+import { useEffect } from 'react';
+import { JSX } from 'react';
 import outputs from '../amplify_outputs.json';
 
 SplashScreen.preventAutoHideAsync().then(() => {
@@ -22,26 +22,13 @@ Amplify.configure(outputs);
  * @return {JSX.Element|null} The root layout of the application as a stack of screens; null if fonts are still loading or an error is yet to occur.
  */
 export default function RootLayout(): JSX.Element | null {
-    const [fontsLoaded, fontError] = useFonts({
-        'Poppins-Regular': require('@react-native-google-fonts/poppins/Poppins_400Regular.ttf'),
-        'Poppins-Medium': require('@react-native-google-fonts/poppins/Poppins_500Medium.ttf'),
-        'Poppins-SemiBold': require('@react-native-google-fonts/poppins/Poppins_600SemiBold.ttf'),
-        'Poppins-Bold': require('@react-native-google-fonts/poppins/Poppins_700Bold.ttf'),
-    });
-
     useEffect(() => {
-        if (fontsLoaded || fontError) {
-            const timer = setTimeout(async () => {
-                await SplashScreen.hideAsync();
-            }, 3000);
+        const timer = setTimeout(async () => {
+            await SplashScreen.hideAsync();
+        }, 3000);
 
-            return () => clearTimeout(timer);
-        }
-    }, [fontsLoaded, fontError]);
-
-    if (!fontsLoaded && !fontError) {
-        return null;
-    }
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <Stack screenOptions={{ headerShown: false }}>
