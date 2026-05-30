@@ -265,7 +265,7 @@ export default function ProfileScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFAF9",
+    backgroundColor: "#F4F2EE",
   },
   scrollContent: {
     paddingBottom: 48,

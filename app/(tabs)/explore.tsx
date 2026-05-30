@@ -179,7 +179,7 @@ export default function ExploreScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#F4F2EE",
   },
   searchContainer: {
     backgroundColor: "#fff",

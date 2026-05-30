@@ -98,90 +98,84 @@ export default function CrowdMeter({
                                      crowd,
                                      showLabel = true,
                                    }: CrowdMeterProps): JSX.Element {
-  // Handle closed state
-  if (crowd.closed) {
-    return (
-        <View style={styles.container}>
-          {/* Title */}
-          <View style={styles.headerRow}>
-            <Text style={styles.title}>Live Crowd</Text>
-            <View style={[styles.badge, { backgroundColor: "#F3F4F6" }]}>
-              <Text style={styles.badgeEmoji}>🔒</Text>
-              <Text style={[styles.badgeLabel, { color: "#9CA3AF" }]}>
-                Closed
-              </Text>
-            </View>
-            <Text style={styles.percentage}>—</Text>
-          </View>
-
-          <View style={styles.barBackground}>
-            <View
-                style={[
-                  styles.barFill,
-                  {
-                    width: "0%",
-                    backgroundColor: "#D1D5DB",
-                  },
-                ]}
-            />
-          </View>
-
-          {showLabel && (
-              <View style={styles.scaleRow}>
-                <Text style={styles.scaleLabel}>Empty</Text>
-                <Text style={styles.scaleLabel}>Moderate</Text>
-                <Text style={styles.scaleLabel}>Full</Text>
-              </View>
-          )}
-
-          <Text style={styles.updatedAt}>
-            Updated {formatUpdatedAt(crowd.updatedAt)}
-          </Text>
-        </View>
-    );
-  }
-
   const config = LEVEL_CONFIG[crowd.level];
 
   return (
       <View style={styles.container}>
-        {/* Header row */}
-        <View style={styles.headerRow}>
-          <View style={[styles.badge, { backgroundColor: config.background }]}>
-            <Text style={styles.badgeEmoji}>{config.emoji}</Text>
-            <Text style={[styles.badgeLabel, { color: config.color }]}>
-              {config.label}
-            </Text>
-          </View>
-          <Text style={styles.percentage}>{crowd.percentage}%</Text>
-        </View>
+        <Text style={[styles.title, { fontFamily: 'Poppins-Bold' }]}>Live Crowd</Text>
+        {crowd.closed ? (
+            <>
+              <View style={styles.headerRow}>
+                <View style={[styles.badge, { backgroundColor: "#F3F4F6" }]}>
+                  <Text style={styles.badgeEmoji}>🔒</Text>
+                  <Text style={[styles.badgeLabel, { color: "#9CA3AF" }]}>
+                    Closed
+                  </Text>
+                </View>
+                <Text style={styles.percentage}>—</Text>
+              </View>
 
-        {/* Progress bar */}
-        <View style={styles.barBackground}>
-          <View
-              style={[
-                styles.barFill,
-                {
-                  width: `${crowd.percentage}%` as any,
-                  backgroundColor: config.color,
-                },
-              ]}
-          />
-        </View>
+              <View style={styles.barBackground}>
+                <View
+                    style={[
+                      styles.barFill,
+                      {
+                        width: "0%",
+                        backgroundColor: "#D1D5DB",
+                      },
+                    ]}
+                />
+              </View>
 
-        {/* Scale labels */}
-        {showLabel && (
-            <View style={styles.scaleRow}>
-              <Text style={styles.scaleLabel}>Empty</Text>
-              <Text style={styles.scaleLabel}>Moderate</Text>
-              <Text style={styles.scaleLabel}>Full</Text>
-            </View>
+              {showLabel && (
+                  <View style={styles.scaleRow}>
+                    <Text style={styles.scaleLabel}>Empty</Text>
+                    <Text style={styles.scaleLabel}>Moderate</Text>
+                    <Text style={styles.scaleLabel}>Full</Text>
+                  </View>
+              )}
+
+              <Text style={styles.updatedAt}>
+                Updated {formatUpdatedAt(crowd.updatedAt)}
+              </Text>
+            </>
+        ) : (
+            <>
+              <View style={styles.headerRow}>
+                <View style={[styles.badge, { backgroundColor: config.background }]}>
+                  <Text style={styles.badgeEmoji}>{config.emoji}</Text>
+                  <Text style={[styles.badgeLabel, { color: config.color }]}>
+                    {config.label}
+                  </Text>
+                </View>
+                <Text style={styles.percentage}>{crowd.percentage}%</Text>
+              </View>
+
+              <View style={styles.barBackground}>
+                <View
+                    style={[
+                      styles.barFill,
+                      {
+                        width: `${crowd.percentage}%` as any,
+                        backgroundColor: config.color,
+                      },
+                    ]}
+                />
+              </View>
+
+              {showLabel && (
+                  <View style={styles.scaleRow}>
+                    <Text style={styles.scaleLabel}>Empty</Text>
+                    <Text style={styles.scaleLabel}>Moderate</Text>
+                    <Text style={styles.scaleLabel}>Full</Text>
+                  </View>
+              )}
+
+              <Text style={styles.updatedAt}>
+                Updated {formatUpdatedAt(crowd.updatedAt)}
+              </Text>
+            </>
         )}
-
-        {/* Last updated */}
-        <Text style={styles.updatedAt}>
-          Updated {formatUpdatedAt(crowd.updatedAt)}
-        </Text>
       </View>
   );
 }
@@ -217,8 +211,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "700",
-    fontFamily: 'Poppins-Bold',
-    color: "#1A1A2E",
+    color: "#0A0A0A",
   },
   badge: {
     flexDirection: "row",

@@ -180,9 +180,15 @@ export default function HomeScreen(): JSX.Element {
             {/* Stats */}
             <View style={styles.statsContainer}>
                 <View style={styles.statCard}>
+                    <TouchableOpacity
+                        onPress={() => router.push('/(tabs)/favorites')}
+                        style={styles.statContent}
+                    >
+
                     <Ionicons name="heart" size={30} color="#EF4444" />
                     <Text style={styles.statValue}>{favorites.length}</Text>
                     <Text style={styles.statLabel}>Favorites</Text>
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.statCard}>
                     <Ionicons name="location" size={30} color="#31C950" />
@@ -195,8 +201,8 @@ export default function HomeScreen(): JSX.Element {
                         style={styles.statContent}
                     >
                         <Ionicons name="calendar" size={30} color="#28B463" />
-                        <Text style={styles.statValue}>Events</Text>
-                        <Text style={styles.statLabel}>Nearby</Text>
+                        <Text style={styles.statValue}>10</Text>
+                        <Text style={styles.statLabel}>Events</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -263,7 +269,7 @@ export default function HomeScreen(): JSX.Element {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#F4F2EE',
     },
     scrollContent: {
         paddingBottom: 32,

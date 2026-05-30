@@ -48,6 +48,7 @@ export default function PlaceDetailScreen(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
 
   const favorited = place ? isFavorite(place.id) : false;
+  const [isVisited, setIsVisited] = useState(false);
 
   // ── Fetch place details ────────────────────────────────────────────────────
   useEffect(() => {
@@ -71,6 +72,20 @@ export default function PlaceDetailScreen(): JSX.Element {
     });
   }, [id]);
 
+  // Load visited status on mount
+  useEffect(() => {
+    const loadVisitedStatus = async () => {
+      try {
+        const visited = await AsyncStorage.getItem(`visited_${id}`);
+        setIsVisited(visited === 'true');
+      } catch (err) {
+        console.error('Failed to load visited status:', err);
+      }
+    };
+
+    if (id) loadVisitedStatus();
+  }, [id]);
+
   /**
    * Logs a user activity, such as adding or removing a favorite location, and stores it persistently.
    * The activity is saved along with a timestamp and other related details in local storage.
@@ -80,7 +95,7 @@ export default function PlaceDetailScreen(): JSX.Element {
    * @param {string} placeName - The name of the place associated with the activity.
    * @returns {Promise<void>} A promise that resolves once the activity is successfully logged and saved.
    */
-  const logActivity = async (type: 'favorite_added' | 'favorite_removed', placeName: string): Promise<void> => {
+  const logActivity = async (type: 'favorite_added' | 'favorite_removed' | 'place_visited' | 'place_unvisited', placeName: string): Promise<void> => {
     try {
       const stored = await AsyncStorage.getItem('crowdy_activities') || '[]';
       const activities = JSON.parse(stored);
@@ -113,6 +128,20 @@ export default function PlaceDetailScreen(): JSX.Element {
     } else {
       await addFavorite(place);
       await logActivity('favorite_added', place.name);
+    }
+  };
+
+  const handleVisited = async () => {
+    if (!place) return;
+
+    const newVisitedStatus = !isVisited;
+    setIsVisited(newVisitedStatus);
+
+    try {
+      await AsyncStorage.setItem(`visited_${id}`, newVisitedStatus.toString());
+      await logActivity(newVisitedStatus ? 'place_visited' : 'place_unvisited', place.name);
+    } catch (err) {
+      console.error('Failed to save visited status:', err);
     }
   };
 
@@ -305,6 +334,19 @@ export default function PlaceDetailScreen(): JSX.Element {
           />
         </TouchableOpacity>
 
+        {/* Visited button */}
+        <TouchableOpacity
+            style={styles.visitedButton}
+            onPress={handleVisited}
+            activeOpacity={0.85}
+        >
+          <Ionicons
+              name={isVisited ? "bookmark" : "bookmark-outline"}
+              size={28}
+              color={isVisited ? "#0A0A0A" : "#0A0A0A"}
+          />
+        </TouchableOpacity>
+
         {/* Direction button */}
         <TouchableOpacity
             style={styles.directionButton}
@@ -381,7 +423,7 @@ export default function PlaceDetailScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#F4F2EE",
   },
   scrollContent: {
     paddingBottom: 48,
@@ -446,7 +488,15 @@ const styles = StyleSheet.create({
   },
   favoriteButton: {
     position: "absolute",
-    top: 15,
+    top: 10,
+    right: 40,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  visitedButton: {
+    position: "absolute",
+    top: 12,
     right: 10,
     borderRadius: 8,
     alignItems: "center",

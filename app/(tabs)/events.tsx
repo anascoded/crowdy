@@ -256,7 +256,7 @@ export default function EventsScreen(): JSX.Element {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F9FAFB",
+        backgroundColor: "#F4F2EE",
     },
     centeredContainer: {
         flex: 1,
@@ -278,9 +278,10 @@ const styles = StyleSheet.create({
         borderBottomColor: "#E5E7EB",
     },
     headerTitle: {
-        fontSize: 28,
+        fontSize: 20,
         fontWeight: "700",
         color: "#1A1A2E",
+        textAlign: 'center',
     },
     errorBox: {
         marginHorizontal: 16,
