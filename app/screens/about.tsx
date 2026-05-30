@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from "react-native";
 import {JSX} from "react";
 
 /**
@@ -71,8 +72,12 @@ export default function AboutScreen(): JSX.Element {
 
             {/* Logo Section */}
             <View style={styles.logoSection}>
-                <View style={styles.logoBadge}>
-                    <Ionicons name="people" size={48} color="#814141" />
+                <View>
+                    <Image
+                        source={require("@/assets/icons/icon-splash.png")}
+                        style={styles.logo}
+                        resizeMode="contain"
+                    />
                 </View>
                 <Text style={styles.appName}>Crowdy</Text>
                 <Text style={styles.version}>Version 1.0.0</Text>
@@ -157,7 +162,7 @@ export default function AboutScreen(): JSX.Element {
             {/* Footer */}
             <View style={styles.footer}>
                 <Text style={styles.footerText}>
-                    © 2026 Crowdy, Ltd. All rights reserved.
+                    © 2026 Crowdy, LLC. All rights reserved.
                 </Text>
             </View>
         </ScrollView>
@@ -276,6 +281,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 16,
+    },
+    logo: {
+        width: 100,
+        height: 100,
+        borderRadius: 8,
     },
     appName: {
         fontSize: 28,

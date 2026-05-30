@@ -254,7 +254,7 @@ export default function FavoritesScreen(): JSX.Element {
                     onPress={() => router.push("/(tabs)/explore")}
                     activeOpacity={0.85}
                 >
-                  <Text style={styles.exploreButtonText}>Explore places</Text>
+                  <Text style={styles.exploreButtonText}>Start exploring</Text>
                 </TouchableOpacity>
               </View>
             }
@@ -267,7 +267,7 @@ export default function FavoritesScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F2EE",
+    backgroundColor: "#F9FAFB",
   },
   centeredContainer: {
     flex: 1,
@@ -369,11 +369,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    backgroundColor: "#CA3519", // Fixed theme color to match the primary purple
-    borderRadius: 12,
+    backgroundColor: "#FAD341",
+    borderRadius: 10,
   },
   exploreButtonText: {
-    color: "#fff",
+    color: "#303030",
     fontSize: 15,
     fontWeight: "600",
   },

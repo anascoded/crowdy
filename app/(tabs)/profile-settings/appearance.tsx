@@ -61,7 +61,7 @@ export default function AppearanceScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F4F2EE",
+        backgroundColor: "#F9FAFB",
     },
     header: {
         flexDirection: "row",

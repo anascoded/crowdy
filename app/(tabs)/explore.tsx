@@ -23,7 +23,7 @@ const DEBOUNCE_MS = 400;
  * A screen that allows users to search for places or view nearby locations.
  *
  * The `ExploreScreen` component provides a user interface for searching locations via a search bar,
- * displaying search results, and showing nearby places if the search query is empty. It utilizes
+ * displaying search results, and showing nearby places if the search query is empty. It uses
  * debounced input handling for a better user experience and manages the loading and error states for
  * both search results and nearby locations. It also requests location permissions on mount to fetch
  * nearby places when location access is granted.
@@ -62,21 +62,76 @@ export default function ExploreScreen(): JSX.Element {
 
   // Load nearby places on mount
   useEffect(() => {
-    (async () => {
+    let isMounted = true;
+
+    const loadNearby = async () => {
       try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+
+        if (status !== "granted") {
+          console.log("Location permission not granted");
+          return;
+        }
+
+        const servicesEnabled = await Location.hasServicesEnabledAsync();
+
+        if (!servicesEnabled) {
+          Alert.alert(
+              "Location disabled",
+              "Please enable location services to see nearby places."
+          );
+          return;
+        }
+
         const hasPermission = await requestLocationPermission();
         if (!hasPermission) return;
 
-        const loc = await Location.getCurrentPositionAsync();
-        await fetchNearbyPlaces(loc.coords.latitude, loc.coords.longitude);
+        const loc = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+
+        if (!isMounted) return;
+
+        await fetchNearbyPlaces(
+            loc.coords.latitude,
+            loc.coords.longitude
+        );
       } catch (err) {
-        console.error('Location error:', err);
-        // Don't crash - just show empty state
+        console.log("Location error:", err);
+
+        // Don't crash UI — just fail gracefully
+        Alert.alert(
+            "Couldn't get location",
+            "We couldn't fetch your location. You can still search manually."
+        );
       }
-    })();
+    };
+
+    void loadNearby();
+
+    return () => {
+      isMounted = false;
+    };
   }, [fetchNearbyPlaces]);
 
-  // Debounced search
+  /**
+   * Handles changes to the search query input in a debounced manner.
+   *
+   * This function updates the current query state with the provided text,
+   * clears the existing debounced timer, and resets the search state if the input
+   * is empty or consists only of whitespace. Otherwise, it sets a new debounced timer
+   * to execute the search after a specified delay.
+   *
+   * Dependencies:
+   * - Relies on `clearSearch` to reset the search state for empty input.
+   * - Utilizes `searchPlaces` to execute the search after the debounced delay.
+   * - `setQuery` updates the query state.
+   * - `setDebounceTimer` updates the current debounced timer reference.
+   *
+   * Debounce delay is defined by `DEBOUNCE_MS`.
+   *
+   * @param {string} text - The input text used as the search query.
+   */
   const handleQueryChange = useCallback(
     (text: string) => {
       setQuery(text);
@@ -179,7 +234,7 @@ export default function ExploreScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F2EE",
+    backgroundColor: "#F3F4F6",
   },
   searchContainer: {
     backgroundColor: "#fff",

@@ -155,7 +155,7 @@ export default function ChangePasswordScreen(): JSX.Element {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F4F2EE",
+        backgroundColor: "#F9FAFB",
     },
     header: {
         flexDirection: "row",
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
         color: "#1A1A2E",
     },
     saveButton: {
-        backgroundColor: "#5C4033", // Matches targeted brand token palette definitions
+        backgroundColor: "#0A0A0A", // Matches targeted brand token palette definitions
         borderRadius: 12,
         paddingVertical: 14,
         alignItems: "center",

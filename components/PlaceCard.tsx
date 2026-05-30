@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   categoryBadge: {
-    backgroundColor: "#FDCD5D",
+    backgroundColor: "#FAD341",
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 11,
     fontWeight: "500",
-    color: "#0A0A0A",
+    color: "#303030",
   },
   rating: {
     flexDirection: "row",

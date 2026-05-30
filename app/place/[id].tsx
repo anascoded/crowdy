@@ -395,11 +395,11 @@ export default function PlaceDetailScreen(): JSX.Element {
             <View style={styles.bestTimeContainer}>
               <Text style={styles.sectionTitle}>Best Time to Visit</Text>
               <View style={styles.bestTimeContent}>
-                <Ionicons name="checkmark-circle" size={24} color="#31C950" />
+                <Ionicons name="walk" size={24} color="#0A0A0A" />
                 <View style={styles.bestTimeText}>
                   <Text style={styles.bestTimeLabel}>Least Crowded</Text>
                   <Text style={styles.bestTimeValue}>
-                    {formatHour(bestTime.hour)} - {bestTime.crowd}% busy
+                    <Ionicons name="time-outline" size={16} color="#9CA3AF" /> {formatHour(bestTime.hour)} - {bestTime.crowd}% busy
                   </Text>
                 </View>
               </View>
@@ -423,7 +423,7 @@ export default function PlaceDetailScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F2EE",
+    backgroundColor: "#F9FAFB",
   },
   scrollContent: {
     paddingBottom: 48,
@@ -523,7 +523,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   categoryBadge: {
-    backgroundColor: "#FDCD5D",
+    backgroundColor: "#FAD341",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 12,
     fontWeight: "500",
-    color: "#0A0A0A",
+    color: "#303030",
   },
   ratingRow: {
     flexDirection: "row",

@@ -114,7 +114,7 @@ export default function EditProfileScreen(): JSX.Element {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F4F2EE",
+        backgroundColor: "#F9FAFB",
     },
     header: {
         flexDirection: "row",
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
         color: "#9CA3AF",
     },
     saveButton: {
-        backgroundColor: "#5C4033", // Keeps visual branding uniform across screens
+        backgroundColor: "#0A0A0A",
         borderRadius: 12,
         paddingVertical: 14,
         alignItems: "center",

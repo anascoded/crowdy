@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   },
   tooltip: {
     alignSelf: "center",
-    backgroundColor: "#E7180B",
+    backgroundColor: "#0A0A0A",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,

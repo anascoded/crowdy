@@ -29,8 +29,8 @@ export default function NotificationsScreen() {
             <Switch
                 value={value}
                 onValueChange={onToggle}
-                trackColor={{ false: "#E5E7EB", true: "#EADDCA" }}
-                thumbColor={value ? "#5C4033" : "#9CA3AF"}
+                trackColor={{ false: "#E5E7EB", true: "#9CA3AF" }}
+                thumbColor={value ? "#0A0A0A" : "#9CA3AF"}
             />
         </View>
     );
@@ -84,7 +84,7 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F4F2EE",
+        backgroundColor: "#F9FAFB",
     },
     header: {
         flexDirection: "row",

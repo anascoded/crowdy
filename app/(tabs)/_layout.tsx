@@ -1,6 +1,6 @@
 import { Tabs, router } from 'expo-router';
 import { JSX, useEffect } from 'react';
-import { Platform } from 'react-native';
+import {Platform, View} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from "@/store/authStore";
 
@@ -10,6 +10,7 @@ interface TabIconProps {
     name: IoniconName;
     color: string;
     size: number;
+    focused?: boolean;
 }
 
 /**
@@ -24,8 +25,22 @@ interface TabIconProps {
  *
  * @returns {JSX.Element} The rendered Ionicons component with the specified properties.
  */
-const TabIcon = ({ name, color, size }: TabIconProps): JSX.Element => (
-    <Ionicons name={name} color={color} size={size} />
+const TabIcon = ({ name, color, size, focused }: TabIconProps): JSX.Element => (
+    <View style={[
+        {
+            width: 70,
+            height: 40,
+            borderRadius: 50,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 8,
+        },
+        focused && {
+            backgroundColor: '#FAD341',
+        }
+    ]}>
+        <Ionicons name={name} color={color} size={size} />
+    </View>
 );
 
 /**
@@ -48,7 +63,7 @@ export default function TabsLayout(): JSX.Element {
         <Tabs
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: '#0A0A0A',
+                tabBarActiveTintColor: '#303030',
                 tabBarInactiveTintColor: '#9E9E9E',
                 tabBarStyle: {
                     backgroundColor: '#ffffff',
@@ -56,16 +71,20 @@ export default function TabsLayout(): JSX.Element {
                     borderTopColor: '#E0E0E0',
                     height: Platform.OS === 'ios' ? 88 : 88,
                     paddingBottom: Platform.OS === 'ios' ? 28 : 28,
-                    paddingTop: 8,
+                    paddingTop: 14,
                     elevation: 8,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: -2 },
                     shadowOpacity: 0.06,
                     shadowRadius: 8,
                 },
+                tabBarItemStyle: {
+                    //paddingTop: 8,
+                },
                 tabBarLabelStyle: {
                     fontSize: 11,
                     fontWeight: '500',
+                    paddingBottom: 0,
                 },
             }}
         >
@@ -73,8 +92,8 @@ export default function TabsLayout(): JSX.Element {
                 name="home"
                 options={{
                     title: 'Home',
-                    tabBarIcon: ({ color, size }) => (
-                        <TabIcon name="home" color={color} size={size} />
+                    tabBarIcon: ({ color, size, focused }) => (
+                        <TabIcon name="home" color={color} size={size} focused={focused} />
                     ),
                 }}
             />
@@ -83,8 +102,8 @@ export default function TabsLayout(): JSX.Element {
                 name="explore"
                 options={{
                     title: 'Explore',
-                    tabBarIcon: ({ color, size }) => (
-                        <TabIcon name="map" color={color} size={size} />
+                    tabBarIcon: ({ color, size, focused }) => (
+                        <TabIcon name="map" color={color} size={size} focused={focused} />
                     ),
                 }}
             />
@@ -93,8 +112,8 @@ export default function TabsLayout(): JSX.Element {
                 name="favorites"
                 options={{
                     title: 'Favorites',
-                    tabBarIcon: ({ color, size }) => (
-                        <TabIcon name="heart" color={color} size={size} />
+                    tabBarIcon: ({ color, size, focused }) => (
+                        <TabIcon name="heart" color={color} size={size} focused={focused} />
                     ),
                 }}
             />
@@ -103,8 +122,8 @@ export default function TabsLayout(): JSX.Element {
                 name="profile-settings"
                 options={{
                     title: 'Profile',
-                    tabBarIcon: ({ color, size }) => (
-                        <TabIcon name="person" color={color} size={size} />
+                    tabBarIcon: ({ color, focused }) => (
+                        <TabIcon name="person-circle-outline" color={color} size={30} focused={focused} />
                     ),
                 }}
             />

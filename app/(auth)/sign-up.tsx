@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     height: 52,
     borderWidth: 1.5,
     borderColor: "#E5E7EB",
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 16,
     fontSize: 15,
     color: "#1A1A2E",
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1.5,
     borderColor: "#E5E7EB",
-    borderRadius: 12,
+    borderRadius: 10,
     backgroundColor: "#F9FAFB",
   },
   passwordInput: {
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   button: {
     height: 52,
     backgroundColor: "#0A0A0A",
-    borderRadius: 12,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 8,

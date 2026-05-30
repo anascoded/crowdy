@@ -171,10 +171,9 @@ export default function HomeScreen(): JSX.Element {
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.greeting}>
-                    {/* FIXED: Realigned payload key field directly to target user.name */}
                     Howdy, {getFirstName(user?.name)}!
                 </Text>
-                <Text style={styles.subtitle}>Your crowded places dashboard</Text>
+                <Text style={styles.subtitle}>Where are we going today?</Text>
             </View>
 
             {/* Stats */}
@@ -269,13 +268,13 @@ export default function HomeScreen(): JSX.Element {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F4F2EE',
+        backgroundColor: '#F3F4F6',
     },
     scrollContent: {
         paddingBottom: 32,
     },
     header: {
-        backgroundColor: '#fff',
+        backgroundColor: '#FAD341',
         paddingHorizontal: 16,
         paddingTop: Platform.OS === 'ios' ? 90 : 90,
         paddingBottom: 24,
@@ -283,14 +282,14 @@ const styles = StyleSheet.create({
         borderBottomColor: '#E5E7EB',
     },
     greeting: {
-        fontSize: 24,
+        fontSize: 26,
         fontWeight: '700',
-        color: '#1A1A2E',
+        color: '#303030',
         marginBottom: 4,
     },
     subtitle: {
-        fontSize: 14,
-        color: '#9CA3AF',
+        fontSize: 16,
+        color: '#FFF',
     },
     statsContainer: {
         flexDirection: 'row',
@@ -304,7 +303,7 @@ const styles = StyleSheet.create({
     },
     statCard: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#303030',
         borderRadius: 12,
         padding: 12,
         alignItems: 'center',
@@ -314,12 +313,12 @@ const styles = StyleSheet.create({
     statValue: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#1A1A2E',
+        color: '#FFF',
         marginTop: 8,
     },
     statLabel: {
         fontSize: 10,
-        color: '#9CA3AF',
+        color: '#FFF',
         marginTop: 2,
     },
     section: {

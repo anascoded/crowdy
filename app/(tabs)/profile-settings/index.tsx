@@ -265,7 +265,7 @@ export default function ProfileScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F2EE",
+    backgroundColor: "#F9FAFB",
   },
   scrollContent: {
     paddingBottom: 48,
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
   avatarInitial: {
     fontSize: 36,
     fontWeight: "700",
-    color: "#FDCD5D",
+    color: "#FAD341",
   },
   displayName: {
     fontSize: 20,
@@ -445,10 +445,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: "#FDCD5D",
+    borderColor: "#FAD341",
   },
   signUpButtonText: {
-    color: "#FDCD5D",
+    color: "#FAD341",
     fontSize: 16,
     fontWeight: "600",
   },

@@ -122,7 +122,7 @@ export default function LocationScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F4F2EE",
+        backgroundColor: "#F9FAFB",
     },
     header: {
         flexDirection: "row",
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
         color: "#9CA3AF",
     },
     saveButton: {
-        backgroundColor: "#6C63FF",
+        backgroundColor: "#0A0A0A",
         borderRadius: 12,
         paddingVertical: 14,
         alignItems: "center",

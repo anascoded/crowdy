@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from 'expo-location';
+import usePlacesStore from "@/store/placesStore";
 
 interface Event {
     id: string;
@@ -87,21 +88,38 @@ export default function EventsScreen(): JSX.Element {
         try {
             setError(null);
 
-            // Request location permission
             const { status } = await Location.requestForegroundPermissionsAsync();
+
             if (status !== 'granted') {
                 setError('Location permission required to find nearby events');
                 setIsLoading(false);
                 return;
             }
 
-            // Get current location
-            const location = await Location.getCurrentPositionAsync();
-            // @ts-ignore
+            let location;
+
+            try {
+                location = await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.Balanced,
+                });
+            } catch (locErr) {
+                console.warn('Location unavailable:', locErr);
+                setError('Unable to get current location. Using fallback data.');
+                setIsLoading(false);
+
+                // fallback behavior (important)
+                setEvents([]); // or default data
+                return;
+            }
+
             const { latitude, longitude } = location.coords;
 
-            // TODO: Use Google Places API to search for events
-            // For now, show placeholder data
+            const {
+                fetchNearbyPlaces,
+            } = usePlacesStore();
+
+            await fetchNearbyPlaces(latitude, longitude);
+
             const placeholderEvents: Event[] = [
                 {
                     id: '1',
@@ -111,43 +129,21 @@ export default function EventsScreen(): JSX.Element {
                     distance: 1.2,
                     date: new Date(2026, 4, 23),
                 },
-                {
-                    id: '2',
-                    name: 'Weekend Market',
-                    address: '456 Market Ave, Boston, MA',
-                    type: 'Community Event',
-                    distance: 2.5,
-                    date: new Date(2026, 4, 24),
-                },
-                {
-                    id: '3',
-                    name: 'Art Exhibition Opening',
-                    address: '789 Gallery Road, Boston, MA',
-                    type: 'Art Event',
-                    distance: 3.1,
-                    date: new Date(2026, 4, 24),
-                },
-                {
-                    id: '4',
-                    name: 'Food Festival',
-                    address: '321 Food Lane, Boston, MA',
-                    type: 'Food Event',
-                    distance: 0.8,
-                    date: new Date(2026, 4, 25),
-                },
             ];
 
             setEvents(placeholderEvents);
-            setIsLoading(false);
         } catch (err) {
             console.error('Error fetching events:', err);
             setError('Failed to load events');
+        } finally {
             setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchEvents();
+        (async () => {
+            await fetchEvents();
+        })();
     }, []);
 
     const handleRefresh = async () => {
@@ -242,7 +238,7 @@ export default function EventsScreen(): JSX.Element {
                 </ScrollView>
             ) : (
                 <View style={styles.emptyState}>
-                    <Ionicons name="calendar-outline" size={48} color="#E5E7EB" />
+                    <Ionicons name="calendar-outline" size={80} color="#E5E7EB" />
                     <Text style={styles.emptyTitle}>No events nearby</Text>
                     <Text style={styles.emptySubtitle}>
                         Check back later for events happening in your area.
@@ -256,7 +252,7 @@ export default function EventsScreen(): JSX.Element {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F4F2EE",
+        backgroundColor: "#F9FAFB",
     },
     centeredContainer: {
         flex: 1,
