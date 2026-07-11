@@ -1,4 +1,5 @@
 import { CrowdLevel } from "@/types";
+import { Ionicons } from '@expo/vector-icons';
 
 /**
  * Extracts and returns the first name from a given full name string.
@@ -78,17 +79,39 @@ export function getCrowdLevelLabel(level: CrowdLevel): string {
   return labels[level];
 }
 
+interface CrowdLevelIcon {
+  name: keyof typeof Ionicons.glyphMap;
+  color: string;
+  label: string;
+}
+
 /**
- * Get an emoji for a crowd level.
+ * Get an Ionicon and color for a crowd level.
  */
-export function getCrowdLevelEmoji(level: CrowdLevel): string {
-  const emojis: Record<CrowdLevel, string> = {
-    low: "🟢",
-    moderate: "🟡",
-    busy: "🟠",
-    very_busy: "🔴",
+export function getCrowdLevelIcon(level: CrowdLevel): CrowdLevelIcon {
+  const icons: Record<CrowdLevel, CrowdLevelIcon> = {
+    low: {
+      name: 'checkmark-circle',
+      color: '#10B981',
+      label: 'Not Busy',
+    },
+    moderate: {
+      name: 'alert-circle',
+      color: '#F59E0B',
+      label: 'Moderately Busy',
+    },
+    busy: {
+      name: 'alert',
+      color: '#F97316',
+      label: 'Busy',
+    },
+    very_busy: {
+      name: 'close-circle',
+      color: '#EF4444',
+      label: 'Very Busy',
+    },
   };
-  return emojis[level];
+  return icons[level];
 }
 
 /**
