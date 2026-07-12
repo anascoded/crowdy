@@ -49,9 +49,9 @@ Crowdy is a crowd intelligence app that displays live busyness levels and 7-day 
 - **User Authentication** - Secure sign-up/sign-in with AWS Cognito
 - **Remember Me** - Securely store credentials with expo-secure-store
 - **Profile Management** - Edit profile, change password, manage settings
-✅ **Location Settings** - Auto-detect or manually set your home city
-✅ **Dark/Light Mode** - Automatic theme switching based on device preference
-✅ **Events Nearby** - Discover events happening in your area
+- **Location Settings** - Auto-detect or manually set your home city
+- **Dark/Light Mode** - Automatic theme switching based on device preference
+- **Events Nearby** - Discover events happening in your area
 
 ### Advanced Features
 - 🔄 Real-time synchronization via AWS AppSync
