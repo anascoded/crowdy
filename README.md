@@ -40,15 +40,15 @@ Crowdy is a crowd intelligence app that displays live busyness levels and 7-day 
 ## ✨ Features
 
 ### Core Features
-✅ **Live Crowd Meters** - See current busyness percentage with visual indicators (Not Busy, Moderate, Busy, Very Busy)
-✅ **7-Day History Charts** - Hourly crowd patterns with smooth animations
-✅ **Best Time to Visit** - AI-powered recommendations for the least crowded times
-✅ **Favorites Management** - Save & organize your favorite places by category
-✅ **Real Activity Feed** - Track your favorite additions/removals in real-time
-✅ **Nearby Discovery** - Find venues based on your current location
-✅ **User Authentication** - Secure sign-up/sign-in with AWS Cognito
-✅ **Remember Me** - Securely store credentials with expo-secure-store
-✅ **Profile Management** - Edit profile, change password, manage settings
+- **Live Crowd Meters** - See current busyness percentage with visual indicators (Not Busy, Moderate, Busy, Very Busy)
+- **7-Day History Charts** - Hourly crowd patterns with smooth animations
+- **Best Time to Visit** - AI-powered recommendations for the least crowded times
+- **Favorites Management** - Save & organize your favorite places by category
+- **Real Activity Feed** - Track your favorite additions/removals in real-time
+- **Nearby Discovery** - Find venues based on your current location
+- **User Authentication** - Secure sign-up/sign-in with AWS Cognito
+- **Remember Me** - Securely store credentials with expo-secure-store
+- **Profile Management** - Edit profile, change password, manage settings
 ✅ **Location Settings** - Auto-detect or manually set your home city
 ✅ **Dark/Light Mode** - Automatic theme switching based on device preference
 ✅ **Events Nearby** - Discover events happening in your area
