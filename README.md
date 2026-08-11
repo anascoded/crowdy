@@ -1,6 +1,6 @@
 # Crowdy - Live Crowd Meter App
 
-A React Native mobile application that shows real-time crowd levels for venues and places, helping users find the perfect time to visit their favorite locations.
+A React Native mobile application that displays real-time crowd levels for venues and places, helping users find the perfect time to visit their favorite locations.
 
 ## 🎯 Overview
 
