@@ -47,3 +47,4 @@ app-example
 # amplify
 .amplify
 amplifyconfiguration*
+.vercel
