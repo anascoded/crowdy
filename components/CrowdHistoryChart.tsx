@@ -285,8 +285,7 @@ export default function CrowdHistoryChart({ history }: CrowdHistoryChartProps): 
   );
 }
 
-// ... styles stay the same
-
+// Styles
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
