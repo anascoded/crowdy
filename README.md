@@ -13,7 +13,7 @@ Crowdy is a crowd intelligence app that displays live busyness levels and 7-day 
 - Nearby venues discovery with device location
 - Activity tracking and dashboard
 - User authentication via AWS Cognito
-- Best time to visit recommendations
+- Best time to visit recommendations (Beta)
 
 ## 📱 Tech Stack
 
