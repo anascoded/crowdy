@@ -37,6 +37,14 @@ export function useCrowdHistory(placeId: string | null): UseCrowdHistoryResult {
 
   useEffect(() => {
     fetch();
+
+    // Refresh every 30 min so today's already-passed hours reflect real
+    // observed crowd data, not stale numbers from when the screen loaded.
+    const interval = setInterval(() => {
+      fetch();
+    }, 30 * 60_000);
+
+    return () => clearInterval(interval);
   }, [fetch]);
 
   return { data, isLoading, error, refresh: fetch };

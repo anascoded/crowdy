@@ -8,7 +8,7 @@ import useFavoritesStore from "@/store/favoritesStore";
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import {JSX, useEffect, useState} from "react";
+import { JSX, useEffect, useMemo, useState } from "react";
 import { Linking } from 'react-native';
 import {
   ActivityIndicator,
@@ -39,7 +39,7 @@ export default function PlaceDetailScreen(): JSX.Element {
   const { isFavorite, addFavorite, removeFavorite } = useFavoritesStore();
 
   const { data: crowdLive, isLoading: isLoadingCrowd } = useCrowdLive(
-    id ?? null,
+      id ?? null,
   );
   const { data: crowdHistory } = useCrowdHistory(id ?? null);
 
@@ -49,6 +49,14 @@ export default function PlaceDetailScreen(): JSX.Element {
 
   const favorited = place ? isFavorite(place.id) : false;
   const [isVisited, setIsVisited] = useState(false);
+
+  // Ticks forward every minute so "best time to visit" re-evaluates as the
+  // clock crosses into a new hour, instead of freezing at load time.
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(timer);
+  }, []);
 
   // ── Fetch place details ────────────────────────────────────────────────────
   useEffect(() => {
@@ -201,21 +209,12 @@ export default function PlaceDetailScreen(): JSX.Element {
       return null;
     }
 
-    const now = new Date();
     const currentHour = now.getHours();
 
     // Filter future hours today
     let futureHours = today.hours.filter((h) => h.hour > currentHour);
 
-    // If no future hours today, use tomorrow's first hours
-    if (futureHours.length === 0 && crowdHistory.days.length > 1) {
-      const tomorrow = crowdHistory.days[crowdHistory.days.length]; // Next day if available
-      if (tomorrow?.hours) {
-        futureHours = tomorrow.hours.slice(0, 5); // Show first 5 hours of next day
-      }
-    }
-
-    // If still no hours, just show the best hour overall
+    // If no future hours today, just show the best hour overall
     if (futureHours.length === 0) {
       futureHours = today.hours;
     }
@@ -245,178 +244,183 @@ export default function PlaceDetailScreen(): JSX.Element {
     return `${hour - 12}:00 PM`;
   };
 
-  const bestTime = getBestTimeToVisit();
+  // Recomputed whenever fresh history data arrives (every 30 min) or the
+  // clock ticks into a new hour (every 60s) — see the `now` state above.
+  const bestTime = useMemo(
+      () => getBestTimeToVisit(),
+      [crowdHistory, now]
+  );
 
   // ── Loading ────────────────────────────────────────────────────────────────
   if (isLoadingPlace) {
     return (
-      <View style={styles.centeredContainer}>
-        <ActivityIndicator size="large" color="#6C63FF" />
-      </View>
+        <View style={styles.centeredContainer}>
+          <ActivityIndicator size="large" color="#6C63FF" />
+        </View>
     );
   }
 
   // ── Error ──────────────────────────────────────────────────────────────────
   if (error || !place) {
     return (
-      <View style={styles.centeredContainer}>
-        <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
-        <Text style={styles.errorTitle}>Something went wrong</Text>
-        <Text style={styles.errorSubtitle}>{error ?? "Place not found"}</Text>
-        <TouchableOpacity
-          style={styles.retryButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.retryButtonText}>Go back</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.centeredContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
+          <Text style={styles.errorTitle}>Something went wrong</Text>
+          <Text style={styles.errorSubtitle}>{error ?? "Place not found"}</Text>
+          <TouchableOpacity
+              style={styles.retryButton}
+              onPress={() => router.back()}
+          >
+            <Text style={styles.retryButtonText}>Go back</Text>
+          </TouchableOpacity>
+        </View>
     );
   }
 
   // ── Content ────────────────────────────────────────────────────────────────
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Back button */}
-      <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-          activeOpacity={0.7}
+      <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
       >
-        <Ionicons name="chevron-back" size={28} color="#1A1A2E" />
-      </TouchableOpacity>
+        {/* Back button */}
+        <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+        >
+          <Ionicons name="chevron-back" size={28} color="#1A1A2E" />
+        </TouchableOpacity>
 
-      {/* Hero image */}
-      <View style={styles.hero}>
-        {place.photoUrl ? (
-          <Image source={{ uri: place.photoUrl }} style={styles.heroImage} />
-        ) : (
-          <View style={styles.heroFallback}>
-            <Ionicons name="location-outline" size={48} color="#9CA3AF" />
-          </View>
-        )}
-      </View>
-
-      {/* Place info */}
-      <View style={styles.infoSection}>
-        <View style={styles.infoHeader}>
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{capitalizeWords(place.category)}</Text>
-          </View>
-          {place.rating && (
-            <View style={styles.ratingRow}>
-              <Ionicons name="star" size={14} color="#F59E0B" />
-              <Text style={styles.ratingText}>{place.rating.toFixed(1)}</Text>
-            </View>
+        {/* Hero image */}
+        <View style={styles.hero}>
+          {place.photoUrl ? (
+              <Image source={{ uri: place.photoUrl }} style={styles.heroImage} />
+          ) : (
+              <View style={styles.heroFallback}>
+                <Ionicons name="location-outline" size={48} color="#9CA3AF" />
+              </View>
           )}
         </View>
 
-        <Text style={styles.placeName}>{place.name}</Text>
+        {/* Place info */}
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <View style={styles.categoryBadge}>
+              <Text style={styles.categoryText}>{capitalizeWords(place.category)}</Text>
+            </View>
+            {place.rating && (
+                <View style={styles.ratingRow}>
+                  <Ionicons name="star" size={14} color="#F59E0B" />
+                  <Text style={styles.ratingText}>{place.rating.toFixed(1)}</Text>
+                </View>
+            )}
+          </View>
 
-        <View style={styles.addressRow}>
-          <Ionicons name="location-outline" size={14} color="#9CA3AF" />
-          <Text style={styles.addressText}>{place.address}</Text>
+          <Text style={styles.placeName}>{place.name}</Text>
+
+          <View style={styles.addressRow}>
+            <Ionicons name="location-outline" size={14} color="#9CA3AF" />
+            <Text style={styles.addressText}>{place.address}</Text>
+          </View>
+
+          {/* Favorite button overlay */}
+          <TouchableOpacity
+              style={styles.favoriteButton}
+              onPress={handleFavoriteToggle}
+              activeOpacity={0.85}
+          >
+            <Ionicons
+                name={favorited ? "heart" : "heart-outline"}
+                size={31}
+                color={favorited ? "#FF6467" : "#0A0A0A"}
+            />
+          </TouchableOpacity>
+
+          {/* Visited button */}
+          <TouchableOpacity
+              style={styles.visitedButton}
+              onPress={handleVisited}
+              activeOpacity={0.85}
+          >
+            <Ionicons
+                name={isVisited ? "bookmark" : "bookmark-outline"}
+                size={28}
+                color={isVisited ? "#0A0A0A" : "#0A0A0A"}
+            />
+          </TouchableOpacity>
+
+          {/* Direction button */}
+          <TouchableOpacity
+              style={styles.directionButton}
+              onPress={handleOpenMaps}
+              activeOpacity={0.85}
+          >
+            <Ionicons
+                name="navigate-circle"
+                size={35}
+                color="#31C950"
+            />
+          </TouchableOpacity>
+
         </View>
 
-        {/* Favorite button overlay */}
-        <TouchableOpacity
-            style={styles.favoriteButton}
-            onPress={handleFavoriteToggle}
-            activeOpacity={0.85}
-        >
-          <Ionicons
-              name={favorited ? "heart" : "heart-outline"}
-              size={31}
-              color={favorited ? "#FF6467" : "#0A0A0A"}
-          />
-        </TouchableOpacity>
+        {/* Live crowd meter */}
+        <View style={styles.section}>
+          {isLoadingCrowd ? (
+              <View style={styles.crowdLoading}>
+                <ActivityIndicator size="small" color="#6C63FF" />
+                <Text style={styles.crowdLoadingText}>Loading crowd data...</Text>
+              </View>
+          ) : crowdLive ? (
+              <CrowdMeter crowd={crowdLive} />
+          ) : (
+              <Text style={styles.noDataText}>No live data available</Text>
+          )}
+        </View>
 
-        {/* Visited button */}
-        <TouchableOpacity
-            style={styles.visitedButton}
-            onPress={handleVisited}
-            activeOpacity={0.85}
-        >
-          <Ionicons
-              name={isVisited ? "bookmark" : "bookmark-outline"}
-              size={28}
-              color={isVisited ? "#0A0A0A" : "#0A0A0A"}
-          />
-        </TouchableOpacity>
+        {/* Crowd history chart */}
+        <View style={styles.section}>
+          {isLoadingCrowd ? (
+              <View style={styles.crowdLoading}>
+                <ActivityIndicator size="small" color="#6C63FF" />
+              </View>
+          ) : crowdHistory ? (
+              <CrowdHistoryChart history={crowdHistory} />
+          ) : (
+              <Text style={styles.noDataText}>No history available</Text>
+          )}
+        </View>
 
-        {/* Direction button */}
-        <TouchableOpacity
-            style={styles.directionButton}
-            onPress={handleOpenMaps}
-            activeOpacity={0.85}
-        >
-          <Ionicons
-              name="navigate-circle"
-              size={35}
-              color="#31C950"
-          />
-        </TouchableOpacity>
-
-      </View>
-
-      {/* Live crowd meter */}
-      <View style={styles.section}>
-        {isLoadingCrowd ? (
-          <View style={styles.crowdLoading}>
-            <ActivityIndicator size="small" color="#6C63FF" />
-            <Text style={styles.crowdLoadingText}>Loading crowd data...</Text>
-          </View>
-        ) : crowdLive ? (
-          <CrowdMeter crowd={crowdLive} />
-        ) : (
-          <Text style={styles.noDataText}>No live data available</Text>
-        )}
-      </View>
-
-      {/* Crowd history chart */}
-      <View style={styles.section}>
-        {isLoadingCrowd ? (
-          <View style={styles.crowdLoading}>
-            <ActivityIndicator size="small" color="#6C63FF" />
-          </View>
-        ) : crowdHistory ? (
-          <CrowdHistoryChart history={crowdHistory} />
-        ) : (
-          <Text style={styles.noDataText}>No history available</Text>
-        )}
-      </View>
-
-      {/* Best Time to Visit */}
-      <View style={styles.section}>
-        {bestTime ? (
-            <View style={styles.bestTimeContainer}>
-              <Text style={styles.sectionTitle}>Best Time to Visit</Text>
-              <View style={styles.bestTimeContent}>
-                <Ionicons name="walk" size={24} color="#0A0A0A" />
-                <View style={styles.bestTimeText}>
-                  <Text style={styles.bestTimeLabel}>Least Crowded</Text>
-                  <Text style={styles.bestTimeValue}>
-                    <Ionicons name="time-outline" size={16} color="#9CA3AF" /> {formatHour(bestTime.hour)} - {bestTime.crowd}% busy
-                  </Text>
+        {/* Best Time to Visit */}
+        <View style={styles.section}>
+          {bestTime ? (
+              <View style={styles.bestTimeContainer}>
+                <Text style={styles.sectionTitle}>Best Time to Visit</Text>
+                <View style={styles.bestTimeContent}>
+                  <Ionicons name="walk" size={24} color="#0A0A0A" />
+                  <View style={styles.bestTimeText}>
+                    <Text style={styles.bestTimeLabel}>Least Crowded</Text>
+                    <Text style={styles.bestTimeValue}>
+                      <Ionicons name="time-outline" size={16} color="#9CA3AF" /> {formatHour(bestTime.hour)} - {bestTime.crowd}% busy
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.bestTimeCrowd}>
+                  <View
+                      style={[
+                        styles.bestTimeCrowdBar,
+                        { width: `${bestTime.crowd}%`, backgroundColor: '#31C950' },
+                      ]}
+                  />
                 </View>
               </View>
-              <View style={styles.bestTimeCrowd}>
-                <View
-                    style={[
-                      styles.bestTimeCrowdBar,
-                      { width: `${bestTime.crowd}%`, backgroundColor: '#31C950' },
-                    ]}
-                />
-              </View>
-            </View>
-        ) : (
-            <Text style={styles.noDataText}>No future times available</Text>
-        )}
-      </View>
-    </ScrollView>
+          ) : (
+              <Text style={styles.noDataText}>No future times available</Text>
+          )}
+        </View>
+      </ScrollView>
   );
 }
 
