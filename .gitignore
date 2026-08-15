@@ -50,6 +50,6 @@ amplifyconfiguration*
 amplify_outputs.json
 .vercel
 
-# Firebase / Google service config (contains API keys)
+# Google service config (contains API keys)
 google-services.json
 GoogleService-Info.plist
