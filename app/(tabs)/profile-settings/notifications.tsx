@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import {useState, version} from "react";
+import { useState } from "react";
 import {
     StyleSheet,
     Text,
@@ -9,6 +9,11 @@ import {
     Switch,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+
+// Matches package.json ("crowdy@1.0.0"). Previously this imported
+// `{ version }` from "react", which is React's own library version, not the
+// app's — misleading even though the import happened to resolve.
+const APP_VERSION = "1.0.0";
 
 export default function NotificationsScreen() {
     const [crowdAlerts, setCrowdAlerts] = useState(true);
@@ -74,7 +79,7 @@ export default function NotificationsScreen() {
                     </View>
                 </View>
                 <View style={styles.section}>
-                    <Text style={styles.version}>  Current version: {version}</Text>
+                    <Text style={styles.version}>  Current version: {APP_VERSION}</Text>
                 </View>
             </View>
         </View>

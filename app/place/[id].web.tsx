@@ -10,6 +10,7 @@ import useFavoritesStore from "@/store/favoritesStore";
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
+// @ts-ignore
 import { JSX, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { capitalizeWords } from "@/utils";
