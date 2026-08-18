@@ -9,9 +9,14 @@ import {
     TextInput,
     ScrollView,
     ActivityIndicator,
+    Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { placesService } from "@/services/placesService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const DEFAULT_CITY = "Boston, MA";
+const STORAGE_KEY = "crowdy_default_location";
 
 interface CityPrediction {
     description: string;
@@ -19,9 +24,25 @@ interface CityPrediction {
 }
 
 export default function LocationScreen() {
-    const [city, setCity] = useState("Boston, MA");
+    const [city, setCity] = useState(DEFAULT_CITY);
     const [suggestions, setSuggestions] = useState<CityPrediction[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    // Load previously saved location on mount. Without this, the "Save
+    // Location" button would have nothing to persist against — the screen
+    // would keep resetting to DEFAULT_CITY every time it's reopened.
+    useEffect(() => {
+        const loadSavedLocation = async () => {
+            try {
+                const saved = await AsyncStorage.getItem(STORAGE_KEY);
+                if (saved) setCity(saved);
+            } catch (err) {
+                console.error("Failed to load saved location:", err);
+            }
+        };
+        loadSavedLocation();
+    }, []);
 
     // Fetch city suggestions
     useEffect(() => {
@@ -63,6 +84,30 @@ export default function LocationScreen() {
         setSuggestions([]);
     };
 
+    /**
+     * Persists the selected default location to AsyncStorage, consistent with
+     * how the app already persists other client-only prefs (favorites,
+     * activity log). Previously this button had no handler at all.
+     */
+    const handleSaveLocation = async () => {
+        if (!city.trim()) {
+            Alert.alert("Error", "Location cannot be empty");
+            return;
+        }
+
+        try {
+            setIsSaving(true);
+            await AsyncStorage.setItem(STORAGE_KEY, city.trim());
+            Alert.alert("Success", "Default location saved!");
+            router.back();
+        } catch (err) {
+            console.error("Failed to save location:", err);
+            Alert.alert("Error", "Something went wrong saving your location.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -81,6 +126,7 @@ export default function LocationScreen() {
                         placeholder="Enter your default location"
                         value={city}
                         onChangeText={setCity}
+                        editable={!isSaving}
                     />
 
                     {/* Suggestions dropdown */}
@@ -111,8 +157,14 @@ export default function LocationScreen() {
                     </Text>
                 </View>
 
-                <TouchableOpacity style={styles.saveButton}>
-                    <Text style={styles.saveButtonText}>Save Location</Text>
+                <TouchableOpacity
+                    style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
+                    onPress={handleSaveLocation}
+                    disabled={isSaving}
+                >
+                    <Text style={styles.saveButtonText}>
+                        {isSaving ? "Saving..." : "Save Location"}
+                    </Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -203,6 +255,9 @@ const styles = StyleSheet.create({
         paddingVertical: 14,
         alignItems: "center",
         marginTop: 32,
+    },
+    saveButtonDisabled: {
+        opacity: 0.6,
     },
     saveButtonText: {
         color: "#fff",

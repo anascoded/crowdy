@@ -54,13 +54,13 @@
           }
         }
       ],
-      "expo-secure-store",
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermissions": "Allow $(PRODUCT_NAME) to use your location."
+          "locationWhenInUsePermission": "Allow Crowdy to use your location to show nearby places."
         }
       ],
+      "expo-secure-store",
       "expo-font",
       "expo-web-browser",
       "expo-image"

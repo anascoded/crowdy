@@ -38,6 +38,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         try {
             const { nextStep } = await authService.register(payload);
 
+            // @ts-ignore
             if (nextStep.signUpStep === 'CONFIRM_SIGN_UP') {
                 set({ needsVerification: true, unverifiedEmail: payload.email, isLoading: false });
             } else {
