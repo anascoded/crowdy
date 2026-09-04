@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
         paddingBottom: 32,
     },
     header: {
-        backgroundColor: '#FAD341',
+        backgroundColor: '#303030',
         paddingHorizontal: 16,
         paddingTop: Platform.OS === 'ios' ? 90 : 90,
         paddingBottom: 24,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     greeting: {
         fontSize: 26,
         fontWeight: '700',
-        color: '#303030',
+        color: '#E5E7EB',
         marginBottom: 4,
     },
     subtitle: {
