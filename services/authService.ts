@@ -21,16 +21,12 @@ const customConfig = {
 Amplify.configure(customConfig);
 console.log('Amplify configured');
 
-// @ts-ignore
-// @ts-ignore
-// @ts-ignore
 export const authService = {
   signIn: async (payload: SignInPayload) => {
     try {
       console.log('Attempting sign in for:', payload.email);
 
-      // @ts-ignore
-      const output = await signIn({
+      await signIn({
         username: payload.email.trim().toLowerCase(),
         password: payload.password,
         options: {
@@ -40,11 +36,24 @@ export const authService = {
 
       console.log('Sign in successful');
 
-      // Don't fetch additional attributes - just return basic user info
+      // Fetch the real Cognito attributes instead of hardcoding a placeholder
+      // name — profile-settings writes to the "name" attribute, so that's
+      // the one we read back here too.
+      let displayName = 'User';
+      let userId = payload.email;
+      try {
+        const currentUser = await getCurrentUser();
+        const attributes = await fetchUserAttributes();
+        userId = currentUser.userId;
+        displayName = attributes.name ?? 'User';
+      } catch (attrError) {
+        console.error('Failed to fetch user attributes after sign in:', attrError);
+      }
+
       const user: User = {
-        id: payload.email, // Use email as ID for now
+        id: userId,
         email: payload.email,
-        displayName: 'User',
+        displayName,
         createdAt: new Date().toISOString(),
       };
 
@@ -55,6 +64,10 @@ export const authService = {
     }
   },
 
+  /**
+   * Signs out the current user.
+   * If an error occurs during sign-out, it logs the error and rethrows it.
+   */
   signOut: async () => {
     try {
       await signOut();
@@ -72,7 +85,11 @@ export const authService = {
       return {
         id: user.userId,
         email: attributes.email ?? '',
-        displayName: attributes.preferred_username ?? 'User',
+        // Was reading attributes.preferred_username, an attribute this app
+        // never writes to. profile-settings writes to "name" — read that
+        // instead so an edited display name actually persists across
+        // sign-outs/app restarts.
+        displayName: attributes.name ?? 'User',
         createdAt: new Date().toISOString(),
       };
     } catch (error) {
@@ -81,10 +98,19 @@ export const authService = {
     }
   },
 
+  /**
+   * Registers a new user with the provided payload. Currently not implemented.
+   * @param _payload
+   */
   register: async (_payload: SignUpPayload) => {
     throw new Error('Registration not implemented');
   },
 
+  /**
+   * Confirms user registration with the provided email and confirmation code. Currently not implemented.
+   * @param _email
+   * @param _code
+   */
   confirmRegistration: async (_email: string, _code: string) => {
     throw new Error('Confirmation not implemented');
   },
