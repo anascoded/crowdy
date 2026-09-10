@@ -1,5 +1,5 @@
 import { Amplify } from 'aws-amplify';
-import { signIn, signOut, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { signIn, signOut, signUp, confirmSignUp, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import amplifyconfig from '@/amplify_outputs.json';
 import { User, SignInPayload, SignUpPayload } from '@/types';
 
@@ -47,6 +47,8 @@ export const authService = {
         userId = currentUser.userId;
         displayName = attributes.name ?? 'User';
       } catch (attrError) {
+        // Sign-in itself succeeded even if attribute fetch fails for some
+        // reason — fall back to the placeholder rather than failing sign-in.
         console.error('Failed to fetch user attributes after sign in:', attrError);
       }
 
@@ -64,10 +66,6 @@ export const authService = {
     }
   },
 
-  /**
-   * Signs out the current user.
-   * If an error occurs during sign-out, it logs the error and rethrows it.
-   */
   signOut: async () => {
     try {
       await signOut();
@@ -98,20 +96,42 @@ export const authService = {
     }
   },
 
-  /**
-   * Registers a new user with the provided payload. Currently not implemented.
-   * @param _payload
-   */
-  register: async (_payload: SignUpPayload) => {
-    throw new Error('Registration not implemented');
+  register: async (payload: SignUpPayload) => {
+    try {
+      const email = payload.email.trim().toLowerCase();
+
+      const { isSignUpComplete, nextStep } = await signUp({
+        username: email,
+        password: payload.password,
+        options: {
+          userAttributes: {
+            email,
+            // Writing to "name" for consistency with signIn()/me() above and
+            // with profile-settings' edit-profile screen, which also reads/
+            // writes "name" — not "displayName" or "preferred_username".
+            name: payload.displayName?.trim() || email.split('@')[0],
+          },
+        },
+      });
+
+      return { isSignUpComplete, nextStep };
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      throw error;
+    }
   },
 
-  /**
-   * Confirms user registration with the provided email and confirmation code. Currently not implemented.
-   * @param _email
-   * @param _code
-   */
-  confirmRegistration: async (_email: string, _code: string) => {
-    throw new Error('Confirmation not implemented');
+  confirmRegistration: async (email: string, code: string) => {
+    try {
+      const { isSignUpComplete, nextStep } = await confirmSignUp({
+        username: email.trim().toLowerCase(),
+        confirmationCode: code.trim(),
+      });
+
+      return { isSignUpComplete, nextStep };
+    } catch (error: any) {
+      console.error('Confirm sign up error:', error);
+      throw error;
+    }
   },
 };
