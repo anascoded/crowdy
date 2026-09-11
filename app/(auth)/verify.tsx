@@ -6,8 +6,10 @@ import { useAuthStore } from '@/store/authStore';
 export default function VerifyScreen() {
     const router = useRouter();
     const [code, setCode] = useState('');
-    // @ts-ignore
-    const { verifyCode, logInUser, unverifiedEmail, isLoading, error } = useAuthStore();
+    // authStore's actual method is confirmSignUp (not verifyCode — that name
+    // doesn't exist on the store and previously caused this screen to throw
+    // on submit). There's also no logInUser on the store; removed.
+    const { confirmSignUp, unverifiedEmail, isLoading, error } = useAuthStore();
 
     const handleVerification = async () => {
         if (code.trim().length !== 6) {
@@ -16,7 +18,7 @@ export default function VerifyScreen() {
         }
 
         try {
-            const success = await verifyCode(code.trim());
+            const success = await confirmSignUp(code.trim());
             if (success) {
                 Alert.alert(
                     'Account Verified!',
@@ -32,8 +34,7 @@ export default function VerifyScreen() {
                 );
             }
         } catch (err: any) {
-            // Error messaging is handled locally via the store state but added as fallback layout protection
-            console.error('MFA registration resolution failure:', err);
+            console.error('Verification failure:', err);
         }
     };
 
@@ -89,7 +90,7 @@ export default function VerifyScreen() {
 
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => router.push("/(auth)/login" as any)}
+                        onPress={() => router.push("/(auth)/sign-in" as any)}
                         disabled={isLoading}
                     >
                         <Text style={styles.backButtonText}>Back to Login</Text>
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
     emailHighlight: {
         fontSize: 15,
         fontWeight: '600',
-        color: '#5C4033', // Crowdy Brand Violet
+        color: '#5C4033',
         marginTop: 4,
         textAlign: 'center',
     },
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     verifyButton: {
-        backgroundColor: '#5C4033', // Crowdy Brand Violet
+        backgroundColor: '#5C4033',
         height: 52,
         borderRadius: 12,
         justifyContent: 'center',
