@@ -1,15 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/store/authStore';
 
+const RESEND_COOLDOWN_SECONDS = 30;
+
 export default function VerifyScreen() {
     const router = useRouter();
     const [code, setCode] = useState('');
+    const [isResending, setIsResending] = useState(false);
+    const [cooldown, setCooldown] = useState(0);
+    const cooldownInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+
     // authStore's actual method is confirmSignUp (not verifyCode — that name
     // doesn't exist on the store and previously caused this screen to throw
     // on submit). There's also no logInUser on the store; removed.
-    const { confirmSignUp, unverifiedEmail, isLoading, error } = useAuthStore();
+    const { confirmSignUp, resendCode, unverifiedEmail, isLoading, error } = useAuthStore();
+
+    // Clean up the interval on unmount so it doesn't keep ticking after the
+    // user navigates away.
+    useEffect(() => {
+        return () => {
+            if (cooldownInterval.current) clearInterval(cooldownInterval.current);
+        };
+    }, []);
+
+    const startCooldown = () => {
+        setCooldown(RESEND_COOLDOWN_SECONDS);
+        cooldownInterval.current = setInterval(() => {
+            setCooldown((prev) => {
+                if (prev <= 1) {
+                    if (cooldownInterval.current) clearInterval(cooldownInterval.current);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
 
     const handleVerification = async () => {
         if (code.trim().length !== 6) {
@@ -35,6 +62,23 @@ export default function VerifyScreen() {
             }
         } catch (err: any) {
             console.error('Verification failure:', err);
+        }
+    };
+
+    const handleResend = async () => {
+        if (cooldown > 0 || isResending) return;
+
+        setIsResending(true);
+        try {
+            const success = await resendCode();
+            if (success) {
+                Alert.alert('Code Sent', 'A new verification code has been sent to your email.');
+                startCooldown();
+            }
+        } catch (err: any) {
+            console.error('Resend code failure:', err);
+        } finally {
+            setIsResending(false);
         }
     };
 
@@ -85,6 +129,20 @@ export default function VerifyScreen() {
                             <ActivityIndicator color="#FFF" />
                         ) : (
                             <Text style={styles.buttonText}>Confirm Account</Text>
+                        )}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.resendButton}
+                        onPress={() => { void handleResend(); }}
+                        disabled={cooldown > 0 || isResending}
+                    >
+                        {isResending ? (
+                            <ActivityIndicator size="small" color="#5C4033" />
+                        ) : (
+                            <Text style={[styles.resendButtonText, cooldown > 0 && styles.resendButtonTextDisabled]}>
+                                {cooldown > 0 ? `Resend code in ${cooldown}s` : "Didn't get a code? Resend"}
+                            </Text>
                         )}
                     </TouchableOpacity>
 
@@ -190,8 +248,23 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
-    backButton: {
+    resendButton: {
         marginTop: 20,
+        alignItems: 'center',
+        minHeight: 20,
+        justifyContent: 'center',
+    },
+    resendButtonText: {
+        color: '#5C4033',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    resendButtonTextDisabled: {
+        color: '#9CA3AF',
+        fontWeight: '500',
+    },
+    backButton: {
+        marginTop: 16,
         alignItems: 'center',
     },
     backButtonText: {

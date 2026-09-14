@@ -18,6 +18,7 @@ interface AuthState {
 
     signUp: (payload: SignUpPayload) => Promise<void>;
     confirmSignUp: (code: string) => Promise<boolean>;
+    resendCode: () => Promise<boolean>;
     signIn: (payload: SignInPayload) => Promise<void>;
     signOut: () => Promise<void>;
     checkPersistedSession: () => Promise<void>;
@@ -67,6 +68,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             return false;
         } catch (err: any) {
             set({ error: err.message ?? 'Verification code invalid', isLoading: false });
+            return false;
+        }
+    },
+
+    // Resends the Cognito confirmation code to the email captured at sign-up
+    // time (get().unverifiedEmail). Does not touch isLoading/needsVerification
+    // — this is a side action on the verify screen, not a state transition —
+    // so it won't interfere with the verify button's own loading state.
+    resendCode: async () => {
+        const email = get().unverifiedEmail;
+        if (!email) {
+            set({ error: 'No unverified email session found' });
+            return false;
+        }
+        try {
+            set({ error: null });
+            await authService.resendCode(email);
+            return true;
+        } catch (err: any) {
+            set({ error: err.message ?? 'Failed to resend code' });
             return false;
         }
     },
