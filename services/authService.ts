@@ -1,5 +1,5 @@
 import { Amplify } from 'aws-amplify';
-import { signIn, signOut, signUp, confirmSignUp, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { signIn, signOut, signUp, confirmSignUp, resendSignUpCode, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import amplifyconfig from '@/amplify_outputs.json';
 import { User, SignInPayload, SignUpPayload } from '@/types';
 
@@ -93,6 +93,15 @@ export const authService = {
     } catch (error) {
       console.error('Error fetching current user:', error);
       throw new Error('Not authenticated');
+    }
+  },
+
+  resendCode: async (email: string) => {
+    try {
+      await resendSignUpCode({ username: email.trim().toLowerCase() });
+    } catch (error: any) {
+      console.error('Resend code error:', error);
+      throw error;
     }
   },
 
