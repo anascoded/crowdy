@@ -175,13 +175,6 @@ crowdy/
 
 ## 🔐 Authentication
 
-### AWS Cognito Setup
-- **User Pool ID:** `us-east-2_3bfaUO3G3`
-- **Client ID:** `8gvkunbuu3a8ulqi8u3tuja1t`
-- **Auth Flow:** USER_PASSWORD_AUTH (critical for React Native)
-- **MFA:** Disabled
-- **Password Policy:** Min 8 chars, uppercase, lowercase, numbers, symbols
-
 ### Authentication Flow
 1. User signs up → email verification
 2. Sign in with credentials → session stored in SecureStore
