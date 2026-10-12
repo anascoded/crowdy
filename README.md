@@ -203,7 +203,7 @@ crowdy/
 
 ## 🎨 UI/UX Features
 
-### Design System
+### Design System (TBD)
 - **Primary Color:** #CA3519 (burnt orange)
 - **Secondary Color:** #FAD341 (bright yellow)
 - **Success Color:** #31C950 (green)
