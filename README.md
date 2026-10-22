@@ -54,12 +54,12 @@ Crowdy is a crowd intelligence app that displays live busyness levels and 7-day 
 - **Events Nearby** - Discover events happening in your area
 
 ### Advanced Features
-- 🔄 Real-time synchronization via AWS AppSync
-- 📊 Historical data visualization with react-native-svg
-- 🎨 Beautiful UI with Ionicons & custom styling
-- 🔐 Secure authentication with custom auth flow
-- 📍 Geolocation-based search & filtering
-- ⚡ Optimized data fetching with React Query
+- Real-time synchronization via AWS AppSync
+- Historical data visualization with react-native-svg
+- Beautiful UI with Ionicons & custom styling
+- Secure authentication with custom auth flow
+- Geolocation-based search & filtering
+- Optimized data fetching with React Query
 
 ## 🚀 Getting Started
 
