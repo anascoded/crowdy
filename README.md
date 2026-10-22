@@ -61,7 +61,7 @@ Crowdy is a crowd intelligence app that displays live busyness levels and 7-day 
 - Geolocation-based search & filtering
 - Optimized data fetching with React Query
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js 18+ & npm 9+
