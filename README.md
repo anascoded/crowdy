@@ -2,7 +2,7 @@
 
 A React Native mobile application that displays real-time crowd levels for venues and places, helping users find the perfect time to visit their favorite locations.
 
-## 🎯 Overview
+## Overview
 
 Crowdy is a crowd intelligence app that displays live busyness levels and 7-day historical crowd data for thousands of venues. Users can search for places, save favorites, and make informed decisions about when to visit based on crowd patterns.
 
