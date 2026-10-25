@@ -173,7 +173,7 @@ crowdy/
 └── README.md                     # This file
 ```
 
-## 🔐 Authentication
+## Authentication
 
 ### Authentication Flow
 1. User signs up → email verification
