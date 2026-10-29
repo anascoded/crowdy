@@ -37,7 +37,7 @@ Crowdy is a crowd intelligence app that displays live busyness levels and 7-day 
 - **AsyncStorage** - Local favorites & activity persistence
 - **expo-font** - Custom font loading
 
-## ✨ Features
+## Features
 
 ### Core Features
 - **Live Crowd Meters** - See current busyness percentage with visual indicators (Not Busy, Moderate, Busy, Very Busy)
