@@ -221,7 +221,7 @@ crowdy/
 - Layout animations on favorites filter toggle
 - Custom chart animations with react-native-svg
 
-## 🚢 Deployment
+## Deployment
 
 ### EAS Build (Recommended)
 
