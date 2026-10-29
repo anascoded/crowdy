@@ -108,7 +108,7 @@ Press:
 - `w` for web
 - `r` to reload
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 crowdy/
