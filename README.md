@@ -317,7 +317,7 @@ eas build --platform ios --profile preview
 }
 ```
 
-## 🎯 Key Implementation Details
+## Key Implementation Details
 
 ### Remember Me
 - Credentials stored in `expo-secure-store` (encrypted)
