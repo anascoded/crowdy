@@ -201,7 +201,7 @@ crowdy/
 - **Auth:** AMAZON_COGNITO_USER_POOLS + API_KEY
 - **Operations:** Create, Read, Update, Delete
 
-## 🎨 UI/UX Features
+## UI/UX Features
 
 ### Design System (TBD)
 - **Primary Color:** #CA3519 (burnt orange)
