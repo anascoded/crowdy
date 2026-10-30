@@ -377,7 +377,7 @@ eas build --platform ios --profile preview
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 👤 Author
+## Author
 
 **Crowdy Development Team**
 - GitHub: [@crowdyapp](https://github.com/crowdyapp)
