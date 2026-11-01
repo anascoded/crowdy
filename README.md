@@ -253,7 +253,7 @@ eas build --platform ios --profile preview
 - **Module not found:** Verify `amplify_outputs.json` is in root
 - **Icon issues:** Ensure icons are 1024x1024 PNG with proper formats
 
-## 🔧 Configuration Files
+## Configuration Files
 
 ### `app.json`
 - App metadata (name, version, bundle ID)
