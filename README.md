@@ -384,7 +384,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Email: support@crowdy.app
 - Website: [www.crowdy.app](https://www.crowdy.app)
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Google for Places API
 - Outscraper for crowd data
