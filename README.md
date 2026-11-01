@@ -182,7 +182,7 @@ crowdy/
 4. Automatic session refresh via Cognito tokens
 5. Sign out clears all stored credentials
 
-## 📡 API Integration
+## API Integration
 
 ### Google Places API
 - **Endpoint:** `places-backend.googleapis.com` (Legacy)
