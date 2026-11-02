@@ -278,7 +278,7 @@ eas build --platform ios --profile preview
 - Submission configurations
 - Platform-specific settings
 
-## 📊 Data Models
+## Data Models
 
 ### UserProfile
 ```graphql
