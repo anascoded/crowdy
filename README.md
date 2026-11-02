@@ -365,7 +365,7 @@ eas build --platform ios --profile preview
 - [Zustand Docs](https://github.com/pmndrs/zustand)
 - [Google Places API](https://developers.google.com/maps/documentation/places)
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
