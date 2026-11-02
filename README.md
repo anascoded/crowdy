@@ -339,7 +339,7 @@ eas build --platform ios --profile preview
 - Historical data stored in DynamoDB via AppSync
 - Best time calculation based on future hours
 
-## 🐛 Common Issues & Solutions
+## Common Issues & Solutions
 
 ### Issue: "No development build installed"
 **Solution:** Run `expo run:android` or `expo run:ios`
