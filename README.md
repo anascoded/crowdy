@@ -345,18 +345,18 @@ eas build --platform ios --profile preview
 **Solution:** Run `expo run:android` or `expo run:ios`
 
 ### Issue: "Module not found: expo-google-fonts"
-**Solution:** Remove Poppins font (no custom fonts needed)
+**Solution:** Remove the Poppins font (no custom fonts needed)
 
 ### Issue: "UserAlreadyAuthenticatedException"
 **Solution:** Call `signOut()` before `signIn()` in authService
 
 ### Issue: "Cannot find module amplify_outputs.json"
-**Solution:** Ensure file is in project root and committed to git
+**Solution:** Ensure the file is in the project root and committed to git
 
 ### Issue: Splash screen shows indefinitely
 **Solution:** Check `SplashScreen.hideAsync()` is called in `_layout.tsx`
 
-## 📚 Resources
+## Resources
 
 - [Expo Documentation](https://docs.expo.dev)
 - [AWS Amplify Docs](https://docs.amplify.aws)
